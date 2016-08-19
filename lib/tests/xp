@@ -1,0 +1,56 @@
+#!/usr/bin/perl -w
+
+use lib "/www/Gform/sshop/lib/";
+use lib "/www/Gform/lib";
+use Date::Calc qw(Delta_Days Add_Delta_Days Week_of_Year Today Monday_of_Week);
+use Data::Dumper;
+use sshop_part;
+use Debug;
+
+Debug::Set_Debug(1, "text");
+my @date = Today();
+   my ($start_wk, $y) = Week_of_Year(@date);
+my $num_wk =10;
+my ($this_ref, $bd_ref)   = sshop_part::get_Preferred_Dates();
+my %this   = %{$this_ref};
+my %bdates = %{$bd_ref};
+
+my $un_ref = sshop_part::get_NoRestCounts($start_wk, $y, $num_wk);
+my %un   = %{$un_ref};
+
+
+#print Dumper(%this);
+#my $twk ="2013-W19";
+#print "2013-W19 --> 1st pref \n";
+#my %p1 = %{$this{"1"}};
+#print Dumper(%p1);
+#print " ids for 1pref in wee $twk ", "xx[", @{$p1{$twk} }, "]xx\n";
+#print  @{ ${$this{"1"}{"2013-19"}} };
+#print "\n";
+#exit;
+printf "%9s %4s %4s %4s %4s %4s\n", "week", "bk",  "p1", "p2", "p3", "p-un";
+
+foreach my $w ( $start_wk .. $start_wk+$num_wk-1)
+{
+    my $iso_wk = sshop_part::ISOWeek($y,$w);
+    my $nb = defined $bdates{$iso_wk}
+           ? scalar @{$bdates{$iso_wk}}
+           : 0;
+    my @np = ();
+    my $nun = 0;
+    foreach my $i (1,2,3)
+    {
+        my %p1 = %{$this{$i}};
+ 
+        $np[$i] = defined   $p1{$iso_wk}
+                ? scalar @{ $p1{$iso_wk}} 
+                : 0;
+        $nun = defined   $un{$iso_wk}
+             ? scalar @{ $un{$iso_wk}} 
+             : 0;
+        
+ 
+ #       print "$iso_wk    $np  \n";      
+    }
+    printf "%9s %4d %4d %4d %4d %4d\n", $iso_wk, $nb, $np[1], $np[2], $np[3], $nun; 
+}

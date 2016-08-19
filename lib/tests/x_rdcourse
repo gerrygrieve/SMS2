@@ -1,0 +1,87 @@
+#!/usr/bin/perl -w
+
+use lib "/www/Gform/sshop/lib/";
+use lib "/www/Gform/lib";
+use Date::Calc qw(Delta_Days Add_Delta_Days Week_of_Year Today Monday_of_Week);
+use Data::Dumper;
+use sshop_part;
+use Debug;
+
+Debug::Set_Debug(1, "text");
+my @date = Today();
+my $tweek ="2013-W20";
+do_Save_Course($tweek);
+#do_Save_Course2($tweek);
+exit;
+
+foreach my $week ( qw(2013-W34 2013-W20) )
+{
+   my %coursedata = sshop_part::get_Course_Data($week);
+    if ( %coursedata)
+    {
+ #       Print_Course(%coursedata);
+         print Dumper (%coursedata);
+    } else
+    {
+        print "no course $week\n";
+        $coursedata{wnum} = $week;
+    }
+}
+sub do_Save_Course2
+{
+    my $iso_wk = shift;
+    my $inst = "the One & Only Instructor";
+    my %names = ();
+    Debug::dsay("do_Save_Course2..week {$iso_wk} ");
+    my $id =106;
+    foreach my $p ( "Frank Lee", "Breanda Lee" )
+    {
+       $id++;
+       my $name = $p;
+       $names{$id}= $name;   
+    }
+    sshop_part::save_Course($iso_wk, $inst, %names);
+    Debug::dsay("do_Save_Course2..week {$iso_wk} ");
+}
+sub do_Save_Course
+{
+    my $iso_wk = shift;
+    my $inst = "the Istructor";
+    my %names = ();
+    Debug::dsay("Admin::Save_Course..week {$iso_wk} ");
+    my $id =101;
+    foreach my $p ( "Darth Vader", "Luke Skywalker" )
+    {
+       $id++;
+       my $name = $p;
+       $names{$id}= $name;   
+    }
+    sshop_part::save_Course($iso_wk, $inst, %names);
+    Debug::dsay("do_Save_Course..week {$iso_wk} ");
+}
+
+sub Print_Course
+{
+    my %data = @_;
+    my $tab =" "x4;
+    my @today = Today();
+    my $tod = sprintf "%4d-%2.2d-%2.2d", @today;
+       Debug::dsay("Print_course {$tod} ");
+    print "<course>\n";
+    print "$tab<wnum>$data{wnum}</wnum>\n";
+    print "$tab<instructor>$data{instructor}</instructor>\n" if $data{instructor};
+    if ( @{$data{apps}})
+    {
+        foreach my $app ( @{$data{apps}})
+        {
+            print "$tab<app>\n";
+            my %ap = %{ $app };
+            print "$tab$tab<id>$ap{id}</id>\n";
+            print "$tab$tab<name>$ap{name}</name>\n";            
+            print "$tab$tab<booked_date>$tod</booked_date>\n";
+            print "$tab</app>\n";
+        }
+ 
+    }
+    print "</course>\n";  
+}

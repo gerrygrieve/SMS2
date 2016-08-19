@@ -1,0 +1,117 @@
+#!/usr/bin/perl
+
+use lib "/www/Gform/sshop/lib/";
+use Data::Dumper;
+use Date::Calc qw( Add_Delta_Days Today Monday_of_Week Week_of_Year);
+use sshop_part;
+use lib "/www/Gform/lib/";
+use Debug;
+my @fn = get_firstnames();
+my @sn = get_surnames();
+
+print "mknames .. \n";
+my $d = Debug::Set_Debug(10, "text");
+
+my @today = Today();
+
+my ($wnum, $dum) = Week_of_Year(@today);
+
+print "Today's week num is $wnum \n";
+   my $start_wk = 2;
+   my $num_wk   =  16;
+my $num_part = 14;
+foreach  my $ii (1 .. $num_part)
+{
+   Debug::dsay (" mk names ::for $ii.. \n");
+   my $t = sshop_part::new();
+   my $f = $fn[rand(@fn)];
+   my $s = $sn[rand(@sn)];
+   $t->{full_name} = $f . "  " . $s;
+   $t->{email}     =  'grieve@phas.ubc.ca';
+   $t->{UBC_id}    =  time();
+  
+   my @choosen_dates = ();
+
+   foreach my $jj ( 1..3)
+   {
+      my $w = int(rand($num_wk) + $start_wk);
+      my @monday =  Monday_of_Week($w,2013);
+      my @fri = Add_Delta_Days(@monday,4);
+      my $isom = sprintf "%4.4d-%2.2d-%2.2d", @monday;
+      my $isof = sprintf "%4.4d-%2.2d-%2.2d", @fri;
+      next if (grep /$w/,@choosen_dates);
+      my $value = "week # $w: $isom - $isof";
+      $tag = "preferred_week_".$jj;
+      $t->{$tag} = $value;
+      Debug::dsay (" mk names ::working week $w\n");
+      push @choosen_dates, $w;
+   }
+   sshop_part::save( $t);
+}
+   exit;
+## restricted dates -- 30% have no restrictions; 
+   foreach my $jj ( 1..3)
+   {
+       last if (int(rand(9)+1) < 7 );
+## chose a week between week 18 & week 36
+       my $iso = "";
+       while (1)
+       {
+          my $w =  int(rand($num_wk) + $start_wk);
+          my @Tues = Add_Delta_Days(Monday_of_Week($w,2012),1);
+          $iso = sprintf "%4.4d-%2.2d-%2.2d", @Tues;
+          last if (! grep /$iso/,@choosen_dates);
+       }
+       $tag = "unavailable_week_".$jj;
+       $t->{$tag} = $iso;
+       Debug::dsay (" $tag -> $iso");
+       push @choosen_dates, $iso;
+   }
+#   Debug::dsay (" call  sshop_part::save");
+ #  sshop_part::save( $t);
+#}
+#print join "\n", @sn;
+
+sub get_firstnames
+{
+   my $fnames = "firstnames.txt";
+   open (F, $fnames) || die "cannot open $fnames \n";
+   my @fnames =();
+   { local $/ = "\n";
+   while (<F>)
+   {
+      my ($n, $name1, $name2) = split;
+      push @fnames, $name1, $name2;
+   }
+   }
+   return @fnames;
+}
+     
+sub get_surnames
+{
+   my $snames = "surnames.txt";
+   open (F, $snames) || die "cannot open $snames \n";
+   my @fnames=();
+   { local $/ = "\n";
+   while (<F>)
+   {
+      my @f = split; 
+      push @fnames, $f[1];
+   }
+   }
+   return @fnames;
+}
+
+sub saveit
+{
+    my $href = shift;
+    my %hash = %{$href};
+
+    print "new part ... \n";
+    foreach my $t ( keys %hash )
+    {
+       print "key {$t} value { $hash{$t} } \n";
+    }
+     print "new part ...exiting  \n";
+    return;
+}

@@ -1,0 +1,42 @@
+#!/usr/bin/perl -w
+
+use lib "/www/Gform/sshop/lib/";
+use lib "/www/Gform/lib";
+use Date::Calc qw(Delta_Days Add_Delta_Days Week_of_Year Today Monday_of_Week);
+use sshop_part;
+use Data::Dumper;
+use Debug;
+
+Debug::Set_Debug(1, "text");
+my $week =2;
+
+
+my $dot  = sshop_part::get_WeekData($week);
+my %dd = %{$dot};
+
+
+print ("dump the data is dd\n");
+
+foreach my $ww ( keys %{$dd{$week}}) { print " pweek # $ww  -- @{$dd{$week}{$ww}} \n";}
+
+
+
+   foreach my $ii qw ( 1 2 3 )
+    {
+       my $napps =  @{$dd{$week}{$ii}};
+       print "napps for pweek $ii is {$napps}\n";
+       next unless $napps . 0;
+       foreach my $app ( @{$dd{$week}{$ii}} )
+       {
+           my $id = $1 if $app =~ s/\s+(\d+)//;
+           my $v = $app . " ID=$id";
+ 
+          
+          print "my perosn is {$v} \n";
+       }
+    }
+
+
+    
+exit;
+

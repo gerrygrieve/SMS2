@@ -1,0 +1,30 @@
+#!/usr/bin/perl
+
+use lib "/www/Gform/SMS/lib";
+
+use course_metadata;
+
+    my $cour_sked = get_course_sked();
+    my %course_dates = %{$cour_sked};
+
+foreach my $d ( keys  %course_dates) {
+    print "$d == $course_dates{$d}\n";    
+}
+
+sub get_course_sked {
+
+	my $data = course_metadata::get_Course_Data_json();
+	my @courses = @{$data->{course_data}};
+	my %out = ();
+	foreach my $c (  @courses ) {
+		my $modnum = $c->{num};
+		
+		my @dates = @{$c->{date_upcoming}};
+		foreach my $up ( @dates ) {
+			$value = $up;
+			$out{$up} = "Mod #" . $modnum; 
+		}
+	}
+    return \%out;    
+    
+}

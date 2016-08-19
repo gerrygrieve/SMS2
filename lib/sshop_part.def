@@ -1,0 +1,99 @@
+<sms_person>
+
+<tag>
+    <tname>ID</tname> 
+    <rank>106</rank>
+</tag>
+
+<tag>
+   <tname>full_name</tname>
+    <prompt>Full Name</prompt>
+ <input>
+        <type>text</type>
+        <nchar>40</nchar>
+        <maxchar>60</maxchar>
+    </input>
+    <rank>116</rank>
+</tag>
+
+<tag>
+   <tname>UBC_id</tname>
+    <prompt>Student/Staff Number</prompt>
+ <input>
+        <type>text</type>
+        <nchar>10</nchar>
+        <maxchar>14</maxchar>
+    </input>
+     <rank>118</rank>
+</tag>
+
+<tag>
+    <tname>email</tname>
+    <prompt>email</prompt>
+    <input>
+        <type>text</type>
+        <nchar>40</nchar>
+        <maxchar>60</maxchar>
+    </input>
+    <rank>136</rank>
+</tag>
+
+<tag>
+    <tname>phone</tname>
+    <prompt>Phone</prompt>
+    <input>
+        <type>text</type>
+        <nchar>40</nchar>
+        <maxchar>60</maxchar>
+    </input>
+    <rank>146</rank>
+</tag>
+
+<tag>
+   <tname>comment</tname>
+    <prompt>Student's Comment</prompt>
+    <input>
+       <type>textarea</type>
+       <nrow>5</nrow>
+       <ncol>60</ncol>
+    </input>
+    <rank>226</rank>
+</tag>
+
+<tag>
+    <tname>supervisor</tname>
+    <prompt>Supervisor</prompt>
+    <input>
+        <type>text</type>
+        <nchar>40</nchar>
+        <maxchar>60</maxchar>
+    </input>
+    <rank>166</rank>
+</tag>
+
+<tag>
+    <tname>speedchart</tname>
+    <prompt>Speedchart</prompt>
+    <cat>admin</cat>
+    <input>
+        <type>text</type>
+        <nchar>40</nchar>
+        <maxchar>60</maxchar>
+    </input> 
+    <rank>167</rank>
+</tag>
+
+<tag>
+    <tname>AdComments</tname>
+    <prompt>Admin's Comment</prompt>
+    <cat>admin</cat>
+  <input>
+       <type>textarea</type>
+       <nrow>5</nrow>
+       <ncol>60</ncol>
+    </input>
+    <rank>419</rank>
+</tag>
+</sms_person>
+
+

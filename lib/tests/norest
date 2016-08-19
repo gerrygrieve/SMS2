@@ -1,0 +1,20 @@
+#!/usr/bin/perl -w
+
+use lib "/www/Gform/sshop/lib/";
+use lib "/www/Gform/lib";
+use Date::Calc qw(Delta_Days Add_Delta_Days Week_of_Year Today Monday_of_Week);
+use sshop_part;
+use Data::Dumper;
+use Debug;
+
+Debug::Set_Debug(1, "text");
+my $week = 2;
+
+
+
+my %x = sshop_part::get_NoRestrict_Apps($week);
+
+foreach my $i (keys %x)
+{
+     print "id -->$i  $x{$i} \n";
+}

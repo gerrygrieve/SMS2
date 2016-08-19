@@ -1,0 +1,28 @@
+#!/usr/bin/perl -wT
+
+use lib "/www/Gform/sshop/lib/";
+#use lib "/www/Gform/lib";
+use sshop_part;
+#use Date::Calc qw(Delta_Days Add_Delta_Days Week_of_Year);
+
+
+my @start = (2012,10,16);
+foreach my $i ( 0..5)
+{
+   print "i is $i xxxxxxxxxxxxxxxxxx\n";
+   my @out = sshop_part::get_weeklist(6, @start);
+   print join "\n", @out;
+}
+exit;
+foreach my $i ( 0..6 )
+{
+    my $weeknum = Week_of_Year(@start);
+    my $iso = sprintf "%4d-%2.2D-%2.2d", @start;
+
+   
+    @fri =  Add_Delta_Days(@start,3);
+    my $fso = sprintf "%4d-%2.2D-%2.2d", @fri;
+    @start =  Add_Delta_Days(@start,7);
+ print "week: $weeknum Tues: $iso Fri: $fso\n";
+
+}

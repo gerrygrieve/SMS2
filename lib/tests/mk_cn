@@ -1,0 +1,19 @@
+#!/usr/bin/perl -w
+
+use lib "/www/Gform/sshop/lib/";
+use lib "/www/Gform/lib";
+use Date::Calc qw(Delta_Days Add_Delta_Days Week_of_Year Today Monday_of_Week);
+use Data::Dumper;
+use sshop_part;
+use Debug;
+
+Debug::Set_Debug(1, "text");
+
+ my $id =38;
+ foreach my $id ( 38, 99, 101,909)
+ {
+     my $cn = sshop_part::confirmationnumber($id);
+     my $i2 = sshop_part::cn2id($cn);
+     print "id {$id} cm {$cn} restored id {$i2}}\n";
+ }
+# my $cn = sshop_part::confirmationnumber($id);

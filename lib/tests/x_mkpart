@@ -1,0 +1,19 @@
+#!/usr/bin/perl -wT
+
+use lib "/www/Gform/sshop/lib/";
+use lib "/www/Gform/lib";
+
+use Date::Calc qw(Delta_Days Add_Delta_Days Week_of_Year);
+use Debug;
+use sshop_part;
+use Data::Dumper;
+Debug::Set_Debug(1,"ansi");
+
+Debug::dsay("this is x_mkpart by id");
+
+
+    my $part  = sshop_part::new();
+  $part->{fullname} = "betty Boop";
+
+    my $err = sshop_part::save( $part);
+

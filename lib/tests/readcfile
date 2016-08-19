@@ -1,0 +1,26 @@
+#!/usr/bin/perl -w
+
+use lib "/www/Gform/sshop/lib/";
+use lib "/www/Gform/lib";
+use Date::Calc qw(Delta_Days Add_Delta_Days Week_of_Year Today Monday_of_Week);
+use Data::Dumper;
+use sshop_part;
+use Debug;
+
+Debug::Set_Debug(1, "text");
+my $wnum = "w4";
+my $year = 2013;
+
+my %chash = sshop_part::get_One_Course($wnum,$year);
+
+exit;
+  my $cfile = sshop_part::course_name($week, $year);
+
+   {
+      open (CF,$cfile) || die "Cannot open $cfile \n"; 
+      local ( $/ );
+      $cdata = <CF>;
+      close CF;   
+    }
+
+print " file contents: \n$cdata";

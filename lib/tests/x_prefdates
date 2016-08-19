@@ -1,0 +1,74 @@
+#!/usr/bin/perl -w
+
+use lib "/www/Gform/sshop/lib/";
+use lib "/www/Gform/lib";
+use Date::Calc qw(Delta_Days Add_Delta_Days Week_of_Year Today Monday_of_Week);
+use Data::Dumper;
+use sshop_part;
+use Debug;
+
+Debug::Set_Debug(1, "text");
+my @date = Today();
+   my ($start_wk, $yr) = Week_of_Year(@date);
+   $start_wk = 21;
+my $num_wk = 5;
+my ($this_ref, $bd_ref)   = sshop_part::get_Preferred_Dates();
+
+my %this   = %{$this_ref};
+my %bdates = %{$bd_ref};
+my %edata  =  sshop_part::get_Data_by_ID();
+
+foreach my $wk ( $start_wk .. $start_wk+$num_wk-1) 
+
+# test one week 2013_W22
+{
+       $iso_wk = sshop_part::ISOWeek($yr,$wk);
+ #   my $iso_wk = "2013-W22";
+    my $nb = defined $bdates{$iso_wk}
+          ? scalar @{$bdates{$iso_wk}}
+          : 0;
+    foreach my $i (1,2,3)
+    {
+        my %p1 = %{$this{$i}};
+        $np[$i] = defined $p1{$iso_wk}
+               ? scalar @{ $p1{$iso_wk}} 
+               : 0;
+        next if $np[$i] == 0;
+        foreach my $id (@{ $p1{$iso_wk} } )
+        {
+            my $app = $edata{$id};
+            my $name = $app->{full_name};
+       #     print " Nam is {$name}\n";
+        }
+
+   #     print "P{$i}:: ", join ",  ", @{ $p1{$iso_wk} }, "\n";
+    }
+    printf "%5s %4d %4d %4d %4d \n", $iso_wk, $nb, $np[1], $np[2], $np[3];
+
+}
+exit;
+
+
+#printf "%5s %4s %4s %4s \n", "week",  "book", "p1", "p2", "p3";
+#foreach my $w 
+#{
+#    my $iso_wk = sshop_part::ISOWeek($y,$w);
+#    my $nb = defined $bdates{$iso_wk}
+#          ? scalar @{$bdates{$iso_wk}}
+#          : 0;
+#    my @np =();
+#    my %idx =();
+#    foreach my $i (1,2,3)
+#    {
+#  
+#        my %p1 = %{$this{$i}};
+#  
+#        $np[$i] = defined $p1{$iso_wk}
+#              ? scalar @{ $p1{$iso_wk}} 
+#              : 0;
+#    
+#    }
+#    printf "%5s %4d %4d %4d %4d \n", $iso_wk, $nb, $np[1], $np[2], $np[3]; 
+#}
+#exit;
+

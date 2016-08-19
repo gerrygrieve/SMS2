@@ -1,0 +1,27 @@
+#!/usr/bin/perl -w
+
+use lib "/www/Gform/sshop/lib/";
+use lib "/www/Gform/lib";
+use Date::Calc qw(Delta_Days Add_Delta_Days Week_of_Year Today Monday_of_Week);
+use Data::Dumper;
+use sshop_part;
+use Debug;
+
+Debug::Set_Debug(1, "text");
+my $week =2;
+
+my %rest =();
+my %cdata = sshop_part::get_One_Course($week);
+
+my $wnum = $cdata{wnum};
+print "Course data for $wnum\n";
+foreach my $ahash  (  @{$cdata{apps}} )
+{
+    foreach my $t ( keys %{$ahash})
+    {
+        print "key $t value  ${$ahash}{$t} \n";
+    }
+}
+ 
+ 
+exit;

@@ -1,0 +1,4 @@
+This is a welcome test.
+<br />
+It is the contents of the file
+</strong>/var/www/html/Gform/sshop/lib/welcome.txt</strong>

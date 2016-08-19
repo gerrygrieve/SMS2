@@ -1,0 +1,49 @@
+#!/usr/bin/perl -w
+
+use lib "/www/Gform/sshop/lib/";
+use lib "/www/Gform/lib";
+use Date::Calc qw(Delta_Days Add_Delta_Days Week_of_Year Today Monday_of_Week);
+use Data::Dumper;
+use sshop_part;
+use Debug;
+
+Debug::Set_Debug(1, "text");
+my $week =2;
+
+my %rest =();
+my %apps = sshop_part::get_Data_by_ID();
+
+   foreach my $ii qw ( 1 2 3 )
+    {
+        print "\nprefered week # $ii\n";
+       my $t = "preferred_week_".$ii;
+       foreach my $id ( keys %apps)
+       {
+           next unless $apps{$id}->{$t};
+           my $wnum = $1 if ( $apps{$id}->{$t} =~ /week # (\d+)/ );
+           next unless $wnum == $week;
+           my $name = $apps{$id}->{full_name};
+           my $bd = $apps{$id}->{booked_date}  ? $apps{$id}->{booked_date} : "not booked";
+           print "$id --> $name   -- $bd\n";
+           $rest{$id}++;
+    
+        } 
+       
+   
+#         my $xx = $q->submit(-name=>'View App',-value=>$v);
+#           my $yy = $q->checkbox(-name=>"book-$app",
+ #                                -label=>"",
+  #                               -checked=>0);
+  #        $out .=  qq{  <td> $xx </td> <td>$yy</td></tr>};
+       
+    }
+    print "\nno restrictions/preference \n";
+    foreach my $id ( keys %apps)
+    {
+        next if $rest{$id};
+        my $name = $apps{$id}->{full_name};
+        my $bd = $apps{$id}->{booked_date}  ? $apps{$id}->{booked_date} : "not booked";
+        print "$id --> $name   -- $bd\n";
+        
+    } 
+exit;

@@ -1,0 +1,40 @@
+#!/usr/bin/perl -w
+
+use lib "/www/Gform/sshop/lib/";
+use lib "/www/Gform/lib";
+use Date::Calc qw(Delta_Days Add_Delta_Days Week_of_Year Today Monday_of_Week);
+use Data::Dumper;
+use sshop_part;
+use Debug;
+
+Debug::Set_Debug(1, "text");
+my $week =2;
+
+my @apps =  sshop_part::get_Data();
+@apps = sort_by_ID (@apps);
+
+foreach my $a (@apps)
+{
+    my $x = $a->{full_name};
+    my $id = $a->{ID};
+    print "app: $x -$id\n";
+    
+}
+exit;
+sub sort_by_ID {
+    
+    my @array = @_;
+    my @sorted = ();
+    my %temp = ();
+    foreach my $a (@array)
+    {
+        my $id = $a->{ID};
+	$temp{$id}=$a;
+    }
+
+    foreach $i (sort {$a <=> $b} keys %temp)
+    {
+	push @sorted, $temp{$i};
+    }
+    return @sorted;
+}

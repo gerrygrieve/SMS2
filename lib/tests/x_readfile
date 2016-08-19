@@ -1,0 +1,27 @@
+#!/usr/bin/perl -w
+
+use lib "/www/Gform/sshop/lib/";
+use lib "/www/Gform/lib";
+use Date::Calc qw(Delta_Days Add_Delta_Days Week_of_Year Today Monday_of_Week);
+use Data::Dumper;
+use sshop_part;
+use Debug;
+
+Debug::Set_Debug(1, "text");
+my $week =2;
+
+my $file = "1.xml";
+my $part = sshop_part::rd_file($file);
+
+#print Dumper($part);
+
+foreach my $tag  (qw (ID full_name) )
+{
+    print "$tag --> $part->{$tag} \n ";
+
+}
+
+ 
+    
+exit;
+

@@ -1,0 +1,59 @@
+#!/usr/bin/perl
+
+use lib "/www/Gform/sshop/lib/";
+use Data::Dumper;
+use Date::Calc qw( Add_Delta_Days Today Monday_of_Week Week_of_Year);
+use sshop_part;
+use lib "/www/Gform/lib/";
+use Debug;
+
+print "mknames .. \n";
+my $d = Debug::Set_Debug(10, "text");
+
+
+my @names = ("Ansel Adams", "Beetle Bailey", "Chatty Cathy");
+ my $i = 0;
+foreach  my $n (@names)
+{
+   Debug::dsay (" mk names ::for $n.. \n");
+   my $t = sshop_part::new();
+ 
+   $t->{full_name} = $n;
+   $t->{email}     =  'grieve@phas.ubc.ca';
+   $t->{UBC_id}    =  time();
+   my $sw = 21 + $i;
+   $i++;
+ 
+   foreach my $jj ( 1..3)  
+   {
+      my $tag = "preferred_week_".$jj;
+      my $wnum = $sw + $jj -1 ;
+      
+      my @mon = Monday_of_Week($wnum,2013);
+      my @tues = Add_Delta_Days( @mon, 1);
+      my @fri  = Add_Delta_Days( @mon, 4);
+      my $mon = sprintf("%4d-%2.2d-%2.2d", @mon);
+      my $fri = sprintf("%4d-%2.2d-%2.2d", @fri);
+      my $iso_wk = "week # $wnum: $mon - $fri";
+      $t->{$tag} = $iso_wk;
+   }
+
+   sshop_part::save( $t);
+}
+   exit;
+
+
+
+sub saveit
+{
+    my $href = shift;
+    my %hash = %{$href};
+
+    print "new part ... \n";
+    foreach my $t ( keys %hash )
+    {
+       print "key {$t} value { $hash{$t} } \n";
+    }
+     print "new part ...exiting  \n";
+    return;
+}

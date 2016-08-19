@@ -1,0 +1,15 @@
+body { 
+background: #FFFFFF; 
+font-family: verdana,arial,helvetica,sans-serif; 
+font-size: medium; 
+color: black;
+margin-left: 0.5in; margin-right: 0.5in;
+}
+
+table { border-collapse: collapse; }
+table, th, td { border: 2px solid blue; } 
+td.notok { background-color: #FF6666;
+         }
+
+
+

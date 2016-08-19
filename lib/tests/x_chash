@@ -1,0 +1,20 @@
+#!/usr/bin/perl -wT
+
+use lib "/www/Gform/sshop/lib/";
+use lib "/www/Gform/lib";
+
+
+use Debug;
+use sshop_part;
+use Data::Dumper;
+Debug::Set_Debug(1,"ansi");
+
+Debug::dsay("this is x_chash");
+
+my $week = "2012-05-18";
+my %im = sshop_part::get_One_Course($week);
+
+print Dumper(%im);
+
+print "\n\n that's all fols\n";
+

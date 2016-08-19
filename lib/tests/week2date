@@ -1,0 +1,31 @@
+#!/usr/bin/perl -w
+
+use lib "/www/Gform/sshop/lib/";
+
+use Date::Calc qw(Delta_Days Add_Delta_Days Week_of_Year Today Monday_of_Week);
+use sshop_part;
+    my $start_wk = 2;
+    my $num_wk = 16;
+    my $year = 2013;
+  
+    foreach my $w ( $start_wk .. $start_wk+$num_wk-1)
+    {
+       my $tday = get_Tues_date($w,$year);
+    
+       print "$w  $tday\n";
+    }
+   
+sub get_Tues_date
+{
+    use Date::Calc qw( Add_Delta_Days  Monday_of_Week);
+
+    my $wnum = shift;
+    my $year = shift;
+  
+    @td = Add_Delta_Days(Monday_of_Week($wnum,$year),1);
+    my $out = sprintf "%4.4d-%2.2d-%2.2d", @td;
+    return $out;
+}
+    
+exit;
+

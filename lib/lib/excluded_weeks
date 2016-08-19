@@ -1,0 +1,38 @@
+<dates>
+   <start_date>2016-12-01</start_date>
+   <last_date>2016-12-28</last_date>
+   <excluded_weeks>
+   <exweek>
+   	<date>2013-05-20</date>
+   	<comment>vicky's bday</comment>
+   </exweek>
+   <exweek>
+   	<date>2013-04-01</date>
+  	 <comment>Easter Monday</comment>
+   </exweek>
+   <exweek>
+   	<date>2013-10-10</date>
+   	<comment>Thanksgiving</comment>
+   </exweek>
+   <exweek>
+   <date>2013-07-01</date>
+   <comment>Canada's day</comment>
+   </exweek>
+   <exweek>
+   <date>2016-09-05</date>
+   <comment>Labour Day</comment>
+   </exweek>
+   <exweek>
+   <date>2013-03-29</date>
+   <comment>Good Friday</comment>
+   </exweek>
+   <exweek>
+   <date>2016-11-11</date>
+   <comment>Remebrance</comment>
+   </exweek>
+   <exweek>
+   <date>2013-08-05</date>
+   <comment>BC Day</comment>
+   </exweek>
+   </excluded_weeks>
+</dates>

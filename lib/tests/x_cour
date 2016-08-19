@@ -1,0 +1,39 @@
+#!/usr/bin/perl -w
+
+
+use lib "/www/Gform/sshop/lib/";
+use lib "/www/Gform/lib";
+use Date::Calc qw(Delta_Days Add_Delta_Days Week_of_Year Today Monday_of_Week);
+use Data::Dumper;
+use sshop_part;
+use Debug;
+Debug::Set_Debug(1, "text");
+
+my $iso_wk = "2013-W21";
+my $id = 4;
+my %data = sshop_part::get_Course_Data($iso_wk);
+print "Dump the data ... \n";
+print Dumper(%data);
+
+delete_id($id);
+
+sub delete_id
+{
+    my $id = shift;
+    my @apps = @{$data{apps}};
+    my @keep_apps = ();
+    foreach my $i (0 ..$#apps)
+    {
+        my $app = $apps[$i];
+        print "index is now $i  $app->{id}\n";
+	next if $app->{id} == $id;
+        push @keep_apps, $apps[$i];
+    
+    }
+    @{$data{apps}} = @keep_apps;
+         print "print the modified data\n";
+            print Dumper(%data);   
+
+}
+
+##sshop_part::update_course_record($iso_wk, $id, "Delete");

@@ -1,0 +1,19 @@
+#!/usr/bin/perl -wT
+
+use lib "/www/Gform/sshop/lib/";
+use lib "/www/Gform/lib";
+
+use Date::Calc qw(Delta_Days Add_Delta_Days Week_of_Year);
+use Debug;
+use sshop_part;
+use Data::Dumper;
+Debug::Set_Debug(1,"ansi");
+
+Debug::dsay("this is show invite");
+
+my $im = sshop_part::get_InviteMessage();
+
+    print $im;
+
+print "\n\n that's all fols\n";
+

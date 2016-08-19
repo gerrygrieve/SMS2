@@ -1,0 +1,84 @@
+#!/usr/bin/perl -wT
+
+use lib "/www/Gform/sshop/lib/";
+use lib "/www/Gform/lib";
+
+use Date::Calc qw(Delta_Days Add_Delta_Days Week_of_Year);
+use Debug;
+use sshop_part;
+use Data::Dumper;
+Debug::Set_Debug(1,"ansi");
+
+Debug::dsay("this is get_data by id");
+
+
+my %edata =  sshop_part::get_Data_by_ID();
+
+foreach my $k ( sort keys %edata )
+{
+   print " key  is $k \n";
+   my $es = $edata{$k};
+   my $name = $es->{full_name};
+   my $email = $es->{email};
+
+   print " $name --> $email \n";
+   
+}
+exit;
+
+
+#print Dumper(%el_info);
+
+#print "element info is\n";
+
+my @date = @Start;
+
+while ( Delta_Days( @date,@Slast) >= 0 )
+{
+    my $com = "";
+    my $d = sprintf "%4d-%2.2d-%2.2d", @date;
+    $com = " <-- holiday " if grep /$d/, (keys %eweeks);
+    print "$d $com \n";
+    @date = Add_Delta_Days(@date,7);
+}
+
+foreach my $t ( sort  byISO keys %eweeks  )
+{
+    my @date = (split "-",$t);
+    my $w = Week_of_Year(@date);
+    my $value= $eweeks{$t};
+   
+    print "tag {$t} comment {$value} week {$w}  \n";
+   
+}
+exit;
+sub byISO
+{
+    my ($ay, $am, $ad);
+    my ($by, $bm, $bd);
+   
+    if ( $a =~ /(\d\d\d\d)-(\d\d)-(\d\d)/)
+    {
+	$ay = $1;
+        $am = $2;
+        $ad = $3;
+    } else
+    {  	$ay = $am = $ad = 0 ;
+    }
+    if ( $b =~ /(\d\d\d\d)-(\d\d)-(\d\d)/)
+    {
+	$by = $1;
+        $bm = $2;
+        $bd = $3;
+    } else
+    {  	$by = $bm = $bd = 0 ;
+    }
+
+    $ay <=> $by ||
+    $am <=> $bm ||
+    $ad <=> $bd;
+}
+
+
+
+

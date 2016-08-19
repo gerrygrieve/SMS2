@@ -1,0 +1,19 @@
+#!/usr/bin/perl -wT
+
+use lib "/www/Gform/sshop/lib/";
+use lib "/www/Gform/lib";
+
+use Date::Calc qw(Delta_Days Add_Delta_Days Week_of_Year);
+use Debug;
+use sshop_part;
+use Data::Dumper;
+Debug::Set_Debug(1,"ansi");
+
+#my @t = sshop_part::get_Data();
+#print Dumper(@t);
+#exit;
+foreach my $app ( sshop_part::get_Data() )
+{
+   print $app->ID,"  : ",  $app->full_name;
+   print "\n";
+}

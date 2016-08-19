@@ -1,0 +1,39 @@
+#!/usr/bin/perl -w
+
+use lib "/www/Gform/sshop/lib/";
+use lib "/www/Gform/lib";
+use Date::Calc qw(Delta_Days Add_Delta_Days Week_of_Year Today Monday_of_Week);
+use Data::Dumper;
+use sshop_part;
+use Debug;
+
+Debug::Set_Debug(1, "text");
+my @date = Today();
+my ($start_wk, $y) = Week_of_Year(@date);
+$start_wk = 26;
+my $num_wk =1;
+
+my $un_ref = sshop_part::get_NoRestCounts($start_wk, $y, $num_wk);
+my %un =%{$un_ref};
+print Dumper(%un);
+#list the ids in a week
+my $iso_wk ="2013-W26";
+my @ids = @{$un{$iso_wk}};
+
+foreach my $id ( @ids )
+{
+    print "id is {$id} \n";
+}
+
+#print Dumper(%un);
+
+foreach my $w ( $start_wk .. $start_wk+$num_wk-1)
+{
+    my $iso_wk = sshop_part::ISOWeek($y,$w);
+    my $np = defined   $un{$iso_wk}
+           ? scalar @{ $un{$iso_wk}} 
+           : 0;
+       print "$iso_wk    $np  \n";      
+    
+
+}

@@ -1,0 +1,36 @@
+#!/usr/bin/perl -w
+
+use lib "/www/Gform/sshop/lib/";
+use lib "/www/Gform/lib";
+use Date::Calc qw(Delta_Days Add_Delta_Days Week_of_Year Today Monday_of_Week);
+use Data::Dumper;
+use sshop_part;
+use Debug;
+
+Debug::Set_Debug(1, "text");
+
+
+my $iso_wk ="2013-W22";
+my %edata  =  sshop_part::get_Data_by_ID();
+my ($this_ref, $bd_ref)   = sshop_part::get_Preferred_Dates();
+#    my $un_ref = sshop_part::get_NoRestCounts($start_wk, $y, $num_wk);
+#    my %un =%{$un_ref};
+my %this   = %{$this_ref};
+my %bdates = %{$bd_ref};
+
+  foreach my $ii qw ( 1 2 3 )			    #loop over the preferred weeks
+    {
+	my %p1 = %{$this{$ii}};
+        foreach my $id (@{ $p1{$iso_wk} } )
+	{
+            print "ii is {$ii} kid is {$id}";
+            my $app = $edata{$id};
+            my $name = $app->{full_name};
+	   
+	    my $v = $name . " ID=$id";
+            print "vis  $v \n";
+	   
+       }
+ 
+    }
+

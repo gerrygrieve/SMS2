@@ -1,0 +1,1081 @@
+#!/usr/bin/perl 
+
+# Admin script for student shops
+
+$ENV{PATH} = "/bin:/usr/bin";
+
+use lib "/www/Gform/lib/";
+use lib "/www/Gform/SMS/lib";
+
+use course_metadata;
+use Debug;
+use Date::Calc qw(Today Delta_Days Add_Delta_Days Week_of_Year);
+use sshop_part;
+use signupform;
+use HTML_Util;
+use Form_Util;
+
+use strict;
+use CGI;
+
+use CGI::Carp 'fatalsToBrowser';
+my $today     = sprintf ("%04d-%02d-%02d", Today() );
+my $n_Weeks_to_Display = 10;
+
+my $this_script = "/cgi-bin/SMS2/Admin";
+my $styleURL = '/css/SMS.css';
+my $title = "P &amp; A Student Shop Sign Up Admin Tool";
+my $version = "0.1.0";
+Debug::Set_Debug(1, "html");
+my ($wel, $fname);
+my $sp = '&nbsp;';
+my $q = new CGI;
+
+my %xweeks =  sshop_part::get_excluded_weeks();
+my @Start = split "-",$xweeks{start};
+my @Slast = split "-",$xweeks{last};;
+my $Week_Start = Week_of_Year(@Start);
+my $NWeeks     = 6;
+my $qsave = $q->submit( -name  => "Save",
+#                      -class => $bs_style,      
+                       -value => "Save"); 
+my $Hidden;
+    
+print $q->header(-type=> "text/html", -expires=>'now'), "\n";
+print $q->start_html( -title  => "PandA SShop Admin ", 
+                      -style  =>{'src' => $styleURL},),"\n";
+print $q->start_multipart_form("POST", $this_script), "\n";
+
+Form_Welcome();
+
+#print "try dumping the query edit field ",  $q->param('edit')," <br />";
+#print "dump query...<br />";
+dump_it();
+
+   if ( $q->param('next') eq "Book Course")   { do_BookCourse(); }
+elsif ( $q->param("AddNewApp")  )             { do_App();        }
+elsif ( $q->param("AppSort")    )             { do_showApps();   } 
+elsif ( $q->param("Save Dates")  )            { do_Save_Dates(); }
+elsif ( $q->param("Delete App")  )            { do_DeleteApp();  }
+elsif ( $q->param("View App")  )              { do_App();        } 
+elsif ( $q->param('next') eq "Manage Courses")  { do_manage_Courses();}
+elsif ( $q->param('next') eq "Mail It" )      { do_mail_invites();}
+elsif ( $q->param('next') eq "Save w/o Mail") { do_Save_Course();}
+elsif ( $q->param('next') eq "Manage Dates")  { do_Exclusions(); }
+elsif ( $q->param('week') ) 	              { do_WeekPage($q->param('week'));}
+elsif ( $q->param('Print Course') )           { do_PrintCourse(); }
+elsif ( $q->param('MoreWeeks') )              { do_MoreWeeks(); }
+elsif ( $q->param('save_Courses') ) 	      { do_Save_Courses(); }
+elsif ( $q->param('completed') ) 	          { do_Update_Course(); }
+elsif ( $q->param('next') eq 'Show Apps' )    { do_showApps(); } 
+else                                          { do_mainpage(); }
+print $q->endform;
+print $q->end_html;
+exit;
+
+sub is_Auth {
+# this should in in newslib.pm 
+    my $user = shift;
+    my $out = $user eq "grieve";    
+    return $out;
+}
+
+sub do_mainpage{
+   Debug::dsay ("This is  Mainpage;");
+    my $out = do_selectTable();
+    print $out;
+}
+
+sub do_Save_Dates
+{
+    my %weeks =  sshop_part::get_excluded_weeks();
+    
+    $weeks{"start"} = $q->param("startdate") if $q->param("startdate") ;
+    $weeks{"last"}  = $q->param("lastdate")  if $q->param("lastdate") ;
+    my $newdate     = $q->param("new_excluded")  if $q->param("new_excluded");
+    my $newcomment  = $q->param("new_comment")   if $q->param("new_comment");
+    Debug::dsay ("do_Save_Dates:; {$newdate} {$newcomment}");    
+	my $error = "";
+    if ( $newdate =~ m[\d\d\d\d-\d\d-\d\d] ) {
+		$weeks{"excluded"}{$newdate} = $q->param('new_comment');
+    } else {
+		$error = qq{<p class="warn">!! Incorrect date format entered for date  $newcomment <br />
+                       Please use yyyy-mm-dd format !!"};
+ 
+    }
+    foreach my $p ( $q->param )
+    {
+	next unless ($p =~ /^delexweek-(.*)/);
+	my $del = $1;
+	Debug::dsay ("do_Save_Dates:; del date{$del}");
+	delete $weeks{excluded}{$del};
+    }   
+    sshop_part::save_excluded_weeks(%weeks);
+    do_Exclusions( $error);
+}
+
+sub do_DeleteApp {
+    my $id = $q->param("App_ID");
+    Debug::dsay ("delele_App:; a is {$id}");
+    sshop_part::delete_file($id);
+    do_mainpage();
+}
+
+sub do_App {
+    my $app = $q->param("View App");
+    my $id  = $app;
+    $id  = $1 if $app =~ /ID=(\d+)/;
+    Debug::dsay ("do_App:; a is {$id}");
+ 
+    my $a = $id 
+          ? sshop_part::get_app_by_ID($id)
+          : "";
+    print  do_selectTable();
+   
+    my $out = signupform::App_Data($a);
+    $out   .= $q->hidden("App_ID",$id) . "\n";
+    print $out;
+    
+    my $qsave =$q->submit( -name  => "Save",
+#                         -class => $bs_style,      
+                         -value => "Save"); 
+    my $qdele =$q->submit( -name  => "Delete App",
+#                         -class => $bs_style,      
+                          -value => "Delete "); 
+    my $qadd =$q->submit( -name  => "AddNewApp",
+#                         -class => $bs_style,      
+                          -value => "Add New "); 
+
+    print qq{<table><tr><td>$qsave<td>
+                        <td>$qadd<td>
+                        <td>$qdele<td></tr>\n};
+    print qq{</table>}; 
+}
+
+sub do_App_by_Name {
+    my $app = $q->param("View App");
+    my $id = $1 if $app =~ /ID=(\d+)/;
+    Debug::dsay ("do_App:; a is {$id}");
+    my %appobjs  = sshop_part::get_Data_by_ID();
+    my $a = $appobjs{$id};
+    my $n = $a->{full_name};
+    Debug::dsay ("do_App:; a is {$n}");
+    my $out = signupform::App_Data($a);
+    $out   .= $q->hidden("App_ID",$id) . "\n";
+    print $out;
+    my $qsave =$q->submit( -name  => "Save",
+#                         -class => $bs_style,      
+                         -value => "Save"); 
+    my $qdele =$q->submit( -name  => "Delete App",
+#                         -class => $bs_style,      
+                          -value => "Delete "); 
+    my $qadd =$q->submit( -name  => "AddNewApp",
+#                         -class => $bs_style,      
+                          -value => "Add New "); 
+
+    print qq{<table><tr><td>$qsave<td>
+                        <td>$qadd<td>
+                        <td>$qdele<td></tr>\n};
+    print qq{</table>}; 
+}
+
+sub do_WeekPage {
+    my $in = shift;
+    my ($iso_wk,$tdate) = split ":",$in;
+    
+    Debug::dsay ("Admin::do_WeekPage:: l187   week is {$iso_wk}  {$tdate}");
+    my %edata  = sshop_part::get_Data_by_ID();
+    my $dot    = sshop_part::get_WeekData($iso_wk);
+    my %coursedata = sshop_part::get_Course_Data($iso_wk);
+
+    my %dd = %{$dot};
+    my $out = "";
+    $out .= qq{ <h2>Booking course  for week # $iso_wk; </h2>\n };
+
+    if ( $coursedata{wnum} ) {
+		Debug::dsay("do_WeekPage:: we have data for week $coursedata{wnum}");
+		$out .= qq{<h3>the current status of course $coursedata{wnum}</h3>};
+		$out .= do_CourseTable(\%coursedata);
+    } else    {
+		$out .= qq{<h3>There is no one currently booked for course $iso_wk</h3>};
+    }
+ 
+    $out .= qq{<h3>Possible additional students for the course</h3>};
+    $out .= qq{ <table id="weekview"> };
+    $out .= qq{<tr><th> nth preference</th>
+                   <th> App full name & ID </th>
+                   <th>Danno </th></tr>};
+	my $bd_ref = "";
+    my ($this_ref, $bd_ref)   = sshop_part::get_Preferred_Dates();
+ 
+    my %this   = %{$this_ref};
+    my %bdates = %{$bd_ref};
+
+    my ($yr, $this_wk) = $iso_wk =~ /(\d\d\d\d)-W(\d+)/;
+    my %seen = ();
+    foreach my $ii (qw { 1 2 3 } ) {			    #loop over the preferred weeks
+        my $xout ="";
+        my %p1 = %{$this{$ii}};
+        foreach my $id (@{ $p1{$iso_wk} } ) {
+
+            my $app = $edata{$id};
+            my $name = $app->{full_name};
+            my $v = $name . " ID=$id";
+            my $xx = $q->submit(-name=>'View App',-value=>$v);
+			my $bd = 0; ## wtf???/
+            my $yy = $bd ? $bd : $q->checkbox(-name=>"book-$id",
+                                              -label=>"",
+                                              -checked=>0);
+            $xout .=  qq{<tr>};
+            $xout .=  qq{<td> $ii </td>};
+            $xout .=  qq{  <td> $xx </td> <td>$yy</td></tr>};
+        }
+        $out .= $xout;
+    }
+    Debug::dsay (  "do_WeekPage::  l238  this_wk {$this_wk} $yr ");
+    my $un_ref = sshop_part::get_NoRestCounts($this_wk, $yr, 1);
+    my %un = %{$un_ref};
+ 
+    my @ids = @{$un{$iso_wk}};
+
+    foreach my $id ( @ids ) {
+
+		my $app  = $edata{$id};
+		my $name = $app->{full_name};
+        my $v    = $name . " ID=$id";
+    #     Debug::dsay (  "  l243  id is {$id} ");
+		$out .= qq{<tr><td>no restriction</td>};
+		my $xx = $q->submit(-name=>'View App',-value=>$v);
+		my $yy = $q->checkbox(-name=>"book-$id",
+                                 -label=>"",
+                                 -checked=>0);
+		$out .=  qq{  <td> $xx </td> <td>$yy</td></tr>};
+    }
+   
+   $out .=  qq{ </table>};
+   $out .= add_inst_input();
+
+   my $xx = $q->submit(-name=>'next',-value=>"Book Course");
+   $out .= qq{ <p>$xx</p>\n};
+   print $out;
+ 
+   print $q->hidden("week", $this_wk), "\n";
+}
+
+sub add_inst_input {
+    my $val = "xx";
+    my $out = qq{<table style="margin-top: 53px;"><tr>\n};
+    $out .=   qq{ <td>Instructor</td> };
+    my $in = $q->textfield( -name =>"instructor",
+                            -value => $val,
+                            -size => 50 );
+    $out .=   qq{ <td>$in</td>\n };
+    $out .=   qq{ </tr></table> };
+}
+
+sub do_BookCourse {
+    my $week = $q->param("week");
+    my $inst = $q->param("instructor") ? $q->param("instructor") : "";
+    Debug::dsay ("do_BookCourse::  inst is {$inst}");
+    my %edata =  sshop_part::get_Data_by_ID();
+    my @emails = ();
+    my $out = qq { \n <p> Booking a Course for week: $week </p>};
+    $out .=  qq{<table><tr><td colspan="2"> 
+		      Invitees to course on $week</td></tr>\n};
+    my $hide = "";
+    foreach my $p ( $q->param ) {
+	Debug::dsay ("do_BookCourse:: p is {$p}");
+       next unless $p =~/^book-(\d+)/;
+       my $id = $1;
+       my $es = $edata{$id};
+       my $name = $es->{full_name};
+       	Debug::dsay ("do_BookCourse:: id is {$id}  name is is {$name}");
+       my $email = $es->{email};
+       push @emails, $email;
+       $out .= qq{<tr><td>name $name</td><td>email $email</td></tr>};
+       my $ntag = "name".$id;
+       my $etag = "email".$id;
+       $hide .= $q->hidden($ntag,$name) . "\n";
+       $hide .= $q->hidden($etag,$email) . "\n";
+    }
+    $out .= qq{</table\n>};
+    $out .= qq{<p> You can edit the text of the below message<br />
+                     But Please do NOT alter the "[[ name ]]" string</p>};
+    my $im = sshop_part::get_InviteMessage();
+    $im =~ s/\[\[ week \]\]/$week/;
+    $out .= qq{<textarea name="mailmess" rows=12 
+                 cols="60">$im</textarea>};
+    my $xx = $q->submit(-name=>'next',-value=>"Mail It");
+    my $yy = $q->submit(-name=>'next',-value=>"Save w/o Mail");
+    $out .= qq{ <table cellpadding="10"><tr><td>$xx</td><td>$yy<//td></table>\n};
+    print $out;
+    $hide .= $q->hidden("week",$week) . "\n";
+    $hide .= $q->hidden("instructor",$inst) . "\n";
+    print $hide;
+}
+
+sub do_mail_invites {
+    my $week = $q->param("week");
+    Debug::dsay("Admin::do_mail_invites..week is {$week}");
+ 
+    my @emails = @_;
+    my $sub = "Student Shop Training";
+    my $x = 'grieve@phas.ubc.ca';
+    my $from = "";
+    my $out = qq{<h1>SMS Admin confirmation of Course Schedule</h1> <p> Invitations have been mailed to ...</p><ul>};
+    my %names = ();
+    my @ids = ();
+    foreach my $p ( $q->param ) {
+       my $mess =  $q->param("mailmess");
+       next unless ($p =~ /^name(\d+)/);
+       my $id = $1;
+       push @ids, $id;
+       my $name = $q->param($p);
+       my $email = $q->param("email".$id);
+       my $cn = sshop_part::confirmationnumber($id);
+       $mess =~ s/\[\[ name \]\]/$name/;
+       $mess =~ s/Confirm/Confirm?=$cn/;
+       
+       $names{$id}= $name;   
+       sshop_part::mail_it($email, $from, $sub, $mess);
+       $out .= qq{<li>$name -- $email </li>}
+    }
+    $out .= qq{</li>};
+    Debug::dsay("Admin::do_mail_invites:: call sshop_part::save_Course is {$week}");
+    do_Save_Course(@ids);
+    my ($wk,$tdate) = split ":", $week;
+    $out .= qq{<p> Course Info for week $wk  Starting on Tues $tdate has been saved.</p>};
+
+    print $out;
+}
+
+sub do_Save_Courses {
+
+    Debug::dsay("Admin::Save_Course...");
+
+	#my $data = course_metadata::get_Course_Data_json();
+	#my @courses = @{$data->{course_data}};
+	#
+	my $out = "";
+	my @courses = ();
+	my @mods = $q->param('num');
+	foreach my $n ( @mods  ) {
+        my %cdata = ();
+		$cdata{num} = $n;
+		my $x = 'title'.$n;
+        my $y = $q->param($x);
+		$cdata{title} = $y;
+		
+		$x = 'desc'.$n;
+		$y = $q->param($x);
+		$cdata{desc} = $y;
+
+		$x = 'date_upcoming'.$n;
+		my @dates = $q->param($x);
+		my @xdates = (); 
+		foreach my $up ( @dates ) {
+			next unless $up;
+			push @xdates, $up;
+		}
+		$cdata{date_upcoming} = \@xdates;
+
+		push @courses, \%cdata;
+    }
+	my %cdata = ();
+	$cdata{course_data} = \@courses;
+	course_metadata::put_Course_Data_json( \%cdata );
+
+	my $out = "<h3> The course updates may hav been saved</h3>";
+	$out .= do_selectTable();
+	print $out;
+#	hide ( "next", "manage Courses");
+}
+
+sub do_PrintCourse {
+    my $iso_wk  = shift;
+    $iso_wk = $iso_wk ? $iso_wk : $q->param("Print Course");
+    my ($year ,$wnum) = split "-", $iso_wk;
+    Debug::dsay("Admin::do_PrintCourse..input is  {$iso_wk}  week {$wnum} year {$year}");
+
+    $wnum =~ s/^w//;
+    my %cdata = sshop_part::get_One_Course($wnum, $year);
+    Debug::dsay("Admin::do_PrintCourse.. got Cdata");
+    my %edata = sshop_part::get_Data_by_ID();
+
+#    my $wnum = $cdata{wnum};
+    my $inst = $cdata{instructor};
+    my $out = "";
+    $out .= qq{<table class-"ctable"> };
+    $out .= qq{ <tr><td colspan="4" class="ttitle"> Data for Course in Week $wnum</td></tr>};
+    $out .= qq{<tr><td >Instructor: </td><td colspan="3">$inst</td></tr>};
+    $out .= qq{<tr><th>Name/ID</th><th>Course Booked</th><th>Completed ?</th><th>Drop</th></tr>};
+
+    foreach my $ahash  (  @{$cdata{apps}} ) {
+	$out .= "<tr>";
+	my $id = ${$ahash}{id};
+	my $v = ${$ahash}{name} . " ID=" .$id;
+	my $bd = $edata{$id}->{booked_date}  ? $edata{$id}->{booked_date} : "--";
+        my $bf = $edata{$id}->{booked_for_course}  
+               ? $edata{$id}->{booked_for_course} 
+               : "--";
+	my $ckbox = "compl-".$id;
+	my $cd = $edata{$id}->{completed_ok}
+	       ? $edata{$id}->{completed_ok}
+	       : $q->checkbox( -name=>$ckbox, -label=>" ");
+	my $mvbox = "drop-".$id;
+	my $mv = $q->checkbox( -name=>$mvbox, -label=>" ");
+	my $xx = $q->submit(-name=>'View App',-value=>$v);
+   
+	$out .= qq{<td> $xx </td><td>$bf</td><td>$cd</td><td>$mv</td>};
+	$out .= "</tr>";
+    }
+    $out .= qq{</table>};
+    my $xx = $q->submit(-name=>'completed',-value=>"Submit");
+    my $yy =  $q->submit(-name=>'completed',-value=>"Submit");
+    $out .= qq{<p>$xx</p>};
+    $out .= $q->hidden(-name=>"thisweek",   -value=>$iso_wk);
+    print $out;
+}
+
+sub do_CourseTable {    
+    my $chashref = shift;
+    my %coursedata = %$chashref;
+    
+    my %edata = sshop_part::get_Data_by_ID();
+
+    my $wnum = $coursedata{wnum};
+    my $inst = $coursedata{instructor};
+    my $out = "";
+    $out .= qq{<table class-"ctable"> };
+    $out .= qq{ <tr><td colspan="3" class="ttitle"> Data for Course in Week $wnum</td></tr>};
+    $out .= qq{<tr><td >Instructor: </td><td colspan="2">$inst</td></tr>};
+    $out .= qq{<tr><th>Name/ID</th><th>Booked Course </th><th>Completed ?</th></tr>};
+    foreach my $ahash  (  @{$coursedata{apps}} )
+    {
+	$out .= "<tr>";
+	my $id = ${$ahash}{id};
+	my $v = ${$ahash}{name} . " ID=" .$id;
+	my $bd = $edata{$id}->{booked_date}  ? $edata{$id}->{booked_date} : "--";
+        my $bf = $edata{$id}->{booked_for_course}  
+               ? $edata{$id}->{booked_for_course} 
+               : "--";
+#	my $cd = $edata{$id}->{completed_date}  ? $edata{$id}->{completed_date} : "--";
+	my $ckbox = "compl-".$id;
+	my $cd = $edata{$id}->{completed_ok}
+	       ? $edata{$id}->{completed_ok}
+	       : $q->checkbox( -name=>$ckbox, -label=>" ");
+	Debug::dsay("do_PrintCourse:: ckbos is {$ckbox} ");
+	 
+	my $xx = $q->submit(-name=>'View App',-value=>$v);
+   
+	$out .= qq{<td> $xx </td><td>$bf</td><td>$cd</td>};
+	$out .= "</tr>";
+    }
+    $out .= qq{</table>};
+    
+    return $out; 
+}
+
+sub do_manage_Courses {
+	my $out = "";
+	$out .= qq {<h3> This page allows the course meta-data to be edited</h3>};
+
+	my $hashsign = q{&#35;};
+    my $but = $q->submit(	-name=>'save_Courses',
+							-value=>'Save Courses' ); 
+
+	my $data = course_metadata::get_Course_Data_json();
+	my @courses = @{$data->{course_data}};
+	$out .= qq{<div id="coursetable">};
+
+	foreach my $c ( sort {$a->{num} <=> $b->{num} } @courses ) {
+		$out .= qq{<div class="module">};
+		$out .= qq{<table class="ctable"><tr>};
+		my $value = $c->{num};
+		my $modnum = $c->{num};
+		my $qs = $q->textfield(-name=>"num",
+                               -value => $value,  -size=>10, );
+		$out .= qq{<td class="prompt">Module $hashsign </td><td> $qs</td></tr>};
+
+		$value = $c->{title};
+		$qs = $q->textfield(-name=>"title".$modnum,
+                            -value => $value,   -size=>60, );
+		$out .= qq{<td class="prompt">Title  </td><td> $qs</td></tr>};
+		$value = $c->{desc};
+		$qs = $q->textarea(-name=>"desc".$modnum,
+                            -value => $value,
+							-rows=>2,
+							-columns=>60);
+		$out .= qq{<td class="prompt">desc</td><td> $qs</td></tr>};
+		
+		my @dates = @{$c->{date_upcoming}};
+		foreach my $up ( @dates ) {
+			$value = $up;
+			$qs = $q->textfield(-name=>"date_upcoming".$modnum,
+                                -value => $value,  -size=>60, );
+			$out .= qq{<td class="prompt">Upcoming Date </td><td> $qs</td></tr>}  ;
+		}
+#add a emply date
+		$qs = $q->textfield(-name=>"date_upcoming.$modnum",
+                                  -size=>60, );
+		$out .= qq{<td class="prompt">Upcoming Date </td><td> $qs</td></tr>}  ;
+
+		$out .= qq{</table>};
+		$out .= qq{</div>}; 
+	
+	}
+	$out .= qq{<div class="submit"> $but</div>};
+	$out .= qq{</div>};
+	print $out;
+}
+
+sub do_show_Courses {
+   Debug::dsay("do_show_Courses..");
+ 
+   my $out = "";
+   $out .= qq {<h3> This shows the starting dates of courses
+		    that have been scheduled </h3>};
+   $out .= qq { <table> };
+   my $i = 0;
+   my $ncols= 4;
+   foreach my $c (  sshop_part::get_CourseList) {
+        $out .= qq { <tr> } if $i%$ncols == 0 ;
+        my $w = $c;
+        $w =~ s/\.xml//; 
+        my $b3 =$q->submit(-name=>'Print Course',
+                           -value=>$w); 
+        $out .= qq{<td> $b3</td>};
+        $i++;
+        $out .= qq { </tr> } if $i%$ncols == 0 ;
+   }
+   $out .= qq { <table> };
+   print $out;
+}
+
+sub do_Update_Course {
+    my $out = qq{<p>The records for };
+    my $iso_wk = $q->param("thisweek");
+    Debug::dsay("do_Update_Course:: isowk is {$iso_wk}");
+    foreach my $p ($q->param )
+    {
+		if ($p =~ /compl-(.*)/) {
+			my $id = $1;
+			Debug::dsay(" {$id} has completed");
+			$out .= qq{ $id ,"};
+			sshop_part::update_app_record($id, { completed_ok => "yes",} );
+		} elsif ($p =~ /drop-(.*)/) {
+			my $id = $1;
+			Debug::dsay(" {$id} is being dropped ");
+			$out .= qq{ $id ,"};
+			sshop_part::update_app_record($id,	{  booked_date => "yes",
+							   booked_for_course => "yes",
+							},
+						  "Delete");
+			sshop_part::update_course_record($iso_wk, $id, "Delete");
+		}
+    }
+    $out .= qq{have been updated </p>};
+    $out .= do_selectTable();
+    print $out;
+}
+
+sub do_MoreWeeks {
+    Debug::dsay("Admin::do_MoreWeeks..");
+    
+    my $sw = $q->param("startweek");
+    my $sy = $q->param("startyear");
+    my $sign = $q->param("MoreWeeks");
+     Debug::dsay("Admin::do_MoreWeeks.. the next week {$sw} $sy");  
+    my $tdate = sshop_part::get_Tues_Date($sw,$sy);
+    my @tdate = split "-", $tdate;
+    my $inc = $sign eq "+" ? 7 : -7;
+    my @new = Add_Delta_Days(@tdate, $inc*$n_Weeks_to_Display);
+    print do_WeekTable(@new);   
+}
+
+sub do_WeekTable {
+    my @indate = @_;
+    @indate = Date::Calc::Today() unless @indate;
+   Debug::dsay("Admin::do_WeekTable.. input  @indate");
+    my @date = @indate ? @indate : @Start;
+ #   Debug::dsay("Admin::do_WeekTable.. date  @date");
+    my $year = $date[0];
+    my %eweeks =  sshop_part::get_excluded_weeks();
+    my $lweek = $eweeks{last_date};
+    my ($start_wk, $y) = Week_of_Year(@date);
+
+    my $num_wk = get_NWeeks_To_Display(@date);
+    my ($this_ref, $bd_ref)   = sshop_part::get_Preferred_Dates();
+    my %this   = %{$this_ref};
+    my %bdates = %{$bd_ref};
+
+    my $un_ref = sshop_part::get_NoRestCounts($start_wk, $y, $num_wk);
+    my %un   = %{$un_ref};
+
+    my %pweeks =  sshop_part::get_Week_Avail();
+ 
+    my $out = qq{\n <h2> Table of Weeks -- Tuesdays' Dates</h2>\n};
+    $out   .= qq{ <p> This table lists the next 10 possible weeks with 
+                      the number of applicants list that week as a preference.
+                   <br />The "not restricted" column lists the number of 
+                       applicants
+                      who did not prefer this week & did explicitly exclude
+                      this week.cxvcxcvxcv</p>\n}; 
+    $out   .= qq{\n<table class="coursetable">\n};
+    $out   .= qq{<tr><th>Week # - Tues Date </th>
+                     <th> # Booked   </th> 
+                     <th> # 1st pref </th>
+                     <th> # 2nd pref </th>
+                     <th> # 3rd pref </th>
+                     <th> # not restricted  </th></tr>\n};
+
+    foreach my $w ( $start_wk .. $start_wk+$num_wk-1)
+    {
+	my $iso_wk = sshop_part::ISOWeek($y,$w);
+	my $nb = defined $bdates{$iso_wk}
+	       ? scalar @{$bdates{$iso_wk}}
+               : 0;
+	my @np = ();
+
+	foreach my $i (1,2,3) {
+	    my %p1 = %{$this{$i}};
+	    $np[$i] = defined $p1{$iso_wk}
+		    ? scalar @{ $p1{$iso_wk}} 
+		    : 0;
+	}
+	
+        my $tdate = sshop_part::get_Tues_Date($w,$y);
+        
+	my $nun = defined $un{$iso_wk}
+                ? scalar @{ $un{$iso_wk}} 
+                : 0;
+	my $x = $q->submit(-name=>'week',-value=>"$iso_wk");
+#	Debug::dsay ("Admin::do_WeekTable:: iso {$iso_wk}" );
+ 
+	my $class = "ok";
+
+        $out .= qq{<tr class="courserow">};
+        $out .= qq{<td class="$class"> $x  $tdate</td>};
+        $out .= qq{ <td>$nb </td>};
+        $out .= qq{ <td>$np[1] </td>};
+	$out .= qq{ <td>$np[2] </td>};
+	$out .= qq{ <td>$np[3] </td>};
+	$out .= qq{ <td>$nun </td>};
+	$out .= qq{ </tr>\n};
+   }
+    my $plus  = $q->submit(-name=>"MoreWeeks",-value=>"+");
+    my $minus = $q->submit(-name=>"MoreWeeks",-value=>"-");
+    
+    print $q->delete('startweek','startyear');
+    my $sw   = $q->hidden(-name=>"startweek",   -value=>$start_wk);
+    my $sy   = $q->hidden(-name=>"startyear",   -value=>$year);
+    $out .= qq{<tr><td>$sw $sy</td><td>$minus</td><td>$plus</td></tr>};
+  
+    $out .= qq{</table>};
+ 
+    return $out;
+}
+
+sub get_NWeeks_To_Display {
+    my @first = @_;
+    my $dd = Delta_Days(@first, @Slast);
+	my $nout =  $n_Weeks_to_Display;
+    if    ($dd < 0)						 { $nout = 0; }         # start is beyond end 
+    elsif ($dd < 7*$n_Weeks_to_Display ) { $nout = int ($dd/7); }
+    else   								 { $nout = $n_Weeks_to_Display; }  
+ 
+    return $nout;   
+}
+
+sub do_getAppsTable {
+    my $apps_per_row = 5;
+    my $out = qq{\n <h2> Weeks where applicants indicated  preference</h2>\n};
+    $out   .= qq{<p> (i,j,k) are number of apps with 1st choise,2nd & 3rd</p>};
+    $out   .= qq{\n<table class="apptable">};
+    my $i=0;
+    foreach my $o ( sshop_part::get_Weeks() )
+    {
+
+        my $x = $q->submit(-name=>'week',-value=>$o);
+		$i++;
+        $out .= qq{<tr>} ;#if ($i%%$apps_per_row == 1);
+        $out .= qq{<td> $x</td>};
+        $out .= qq{</tr>};# if ($i%%$apps_per_row == 0);
+   }
+   $out .= qq{</table>};
+}
+
+sub do_showApps {
+    my $show_current = 1;
+    my $out = do_selectTable();
+    print $out;
+    Debug::dsay ("this is do_showApps ;");
+ 
+    my @apps = $show_current ? sshop_part::get_Current_Data()
+                             : sshop_part::get_Data();
+    my $id_but    = $q->submit(-name=>'AppSort', -value=> "ID");
+    my $name_but  = $q->submit(-name=>'AppSort', -value=> "Name");
+    my $rdate_but = $q->submit(-name=>'AppSort', -value=> "Request Date");
+    my $ubc_but   = $q->submit(-name=>'AppSort', -value=> "UBC #");
+    $out  = qq{<table class="apptable">};
+    $out .= qq{<tr><th>$id_but</th>
+                   <th>$name_but</th>
+                   <th>$ubc_but</th>
+                   <th>$rdate_but</th>
+                   <th>Booked Date</th>
+                   <th>Completed OK</th></tr>};
+    my %sort_routines = ( Name           => \&sort_by_Name,
+                          ID             => \&sort_by_ID,
+                          "Request Date" => \&sort_by_ReqDate,
+                          "UBC #"        => \&sort_by_UBC,
+	                );
+    my $sort = $q->param("AppSort") ? $q->param("AppSort") : "ID";
+    @apps = & { $sort_routines{$sort} }(@apps); 
+ 
+    foreach my $o ( @apps )   {
+        my $x = $o->{full_name};
+        my $id = $o->{ID};
+        my $v = $x . "  ID=$id";
+        my $xx = $q->submit(-name=>'View App',-value=>$id);
+		my $ubc = $o->{UBC_id};
+        my $rd  = $o->{request_date}
+                ? $o->{request_date}
+	        : "--";
+
+		my $bf = $o->{booked_for_course}  
+               ? $q->submit(-name=>'Print Course',
+                            -value=>$o->{booked_for_course})
+               : "not booked";
+		my $cd = $o->{completed_ok}  ? $o->{completed_ok} : "--";
+
+	
+        $out .= qq{<tr class="apps">};
+        $out .= qq{<td> $xx</td>
+                   <td> $x</td>
+                   <td>$ubc</td>
+                   <td>$rd</td>
+                   <td>$bf</td>
+                   <td>$cd</td>};
+        $out .= qq{</tr>};
+   }
+   $out .= qq{</table>};
+   print $out;
+   
+}
+sub sort_by_UBC {
+    
+    my @array = @_;
+    my @sorted = ();
+    my %temp = ();
+  
+    my $i = 0;
+    foreach my $a (@array)     {
+        $i++;
+        my $ubc  = $a->{UBC_id}
+                 ? $a->{UBC_id}
+	         : "x";
+        $ubc  = $i unless $ubc =~ /\d+/;
+		$temp{$ubc} = $a;
+    }
+    foreach $i (sort {$a <=>  $b} keys %temp) {
+		push @sorted, $temp{$i};
+    }
+    return @sorted;
+}
+
+sub sort_by_ReqDate {
+    
+    my @array = @_;
+    my @sorted = ();
+    my %temp = ();
+    my %tempa = ();
+
+    my $i = 0;
+ 
+    foreach my $a (@array) {
+        my $rd  = $a->{request_date}
+                ? $a->{request_date}
+	        : $i;
+        $rd =~ s/-//g;
+        $a->{sortval} = $rd;
+        $tempa{$i} = $a;
+        $i++;
+     }
+
+    foreach  my $xx ( sort{$tempa{$a}->{sortval} <=>
+			               $tempa{$b}->{sortval} } keys %tempa )
+    {
+        delete $tempa{$xx}->{sortval};            
+	push @sorted, $tempa{$xx};
+    }
+    return @sorted;
+   
+}
+
+sub sort_by_Name {
+    
+    my @array = @_;
+    my @sorted = ();
+    my %temp = ();
+    foreach my $a (@array)  {
+        my $name = $a->{full_name};
+        my $lname = (split " ", $name)[-1]; 
+		$temp{$lname}=$a;
+    }
+    foreach my $i (sort {$a cmp $b} keys %temp) {
+		push @sorted, $temp{$i};
+    }
+    return @sorted;
+}
+
+sub sort_by_ID {
+    
+    my @array = @_;
+    my @sorted = ();
+    my %temp = ();
+    foreach my $a (@array) {
+        my $id = $a->{ID};
+		$temp{$id}=$a;
+    }
+
+    foreach my $i (sort {$a <=> $b} keys %temp) {
+		push @sorted, $temp{$i};
+    }
+    return  reverse @sorted;
+}
+
+sub do_Exclusions {
+	my $error = shift;
+
+    my $out = qq {<p> list are the excluded weeks.  you can use this
+                      form to add to the list.</p>};
+
+    $out .= $error if $error;
+    my %weeks =  sshop_part::get_excluded_weeks();
+    $out .= qq{ <table class="excluded">\n};
+    my $sv = $weeks{"start"};
+    my $lv = $weeks{"last"};
+    my $qs = $q->textfield(-name=>"startdate",
+                           -value => $sv );
+    my $ql = $q->textfield(-name=>"lastdate",
+                           -value => $lv );
+    $out .= qq{<tr><td> Start Date : </td><td>$qs</td></tr>};
+    $out .= qq{<tr><td> Last Date :  </td><td>$ql</td></tr>};
+    $out .= qq{<tr><td colspan="2"> Weeks excluded from courses</td>
+                   <td> Week Number</td><td>Delete</td><tr>};
+    my %eweeks = %{$weeks{"excluded"}};
+    foreach my $e ( sort  keys  %eweeks ) {
+        my $c = $eweeks{$e};
+        my @c = (split "-", $e);
+        my ($cw, $cy) = Week_of_Year(@c);
+		my $isowk = sshop_part::ISOWeek($cy,$cw);
+		my $yy = $q->checkbox(-name=>"delexweek-$e",
+                              -label=>"",
+                              -checked=>0);
+        $out .= qq{<tr> <td>$c</td> <td>$e</td> <td>$isowk</td>
+                        <td>$yy</td></tr>\n};
+    }
+    $q->delete( "new_comment", "new_excluded",);
+    my $q1 = $q->textfield(-name=>"new_comment",
+                           -value => "" );
+    my $q2 = $q->textfield(-name=>"new_excluded",
+                           -value => "" );                            
+    $out .= qq{<tr> <td colspan="2"><hr></td> </tr>\n};
+    $out .= qq{<tr> <td colspan="2">Add a new exclusion below</td> </tr>\n};
+    $out .= qq{<tr> <td colspan="2">Comment $q1</td> 
+                    <td colspan="2">Date(yyyy-mm-dd): $q2</td> </tr>\n};
+    my $xx = $q->submit(-name=>'Save Dates');
+    $out .= qq{<tr> <td>$xx</td>  </tr>\n};
+    $out .= qq{ </table> };
+
+    print $out;
+    return;
+}
+
+sub  do_selectTable {
+#    Debug::dsay ("this is do_selectTable ;");
+    my $out = qq{<table id="selectTable">};
+    my $b2 = $q->submit(-name=>'next',-value=>'show weeks');
+    my $b1 = $q->submit(-name=>'next',-value=>'Show Apps');
+    my $b3 = $q->submit(-name=>'next',-value=>'Manage Dates');
+    my $b4 = $q->submit(-name=>'next',-value=>'Manage Courses');
+    my $b5 = $q->submit(-name  => "AddNewApp",
+#                         -class => $bs_style,      
+                          -value => "Add New App");
+	$out .= qq{<tr>};
+#    $out .= qq{<td> $b1 </td> };
+    $out .= qq{    <td> $b4 </td> };
+#    $out .= qq{    <td> $b3 </td> };
+ #   $out .= qq{    <td> $b2 </td> <td> $b3 </td><td>$b5</td></tr>};
+    $out .= qq{</tr></table>};
+    $out .= qq{<hr />};
+    return $out;
+}
+
+sub do_form {
+#print the welcome    
+#     Debug::dsay(" do_form()");  
+    my $tdtopright = '<td valign="top" align="right">';
+    my $tdtop      = '<td valign="top">';
+    my $sp = '&nbsp;';
+    my $cellpad = ' cellpadding="4" ';   
+        $wel = <<endxxx;
+The first block of information is welcome junk<br>
+endxxx
+
+    my $t;
+    my $ynow = "2009" ;
+    my $monnow = "02";
+ 
+    my %element_info = my %el_info =  sshop_part::get_element_info();
+
+
+    print "<h2> Main Page</h2>";
+    print '<table border="0" cellpadding="4" cellspacing="10">', "\n";   
+    foreach my $t ( sort {$element_info{$a}{rank} <=>
+                          $element_info{$b}{rank} } keys %element_info )
+   {
+ #    Debug::dsay("do_form:: t is {$t}");
+      print "<p> tag {$t} is typed {$element_info{$t}{qtype}}</p>" 
+          if ($element_info{$t}{qtype} eq "AoH");
+      my $value = $q->param($t) ? $q->param($t) : "" ;
+      my $pout = $element_info{$t}{prompt} ? $element_info{$t}{prompt}: "";
+      my $qout = $element_info{$t}{qtype}  ? $element_info{$t}{qtype} : "";
+      next unless $pout;
+      print "<tr>$tdtopright  $pout: </td>\n"; 
+    
+      $value = $today      if ($t eq "date" and !$value);                
+      my $out = Form_Util::input_query(\%{$element_info{$t}}, $t, $value);
+      print " "x4, $tdtop, "$out</td></tr>\n";
+   }
+    print "</table></center>\n";
+    print "<p>$qsave</p>";
+}
+
+sub footer {
+    print "<table><center>";
+    print " <tr><td>",  $q->submit(-name=>'edit',-value=>'save'),            
+          "</td><td>",  $q->submit(-name=>'edit',-value=>'back'), 
+          "</td></tr>\n";
+    print "</table></center></form>\n";
+    
+    return  
+}
+
+sub do_Save {
+    my %element_info = sshop_part::get_element_info();
+    my %bd = ();
+	my $part = "";
+    my $id = $q->param("App_ID");
+	Debug::dsay ("do_Save -- make App_ID was  {$id};");
+
+	if (! $id) {
+		Debug::dsay ("do_Save -- make new ;");
+		$part  = sshop_part::new();
+		my $idx = $part->{ID};
+
+		$bd{"ID"} = $idx;
+		Debug::dsay ("do_Save -- make new {$idx}; $bd{\"ID\"}");
+	} 
+
+    Debug::dsay ("do_Save -- copying cgi params in hash for {$id};");
+    foreach my $t ( sort {$element_info{$a}{rank} <=>
+                          $element_info{$b}{rank} } keys %element_info )
+    {
+	   	next if ($t eq "ID" and ! $id) ;
+		 if ( $t eq "ID") 	{ $bd{ID} = $id; }
+		 else 				{ $bd{$t} = $q->param($t) ?  $q->param($t) : ""; }
+    }
+	Debug::dsay ( "call sshop_part::save w $bd{ID}" );
+    my $err = sshop_part::save( \%bd, $id);
+    Debug::dsay ("do_Save -- returning;");
+    my $out = qq{<p> This information has been saved.. </p>};
+    $out .= do_selectTable();
+    print $out;
+}
+
+sub welcome {
+     my $page_header = shift;
+
+     my $pg_head =  $page_header ? $page_header : "";
+     my $wel_text = $wel ? $wel : " ";
+
+     print <<EndofWelcome2;
+     <h2>$pg_head</h2>
+     <p> $wel_text
+     </p>
+EndofWelcome2
+   
+    return;
+}
+sub Form_Welcome {
+    print welcome_text();
+   
+    return;
+}
+sub Hide_params {
+#    print "Hide_params call get_edit_flags <br />";
+
+    my ($e, $value);
+    my $Hidden = "";
+    return $Hidden;
+}
+sub welcome_text {
+   my $out = "<h1>$title $version </h1>";
+   #open (F, "/www/Gform/sshop/lib/welcome.txt") || 
+   #    die "cannot open welcome file";
+   # $out .= <F>;
+}
+
+sub dump_it {
+	print "<h2> Dump of the query </h2><br />\n";
+    print $q->Dump;
+    print "<hr />";
+}
+
+sub do_Manage_Data {
+   print "<h2> do_Manage_Data </h2>\n";
+
+   print "<table>\n";
+    
+   foreach my $note (sort {$b->date_post cmp $a->date_post } PhAs_Notice::get_Notices() )
+   {
+
+       print  "<tr> <td>", $note->date_post, "</td>\n";
+       print  "     <td>", $q->submit(-name=>'edit',-value=>$note->xmlfile), "</td>\n";
+       print  "     <td>", $note->label, "</td>\n";
+       print  "</tr>\n";
+   }
+   print "</table>\n";
+    
+    return;
+ 
+}
+sub do_apps_page {
+   print "<h2> do_apps_page </h2>";
+   my $f = $q->param("edit");
+   my $note = PhAs_Notice::get_One_Notice($f);
+
+   print "<table><tr>";
+   print  "     <td>", $q->submit(-name=>'edit',-value=>'edit'), "</td>\n";
+   print  "     <td>", $q->submit(-name=>'edit',-value=>'mail'), "</td>\n";
+   print "</tr></table>\n";
+
+   hide ("Note_File",$f);
+
+   return;
+}
+sub do_show_mail {
+    use Text::Wrap qw[$columns];
+    my $mess = "";
+    my $nfile = $q->param("Note_File");
+    print "<h2> show mail {$nfile}</h2>\n";
+
+}
+sub hide {
+    my $ptag = shift;
+    my $value = shift;
+ #   print "hiding $ptag $value <br />";
+    print $q->hidden($ptag, $value), "\n";
+
+}

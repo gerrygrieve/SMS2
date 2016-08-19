@@ -1,0 +1,83 @@
+#!/usr/bin/perl -w
+
+use lib "/www/Gform/sshop/lib/";
+use lib "/www/Gform/lib";
+use Date::Calc qw(Delta_Days Add_Delta_Days Week_of_Year Today Monday_of_Week);
+use Data::Dumper;
+use sshop_part;
+use Debug;
+
+Debug::Set_Debug(1, "text");
+
+ 
+my $week =2;
+
+my $id = 17;
+#my $app = sshop_part::get_app_by_ID($id);
+
+    my @apps =  sshop_part::get_Data();
+foreach my $a (@apps )
+{   
+    my $id = $a->{ID};
+    my $fn = $a->{full_name};
+    my $date1 = $a->{excluded_from} ? $a->{excluded_from} : "none";
+    my $date2 = $a->{excluded_to}   ? $a->{excluded_to}   : "none";;
+
+    print "name - $fn id {$id} {$date1} {$date2} \n";
+}
+exit;
+
+my $date1 = $app->{excluded_from};
+my $date2 = $app->{excluded_to};
+
+my @res_weeks = get_Resweeks( $date1, $date2);
+
+
+foreach my $xw ( @res_weeks)
+{
+    print "excluded week $xw \n";
+}
+sub get_Resweeks
+{
+    my $d1 = shift;
+    my $d2 = shift;
+    my @exweeks =();
+    my @sv = split "-", $d1;
+    my @lv = split "-", $d2;
+    my %weeks =  sshop_part::get_excluded_weeks();
+
+    my $wn = Week_of_Year(@sv);
+    my @sm =  Monday_of_Week($wn,$sv[0]);
+    my @t1 = Add_Delta_Days(@sm,1);
+    my @f1 = Add_Delta_Days(@sm,4);
+ 
+    my @m = @sm;
+    while (1)
+    {
+        my @t = Add_Delta_Days(@m,1);
+        my @f = Add_Delta_Days(@m,4);
+        my $xw = Week_of_Year(@t);
+        my $t = sprintf "%4.4d-%2.2d-%2.2d", @t;
+        my $f = sprintf "%4.4d-%2.2d-%2.2d", @f;
+#     print " \n Tues is $t   Excluding from $d1 to $d2\n";
+        my $x1 = Delta_Days(@t, @sv);
+        my $x2 = Delta_Days(@t, @lv);
+        my $x3 = Delta_Days(@f, @sv);
+        my $x4 = Delta_Days(@f, @lv);
+ #       print " delta 1 is $x1 delta  2 is $x2 \n";
+                  
+        if  (   ( ($x1 <  0) and ($x2 > 0) )
+             or ( ($x3 < 0) and ($x4 > 0) )
+            )
+        {
+            push @exweeks, $xw;
+        }
+        @m = Add_Delta_Days(@m,7);
+        last if Delta_Days (@m,@lv) < 0;
+    }
+    return @exweeks;
+}
+
+
+ 
+exit;

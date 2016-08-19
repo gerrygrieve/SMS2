@@ -1,0 +1,36 @@
+#!/usr/bin/perl -w
+
+use lib "/www/Gform/sshop/lib/";
+use lib "/www/Gform/lib";
+use Date::Calc qw(Delta_Days Add_Delta_Days Week_of_Year Today Monday_of_Week);
+use Data::Dumper;
+use sshop_part;
+use Debug;
+
+Debug::Set_Debug(1, "text");
+my @date = Today();
+my ($start_wk, $y) = Week_of_Year(@date);
+my $num_wk =10;
+my %this = sshop_part::get_Booked_Dates();
+
+foreach my $key ( keys %this)
+{
+    my $n = scalar @{$this{$key}};
+    print "key is {$key} has {$n} ids \n";
+}
+
+print Dumper(%this);
+
+foreach my $w ( $start_wk .. $start_wk+$num_wk-1)
+{
+    
+    my $iso_wk = sshop_part::ISOWeek($y,$w);
+    my $n = defined $this{$iso_wk}
+          ? scalar @{$this{$iso_wk}}
+          : 0;
+    next unless $n;
+    my $x = " Bdates: ", join ",  ", @{ $this{$iso_wk} };
+    print "$iso_wk  {$n}\n";
+}
+exit;
+

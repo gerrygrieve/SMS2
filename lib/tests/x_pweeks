@@ -1,0 +1,55 @@
+#!/usr/local/bin/perl -w
+
+use lib "/www/Gform/sshop/lib/";
+use sshop_part;
+use Data::Dumper;
+
+## get array of appls.
+
+my %pweeks =  sshop_part::get_Week_Avail();
+
+print Dumper{%pweeks};
+
+foreach my $p ( keys %pweeks)
+{
+    print " $p -- \n";
+
+}
+
+sub get_one
+{
+   my $f = shift;
+   my $t = sshop_part::rd_file($f);   
+}
+
+sub print_data
+{     
+   my $t = shift;
+   print "$t->{full_name} $t->{ID} \n";
+   foreach my $i ( 1,2,3)
+   {
+   #       my $n = 0;
+      my $w = "preferred_week_".$i;
+ #     $n = $pweeks->{$d}{$t} if $pweeks->{$d}{$t};
+      print "pweek:: $t->{$w}  \n";
+   }
+   print "$t->{preferred_week_1}  \n";
+   print "$t->{preferred_week_2}  \n";
+   print "$t->{preferred_week_3}  \n";
+
+   foreach my $pref ( qw [ preferred_week unavailable_week ] )
+   {        
+      foreach my $ii (1..3)
+      {
+           my $tag = $pref . "_" .$ii;
+    #       print "$tag \n";              
+           if (defined  $t->{$tag})
+           {
+               print "  get_Week_Avail:: $tag --> $t->{$tag} \n"; 
+           
+           }
+       }
+   }
+
+
+}

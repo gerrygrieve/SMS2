@@ -1,0 +1,162 @@
+#!/usr/bin/perl -wT
+
+# save the entered info to a file & redisplay
+# this script is intended to management info that is editable by 
+# the course intructors:  course.cgi is a more general tool
+
+$ENV{PATH} = "/bin:/usr/bin";
+use Date::Calc qw(Delta_Days Day_of_Week Add_Delta_Days Day_of_Week_to_Text Monday_of_Week
+                  Decode_Month Month_to_Text Days_in_Month Week_of_Year Week_Number Today);
+use CGI;
+use lib "/www/Gform/SMS/lib";
+
+use course_metadata;
+my $this_script = "/cgi-bin/SMS2/mkcal";
+my $styleURL = '/css/sms_cal.css';
+my $title = "P &amp; A Student Shop Calendar";
+my $version = "0.0.1";
+#Debug::Set_Debug(1, "html");
+my ($wel, $fname);
+my $sp = '&nbsp;';
+my $q = new CGI;
+
+    
+print $q->header(-type=> "text/html", -expires=>'now'), "\n";
+print $q->start_html( -title  => "PandA SShop Calendar ", 
+                      -style  =>{'src' => $styleURL},),"\n";
+print $q->start_multipart_form("POST", $this_script), "\n";
+#dump_it();
+print $q->Dump;
+my @today = Today();
+my $out = "";
+if ($q->param("next") ) {
+    my $name = $q->param("next");
+    my $mon = Decode_Month($name);
+    my @next_mon = ($today[0], $mon,1);
+    $out = mk_cal(@next_mon);
+    
+} elsif ($q->param("prev") ) {
+    my $name = $q->param("prev");
+    my $mon = Decode_Month($name);
+    my @next_mon = ($today[0], $mon,1);
+    $out = mk_cal(@next_mon);
+    
+} else {
+    $out = mk_cal(@today);
+}
+
+print $out;
+print $q->endform;
+print $q->end_html;
+exit;
+sub prev {
+    my @this = @_;
+    return "" if ($this[1] == 1);
+    my $pmon = $this[1] - 1;
+    my $mname = Month_to_Text($pmon);
+    my $qsave = $q->submit( -name  => "Prev",
+                            -value =>  $mname); 
+   return $qsave;
+}
+sub nextmon {
+    my @this = @_;
+    return "" if $this[1] == 12;
+    my $nmon = $this[1] + 1;
+    my $mname = Month_to_Text($nmon);
+    my $qsave = $q->submit( -name  => "next",
+                            -value => $mname); 
+    return $qsave;
+}
+sub mk_cal {
+    my @this = @_;   
+    my @first_of_month = ($this[0], $this[1], 1);
+    my $dow_1 = Day_of_Week(@first_of_month);
+    my $week  = Week_Number(@first_of_month);  
+    my @monday_1 = Monday_of_Week($week, $first_of_month[0]);
+    my $dayname = Day_of_Week_to_Text($dow_1);
+    my $mname = Month_to_Text($this[1]);
+    $ndays    = Days_in_Month($this[0], $this[1]);
+    my @pdate = @monday_1;
+    my $pmon = $pdate[1];
+    my $i =1;
+    my $cell = 1;
+    my $prev =  prev(@this);
+    my $next = nextmon(@this);
+    my $out = qq{<table class="cal">};
+    $out .= qq{<tr><td class="titlerow"> $prev</td>
+                   <td class="titlerow" colspan="5"> $mname </td>
+                   <td class="titlerow">$next</td></tr>\n};
+    $out .= qq{<tr><th>Mon</th><th>Tue</th><th>Wed</th><th>Thr</th><th>Fri</th><th>Sat</th><th>Sun</th></tr>};
+    $out .= qq{<tr>};
+    my $cour_sked = get_course_sked();
+    my %course_dates = %{$cour_sked};
+    while  ($i < $dow_1) {
+        $i++;
+        my $pd = $pdate[2];
+        $out .= qq{<td class="non">$pd </td>};
+        @pdate = Add_Delta_Days (@pdate,1);
+        $cell ++;
+    }
+
+    my @tdate = @first_of_month;
+    my $tmon = $tdate[1];
+    foreach my $ti (1 .. $ndays) {
+        my $td = $tdate[2];
+        my $iso = sprintf "%4d%2.2d%2.2d", @tdate;
+        my $class = "wd";
+        my $course = $course_dates{$iso} ?
+                    $course_dates{$iso}  :
+                     "--";
+        
+        $class = "wend" if ($cell%7 == 0) or ($cell%7 == 6);
+        $out .= qq{<td class="$class">
+                    <div class="daynum">$td</div>
+                    <div class="course">$course</div>
+                    </td>} ;
+        
+        @tdate = Add_Delta_Days (@tdate,1);
+        $out .= qq{</tr>\n<tr>}  if ($cell%7 == 0);
+        $cell ++;
+    }
+  #  my  @ndate = Add_Delta_Days (@tdate,1);
+    my @ndate = @tdate;
+    my $nmon = $tdate[1];
+    ## square up the grid by adding days from the next month
+ #   $cell--;
+    while (($cell-1) % 7) {
+        my $nd = $tdate[2];
+        my $iso = sprintf "%4d-%2.2d-%2.2d", @tdate;
+        my $class = "wd";
+        $class = "wend" if ($cell%7 == 0) or ($cell%7 == 6);
+        my $course = $course_dates{$iso} ?
+                     $course_dates{$iso}  :
+                     "--";
+        $out .= qq{ <td class=$class>
+                    <div class="daynum">$nd</div>
+                    <div class="course">$course</div>
+                 </td>};
+        @tdate = Add_Delta_Days (@tdate,1);
+        $cell++;    
+    }
+    $out .= qq{</tr> \n};
+    $out .= qq{</table>\n};
+
+    return $out;
+}
+sub get_course_sked {
+
+	my $data = course_metadata::get_Course_Data_json();
+	my @courses = @{$data->{course_data}};
+	my %out = ();
+	foreach my $c (  @courses ) {
+		my $modnum = $c->{num};
+		
+		my @dates = @{$c->{date_upcoming}};
+		foreach my $up ( @dates ) {
+			$value = $up;
+			$out{$up} = "Mod #" . $modnum; 
+		}
+	}
+    return \%out;    
+    
+}

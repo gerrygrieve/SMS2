@@ -1,0 +1,79 @@
+#!/usr/local/bin/perl -w
+
+use lib "/www/Gform/sshop/lib/";
+use sshop_part;
+use Debug;
+use Data::Dumper;
+use Date::Calc qw(Delta_Days Add_Delta_Days Week_of_Year Monday_of_Week );
+Debug::Set_Debug(1,"ansi");
+
+my %xweeks =  sshop_part::get_excluded_weeks();
+my @Start = split "-",$xweeks{start};
+my @Slast = split "-",$xweeks{last};
+
+## get array of appls.
+   my $start_wk = 42;
+   my $num_wk   = 4;
+my %eweeks =  sshop_part::get_excluded_weeks();
+my %pweeks =  sshop_part::get_Week_Avail();
+my %edata  =  sshop_part::get_Data_by_ID();
+my $un_ref =  sshop_part::get_UnRestricted_Weeks($start_wk, $num_wk);
+
+
+
+my %unrest = %$un_ref;
+
+foreach $d ( sort keys %unrest)
+{
+   print "date: $d ";
+   my $nunrest = scalar @{$unrest{$d}};
+#   print join", ", @{$unrest{$d}};
+   print " $nunrest unrestricteds \n";
+}
+
+sub get_UnRestrictedWeeks
+{
+   my %unrest = ();
+   my @date = @Start;
+   my $start_wk = 42;
+   my $num_wk   = 4;
+
+   foreach my $week ( $start_wk .. $start_wk+$num_wk-1)
+   {
+       my @date = Monday_of_Week($week,2012);
+       @date = Add_Delta_Days(@date,1);
+       my $d = sprintf "%4d-%2.2d-%2.2d", @date;
+       print "Tuesday's Date .. $d \n";
+       foreach my $k ( sort keys %edata )
+       {
+          my $restricted = 0;
+          my $es = $edata{$k};
+#          print "working name $es->{full_name} \n";
+#          print Dumper($es);
+#          exit;
+          foreach my $i ( 1,2,3)
+          {
+             my $n = 0;
+             my $t = "preferred_week_".$i;
+             my $u = "unavailable_week_".$i;
+#	     print "Check date $d for selected $t and $u\n";
+#             $restricted++ if $pweeks{$d}->{$t};
+#             print " date $d --> $t is  $es->{$t} \n";
+#             print " date $d --> $u is   \n";
+             $restricted++ if exists $es->{$t} and $es->{$t} eq $d;
+             $restricted++ if exists $es->{$u} and $es->{$u} eq $d;
+#             print "this date is restricted for $es->{full_name} \n"
+#		 if $restricted;
+ #            exit;  
+          }
+   #       print "date $d is not restrcted by ID $es->{ID}\n";
+          push @{$unrest{$d}}, $es->{ID} unless $restricted;
+       }
+ #      print "date: $d unrested Id's ",  join ", ", @{$unrest{$d}};
+ #      exit;
+       @date = Add_Delta_Days(@date,7);
+   }
+
+   return \%unrest;
+
+}

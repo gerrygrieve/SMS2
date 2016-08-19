@@ -1,0 +1,28 @@
+#!/usr/bin/perl -wT
+
+use lib "..";
+use lib "/www/Gform/lib";
+
+use Debug;
+use SMS_Person;
+use Data::Dumper;
+Debug::Set_Debug(1,"ansi");
+
+Debug::dsay("this is list_elements");
+
+my %el_info =  SMS_Person::get_element_info();
+#print " dump the haash .. \n";
+#print Dumper(%el_info);
+#exit;
+print; "element info is\n";
+
+foreach my $t ( keys %el_info  )
+{
+    my %tag_obj = %{$el_info{$t}};
+    foreach $tkey ( keys %tag_obj)
+    {
+       print "tag {$t} tagkey {$tkey}  $tag_obj{$tkey}\n";
+   }
+}
+
+

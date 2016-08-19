@@ -1,0 +1,86 @@
+<ittask_record>
+<xtag>
+    <tname>date</tname>
+    <prompt>Date</prompt>
+
+    <input>
+        <type>text</type>
+        <nchar>40</nchar>
+        <maxchar>60</maxchar>
+    </input>
+    <rank>106</rank>
+</tag>
+
+<tag>
+    <tname>catag</tname>
+    <prompt>Catagory</prompt>
+
+    <input>
+        <type>pulldown</type>
+        <option>
+            <value></value>
+            <label>(select one)</label>
+        </option>
+        <option> 
+            <value>carchive</value>
+            <label>Course Archive</label>
+         </option>
+        <option> 
+            <value>printer</value>
+            <label>Printers</label>
+         </option>
+      <option> 
+            <value>astro</value>
+            <label>Astro Research</label>
+         </option>
+     <option> 
+            <value>other</value>
+            <label>Other Research</label>
+      </option>
+      <option> 
+            <value>network</value>
+            <label>Network</label>
+         </option>
+     <option> 
+            <value>web</value>
+            <label>Web</label>
+         </option>
+     <option> 
+            <value>Misc</value>
+            <label>Miscellaneous</label>
+      </option>
+
+    </input>
+    <required>true</required>
+    <rank>10</rank>
+</tag>
+<tag>
+   <tname>time</tname>
+    <prompt>Time</prompt>
+ 
+    <input>
+        <type>text</type>
+        <nchar>5</nchar>
+        <maxchar>10</maxchar>
+    </input>
+    <rank>106</rank>
+</tag>
+<tag>
+   <tname>comment</tname>
+    <prompt>Comment</prompt>
+
+    <input>
+       <type>textarea</type>
+       <nrow>5</nrow>
+       <ncol>60</ncol>
+    </input>
+    <rank>1060</rank>
+</tag>
+
+
+ 
+
+
+</ittask_record>
+
+

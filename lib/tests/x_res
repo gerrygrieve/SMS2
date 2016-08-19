@@ -1,0 +1,30 @@
+#!/usr/bin/perl -w
+
+use Date::Calc qw [Week_of_Year  Delta_Days Add_Delta_Days];
+my $d1 = "2013-06-17";
+my $d2 = "2013-07-26";
+
+print "$d1 --> ", datestr_to_array($d1), "\n";
+print "$d2 --> ", datestr_to_array($d2), "\n";
+
+
+my @d2 = datestr_to_array($d2);
+my @d1 = datestr_to_array($d1);
+my @this_date = @d1;
+my @res_wks = ();
+while ( Delta_Days(@d2,@this_date) < 0)
+{
+    my ($w1,$y1) = Week_of_Year(@this_date);
+    my $iso_wk = sprintf "%4d-W%2.2d", $y1, $w1;
+    push @res_wks, $iso_wk;
+
+    @this_date = Add_Delta_Days(@this_date, 7);
+  #  print " {$iso_wk} ", (join ", ",@this_date), "\n";
+}
+
+print "ResWeeks: ", (join ",  ", @res_wks),"\n";
+
+sub datestr_to_array {
+    my $d = shift;
+    my @array = (split "-",$d);
+}

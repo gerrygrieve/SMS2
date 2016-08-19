@@ -1,0 +1,70 @@
+#!/usr/bin/perl -w
+
+use lib "/www/Gform/sshop/lib/";
+use sshop_part;
+    my $start_wk = 2;
+    my $num_wk = 16;
+    my ($pc, $un) =  get_Prefercounts($start_wk, $num_wk);
+    my %pcounts = %{$pc};
+    my %unrest  = %{$un};
+    foreach my $w ( $start_wk .. $start_wk+$num_wk-1)
+    {
+       my $n1 = $pcounts{$w}{1} ? $pcounts{$w}{1} :0;
+       my $n2 = $pcounts{$w}{2} ? $pcounts{$w}{2} :0;
+       my $n3 = $pcounts{$w}{3} ? $pcounts{$w}{3} :0;
+       my $n4 = $unrest{$w}     ? $unrest{$w}     :0;
+       print "$w  $n1  $n2  $n3 $n4\n";
+    }
+exit;
+sub get_Prefercounts
+{
+   use Date::Calc qw(Delta_Days Add_Delta_Days Week_of_Year Monday_of_Week );
+   my $start_wk = shift;
+   my $num_wk   = shift;
+   my %eweeks =  sshop_part::get_excluded_weeks();
+   my %edata  =  sshop_part::get_Data_by_ID();
+
+   my %unrest = ();
+   my %pcounts= ();
+   
+   #Get the preferred counts...
+   foreach my $k ( sort keys %edata )
+    {
+        my $es = $edata{$k};
+    #    print "id is {$es->{ID}}\n";
+        foreach my $i (1,2,3)
+        {
+        
+            my $t = "preferred_week_".$i;
+            my $wtest = $es->{$t};
+            next unless $wtest;
+            my $pw = $1 if ($es->{$t} =~ /week # (\d+):/);
+            $pcounts{$pw}{$i}++;
+        }
+
+    }
+    
+## Get the unrestricted counts...
+    foreach my $w (  $start_wk .. $start_wk+$num_wk-1)
+    {
+ 
+        foreach my $k ( sort keys %edata )
+        {
+           my $es = $edata{$k};
+           my $rest = 0;
+           foreach my $i (1,2,3)
+            {
+                my $t = "preferred_week_".$i;
+                my $wtest = $es->{$t};
+                next unless $wtest;
+                my $pw = $1 if ($es->{$t} =~ /week # (\d+):/);
+                next if $pw < $start_wk or $ pw > $start_wk+$num_wk-1 ;
+                $rest++ if ($pw == $w)
+            }
+            $unrest{$w}++ unless $rest;
+        }
+    }
+
+   return \%pcounts,\%unrest;
+
+}

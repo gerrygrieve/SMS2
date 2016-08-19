@@ -1,0 +1,12 @@
+#!/usr/bin/perl -wT
+
+        
+
+foreach my $i ( 0..25)
+{
+   my $s = int ($i) +65;
+ #  my $s = int (rand 25) +65;
+   my $c = chr $s;
+
+   printf "%4d  %4d  %s\n", $i, $s, $c; 
+}

@@ -1,0 +1,201 @@
+<panda_host>
+
+<tag>
+    <tname>ID</tname> 
+    <rank>106</rank>
+</tag>
+
+
+<tag>
+   <tname>full_name</tname>
+    <prompt>Full Name</prompt>
+ <input>
+        <type>text</type>
+        <nchar>40</nchar>
+        <maxchar>60</maxchar>
+    </input>
+  
+    <rank>116</rank>
+</tag>
+
+<tag>
+   <tname>UBC_id</tname>
+    <prompt>Student/Staff Number</prompt>
+ <input>
+        <type>text</type>
+        <nchar>10</nchar>
+        <maxchar>14</maxchar>
+    </input>
+     <rank>118</rank>
+</tag>
+
+<tag>
+    <tname>email</tname>
+    <prompt>email</prompt>
+    <input>
+        <type>text</type>
+        <nchar>40</nchar>
+        <maxchar>60</maxchar>
+    </input>
+ 
+    <rank>136</rank>
+</tag>
+
+<tag>
+    <tname>phone</tname>
+    <prompt>Phone</prompt>
+    <input>
+        <type>text</type>
+        <nchar>40</nchar>
+        <maxchar>60</maxchar>
+    </input>
+ 
+    <rank>146</rank>
+</tag>
+
+<tag>
+   <tname>comment</tname>
+    <prompt>Student's Comment</prompt>
+
+    <input>
+       <type>textarea</type>
+       <nrow>5</nrow>
+       <ncol>60</ncol>
+    </input>
+    <rank>226</rank>
+</tag>
+
+<tag>
+    <tname>supervisor</tname>
+    <prompt>Supervisor</prompt>
+    <input>
+        <type>text</type>
+        <nchar>40</nchar>
+        <maxchar>60</maxchar>
+    </input>
+ 
+    <rank>166</rank>
+</tag>
+
+
+<tag>
+    <tname>preferred_week_1</tname>
+    <prompt>Preferred Week</prompt>
+    <input>
+        <type>text</type>
+        <nchar>40</nchar>
+        <maxchar>60</maxchar>
+    </input>
+ 
+    <rank>366</rank>
+</tag>
+
+<tag>
+    <tname>preferred_week_2</tname>
+    <prompt>1st Alternate Week</prompt>
+    <input>
+        <type>text</type>
+        <nchar>40</nchar>
+        <maxchar>60</maxchar>
+    </input>
+ 
+    <rank>366</rank>
+</tag>
+
+<tag>
+    <tname>preferred_week_3</tname>
+    <prompt>2nd Alternate Week</prompt>
+    <input>
+        <type>text</type>
+        <nchar>40</nchar>
+        <maxchar>60</maxchar>
+    </input>
+ 
+    <rank>366</rank>
+</tag>
+
+<tag>
+    <tname>excluded_from</tname>
+    <prompt>Unavailable Interval From   </prompt>
+    <input>
+        <type>text</type>
+        <nchar>40</nchar>
+        <maxchar>60</maxchar>
+    </input>
+ 
+    <rank>376</rank>
+</tag>
+<tag>
+    <tname>excluded_to</tname>
+    <prompt>Unavailable Interval To</prompt>
+    <input>
+        <type>text</type>
+        <nchar>40</nchar>
+        <maxchar>60</maxchar>
+    </input>
+ 
+    <rank>377</rank>
+</tag>
+<tag>
+    <tname>request_date</tname>
+    <prompt>Request Date</prompt>
+    <input>
+        <type>text</type>
+        <nchar>40</nchar>
+        <maxchar>60</maxchar>
+    </input>
+ 
+    <rank>379</rank>
+</tag>
+<tag>
+    <tname>invited_to_course</tname>
+    <prompt>Invited to Course</prompt>
+ 
+    <rank>380</rank>
+</tag>
+<tag>
+    <tname>booked_date</tname>
+    <prompt>Booked Date</prompt>
+ 
+    <rank>381</rank>
+</tag>
+<tag>
+    <tname>booked_for_course</tname>
+    <prompt>Booked in Course</prompt>
+ 
+    <rank>379</rank>
+</tag>
+<tag>
+    <tname>completed_ok</tname>
+    <prompt>Completed OK</prompt>
+ 
+    <rank>379</rank>
+</tag>
+
+<tag>
+    <tname>confirmed_booking</tname>
+    <prompt>Confirmed Booking</prompt>
+ 
+    <rank>409</rank>
+</tag>
+
+<tag>
+    <tname>Declined_booking</tname>
+    <prompt>Declined Booking</prompt>
+ 
+    <rank>409</rank>
+</tag>
+
+<tag>
+    <tname>AdComments</tname>
+    <prompt>Admin's Comment</prompt>
+  <input>
+       <type>textarea</type>
+       <nrow>5</nrow>
+       <ncol>60</ncol>
+    </input>
+    <rank>419</rank>
+</tag>
+</panda_host>
+
+

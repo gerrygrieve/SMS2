@@ -1,0 +1,14 @@
+#!/usr/local/bin/perl -w
+
+use lib "/www/Gform/sshop/lib/";
+use sshop_part;
+use Debug;
+use Data::Dumper;
+use Date::Calc qw(Delta_Days Add_Delta_Days Week_of_Year Monday_of_Week );
+Debug::Set_Debug(1,"ansi");
+
+my $thisdate = "2012-10-16";
+    my $dot  = sshop_part::get_WeekData($thisdate);
+    my %dd = %{$dot};
+
+print Dumper (%dd);

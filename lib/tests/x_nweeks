@@ -1,0 +1,42 @@
+#!/usr/bin/perl
+
+
+use Date::Calc qw (Delta_Days Today Add_Delta_Days);
+
+@indate = Date::Calc::Today();
+my @first = (2013,12,2);
+my @Slast = (2013,12,9);
+$n_Weeks_to_Display = 10;
+my @date = @indate;
+
+
+foreach my $i (0..19)
+{
+    $i++;
+    my $n = get_NWeeks_To_Display(@date);
+    printf "date: %d-%2.2d-%2.2d   nweeks : {%2d} \n", @date, $n; 
+    @date = Add_Delta_Days(@date, $i*$n_Weeks_to_Display);
+}
+
+sub get_NWeeks_To_Display
+{
+    my @first = @_;
+    my $nout = $n_Weeks_to_Display;
+    my $dd = Delta_Days(@first, @Slast);
+
+    
+    if ($dd < 0)           # start is beyond end
+    {
+ #       print "return nout = 0 \n";
+        $nout = 0;
+    } elsif ($dd < 7*$n_Weeks_to_Display )
+    {
+        $nout = int ($dd/7);
+ #       print "we need to adjust nout to $nout \n";
+    } else
+    {
+      $nout = $n_Weeks_to_Display;  
+    }
+    return $nout;   
+    
+}
