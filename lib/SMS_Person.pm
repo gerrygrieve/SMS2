@@ -39,7 +39,7 @@ sub new  {
     my $self = { _permitted => \%elements };
 
     bless $self, $class;
-    $self->{ID} = get_NextID(); 
+ #   $self->{ID} = get_NextID(); 
     return $self;
 }
 
@@ -248,14 +248,14 @@ sub get_Data {
    opendir (XD, $data_dir ) || die "cannot get dir $data_dir  $! \n";
    my  @xfiles =  grep { /xml$/ } readdir (XD);
    closedir(XD);
-   my @things = ();
+   my @apps = ();
    
    foreach my $f (@xfiles) {
     #  Debug::dsay("get_Data:: reading file {$f}");
        my $s = rd_file($f); 
-      push @things, $s;
+      push @apps, $s;
    }
-   return @things;
+   return @apps;
 }
 
 sub get_Booked_Dates {
@@ -854,11 +854,12 @@ sub  confirmationnumber {
     my $id = shift;
 	$id = substr $id,1,2; 
     my $l = length $id;
-  #  Debug::dsay ("confirmationnnumber:: id starts at {$id}");
+ #   Debug::dsay ("confirmationnnumber:: id starts at {$id}");
     my $charcount = 0;
     while ($charcount < 3)   {
         my $s = int (rand 25) + 65;
         $id =  (chr $s) . $id;
+# Debug::dsay ("confirmationnnumber:: id is at {$id}");
 		$charcount++;
     }
 	$l = length $id;
@@ -1046,7 +1047,7 @@ sub rd_file {
 
     $nl = "\n";
     $xml_file = $data_dir  . $f ;   
- 
+ #	Debug::dsay("rd-file:: $f ");
     {
        open (X,$xml_file ) ||  return -1;
        local ( $/ );
@@ -1056,7 +1057,7 @@ sub rd_file {
 
     m[<$xml_element>(.*?)</$xml_element>]msg;
     my $talk = $1;
-    my $t = new sshop_part;
+    my $t = new SMS_Person;
 
     while  ($talk =~ m[<(\w+?)>(.*?)</\1>]msg) {
         next unless ($1 );
@@ -1064,7 +1065,7 @@ sub rd_file {
         my $value = $2;
         $value =~ s/\s*$//;
         $t->$field($value);
-#	Debug::dsay("rd-file:: tag {$field} valu {$value} ") if $f =~ /106/;
+#	Debug::dsay("rd-file:: tag {$field} valu {$value} ");
     } 
     return $t;
 }

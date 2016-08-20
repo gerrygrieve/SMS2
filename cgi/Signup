@@ -16,6 +16,7 @@ use signupform;
 
 use HTML_Util;
 use Form_Util;
+use SMS_html_Util;
 
 use strict;
 use CGI;
@@ -31,9 +32,9 @@ my ($wel, $fname);
 my $sp = '&nbsp;';
 my $q = new CGI;
 #my $Debug = 2;
-
+my $bs_style = "buttonstyle";
 my $qsave =$q->submit( -name  => "Save",
-#                       -class => $bs_style,      
+                       -class => $bs_style,      
                        -value => "Save"); 
 my $Hidden;
 
@@ -73,15 +74,29 @@ my $then = sprintf("%4d-%2.2d-%2.2d",$exp_date[0], $exp_date[1],$exp_date[2]);
 print $q->start_multipart_form("POST", $this_script), "\n";
 
 if ($q->param('Save') )  { do_Save();}
-else                     { do_mainpage(); }
+else                     { do_mainpage2(); }
 
 print $q->endform;
 print $q->end_html;
 exit;
 
+sub do_mainpage2 {
+
+   Debug::dsay ("This is main page2 sub ;");
+	print  qq{<div class="mainpg"};
+    print  get_Intro();
+
+
+	my $html = SMS_html_Util::student_register($q, "student");
+
+	print $html;
+    print  qq{<p>$qsave</p>};
+    print  qq{</div>};
+}
 sub do_mainpage {
     Debug::dsay ("This is main page sub ;");
     my %element_info = SMS_Person::get_element_info();
+
 
     print qq{<div class="mainpg"};
     print get_Intro();

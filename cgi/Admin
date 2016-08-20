@@ -14,6 +14,7 @@ use sshop_part;
 use signupform;
 use HTML_Util;
 use Form_Util;
+use SMS_html_Util;
 
 use strict;
 use CGI;
@@ -40,10 +41,15 @@ my $qsave = $q->submit( -name  => "Save",
 #                      -class => $bs_style,      
                        -value => "Save"); 
 my $Hidden;
-    
+#{'src' => $styleURL},
 print $q->header(-type=> "text/html", -expires=>'now'), "\n";
 print $q->start_html( -title  => "PandA SShop Admin ", 
-                      -style  =>{'src' => $styleURL},),"\n";
+                      -style  => [
+									{'src' => $styleURL},
+								   {'src'=>'/Gform//SMS/css/sshop.css'},
+                                 
+								 ],
+                     ),"\n";
 print $q->start_multipart_form("POST", $this_script), "\n";
 
 Form_Welcome();
@@ -57,11 +63,12 @@ elsif ( $q->param("AddNewApp")  )             { do_App();        }
 elsif ( $q->param("AppSort")    )             { do_showApps();   } 
 elsif ( $q->param("Save Dates")  )            { do_Save_Dates(); }
 elsif ( $q->param("Delete App")  )            { do_DeleteApp();  }
-elsif ( $q->param("View App")  )              { do_App();        } 
+elsif ( $q->param("View App")  )              { edit_App();        } 
 elsif ( $q->param('next') eq "Manage Courses")  { do_manage_Courses();}
 elsif ( $q->param('next') eq "Mail It" )      { do_mail_invites();}
 elsif ( $q->param('next') eq "Save w/o Mail") { do_Save_Course();}
 elsif ( $q->param('next') eq "Manage Dates")  { do_Exclusions(); }
+elsif ( $q->param('next') eq "Edit Student")  { do_Edit_Student(); }
 elsif ( $q->param('week') ) 	              { do_WeekPage($q->param('week'));}
 elsif ( $q->param('Print Course') )           { do_PrintCourse(); }
 elsif ( $q->param('MoreWeeks') )              { do_MoreWeeks(); }
@@ -121,36 +128,75 @@ sub do_DeleteApp {
     do_mainpage();
 }
 
-sub do_App {
-    my $app = $q->param("View App");
-    my $id  = $app;
-    $id  = $1 if $app =~ /ID=(\d+)/;
-    Debug::dsay ("do_App:; a is {$id}");
- 
-    my $a = $id 
-          ? sshop_part::get_app_by_ID($id)
-          : "";
-    print  do_selectTable();
-   
-    my $out = signupform::App_Data($a);
-    $out   .= $q->hidden("App_ID",$id) . "\n";
-    print $out;
-    
-    my $qsave =$q->submit( -name  => "Save",
-#                         -class => $bs_style,      
-                         -value => "Save"); 
-    my $qdele =$q->submit( -name  => "Delete App",
-#                         -class => $bs_style,      
-                          -value => "Delete "); 
-    my $qadd =$q->submit( -name  => "AddNewApp",
-#                         -class => $bs_style,      
-                          -value => "Add New "); 
+sub do_Edit_Student {
+	Debug::dsay ("This is Admin do_Edit_Student ;");
 
-    print qq{<table><tr><td>$qsave<td>
-                        <td>$qadd<td>
-                        <td>$qdele<td></tr>\n};
-    print qq{</table>}; 
+	my @apps = SMS_Person::get_Data();
+
+	print do_selectTable();
+	print qq{<p> select the student to Edit</p>};
+
+	foreach my $a ( @apps ) {
+		my $sn = $a->{UBC_id};
+		my $name = $a->{full_name};
+
+		my $xx = $q->submit(-name=>'View App',-value=>$sn);
+		print "$xx $name <br />";
+	}
 }
+
+sub do_App {
+
+	Debug::dsay ("This is Admin do_app ;");
+	print do_selectTable();
+	print  qq{<div class="student_reg"};
+    print  qq{<p> You can register a student with this form </p>};
+
+
+	my $html = SMS_html_Util::student_register($q, "admin");
+
+	print $html;
+    print  qq{<p>$qsave</p>};
+    print  qq{</div>};
+}
+
+sub edit_App {
+     my $sn = $q->param("View App");
+
+    Debug::dsay ("do_App:; snis {$sn}");
+
+    print  do_selectTable();
+
+	print  qq{<div class="student_reg"};
+    print  qq{<p> You can register a student with this form </p>};
+
+
+	my $html = SMS_html_Util::student_register($q, "admin");
+
+	print $html;
+    print  qq{<p>$qsave</p>};
+    print  qq{</div>};
+}
+#   
+#    my $out = signupform::App_Data($a);
+#    $out   .= $q->hidden("App_ID",$id) . "\n";
+#    print $out;
+#    
+#    my $qsave =$q->submit( -name  => "Save",
+##                         -class => $bs_style,      
+#                         -value => "Save"); 
+#    my $qdele =$q->submit( -name  => "Delete App",
+##                         -class => $bs_style,      
+#                          -value => "Delete "); 
+#    my $qadd =$q->submit( -name  => "AddNewApp",
+##                         -class => $bs_style,      
+#                          -value => "Add New "); 
+#
+#    print qq{<table><tr><td>$qsave<td>
+#                        <td>$qadd<td>
+#                        <td>$qdele<td></tr>\n};
+#    print qq{</table>}; 
+#}
 
 sub do_App_by_Name {
     my $app = $q->param("View App");
@@ -385,7 +431,7 @@ sub do_Save_Courses {
 	$cdata{course_data} = \@courses;
 	course_metadata::put_Course_Data_json( \%cdata );
 
-	my $out = "<h3> The course updates may hav been saved</h3>";
+	my $out = "<h3> The course updates may have been saved</h3>";
 	$out .= do_selectTable();
 	print $out;
 #	hide ( "next", "manage Courses");
@@ -899,14 +945,15 @@ sub  do_selectTable {
     my $b1 = $q->submit(-name=>'next',-value=>'Show Apps');
     my $b3 = $q->submit(-name=>'next',-value=>'Manage Dates');
     my $b4 = $q->submit(-name=>'next',-value=>'Manage Courses');
-    my $b5 = $q->submit(-name  => "AddNewApp",
-#                         -class => $bs_style,      
-                          -value => "Add New App");
+    my $b5 = $q->submit(-name=> "AddNewApp", -value => "Add New Student");
+    my $b6 = $q->submit(-name=>'next',-value=>'Edit Student');
 	$out .= qq{<tr>};
 #    $out .= qq{<td> $b1 </td> };
     $out .= qq{    <td> $b4 </td> };
 #    $out .= qq{    <td> $b3 </td> };
- #   $out .= qq{    <td> $b2 </td> <td> $b3 </td><td>$b5</td></tr>};
+ #   $out .= qq{    <td> $b2 </td> <td> $b3 </td>
+	$out .= qq{<td>$b5</td>};
+	$out .= qq{<td>$b6</td>};
     $out .= qq{</tr></table>};
     $out .= qq{<hr />};
     return $out;
