@@ -167,6 +167,12 @@ sub edit_App {
     Debug::dsay ("edit_App:; sn is {$sn}");
 
     my $app = SMS_Person::get_Data_for_ID($sn);
+      Debug::dsay ("Admin Edit_App  app is [$app] ");
+      foreach my $t ( keys %$app) {
+        my $value = $app->{t};
+        Debug {"t = [$t] value [$value]" };
+        
+      }
     $q = SMS_html_Util::sms2form($app, $q);
     
     print  do_selectTable();
