@@ -334,8 +334,8 @@ sub get_Data_for_ID {
     Debug::dsay ("get_Data_for_ID:; id  is {$id}");
    $s = rd_file($f);
     Debug::dsay ("get_Data_for_ID:; a  is {$s}");
-   foreach my $k ( keys %$s ) {
-          Debug::dsay ("get_Data_for_ID:; key  is {$s}");
+   foreach my $k ( keys %{$s} ) {
+          Debug::dsay ("get_Data_for_ID:; key  is {$k}");
    }
    return $s;
 }
