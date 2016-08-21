@@ -161,18 +161,18 @@ sub do_App {
 }
 
 sub edit_App {
+    	Debug::dsay ("This is Admin do_Edit_Student ;");
     my $sn = $q->param("View App");
     my $q = shift;
     Debug::dsay ("edit_App:; sn is {$sn}");
 
-    my $app = get_Data_for_ID($sn);
+    my $app = SMS_Person::get_Data_for_ID($sn);
     $q = SMS_html_Util::sms2form($app, $q);
     
     print  do_selectTable();
 
 	print  qq{<div class="student_reg"};
     print  qq{<p> You can register a student with this form </p>};
-
 
 	my $html = SMS_html_Util::student_register($q, "admin");
 
