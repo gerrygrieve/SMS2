@@ -161,7 +161,7 @@ sub do_App {
 }
 
 sub edit_App {
-    	Debug::dsay ("This is Admin do_Edit_Student ;");
+    Debug::dsay ("This is Admin Edit_App ;");
     my $sn = $q->param("View App");
     my $q = shift;
     Debug::dsay ("edit_App:; sn is {$sn}");

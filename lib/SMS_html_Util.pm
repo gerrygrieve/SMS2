@@ -10,15 +10,16 @@ my $bs_style = "buttonstyle";
 
 1;
 sub sms2form {
-
+    Debug::dsay("sms2form:: ..." );
     my $app = shift;
     my $q   = shift;
     foreach my $t ( keys %element_info ) {
         next unless $app->{$t};
+        next if ($t eq "_permitted" );
         if ($t =~ /^\d/) {
             Debug::dsay("sms2form:: dated t is [$t]" );
            my $tt = $t.$app->{$t};
-           $q->param($t) = $app->{$t};
+           $q->param($tt) = "ON";
         } else {
              Debug::dsay("sms2form:: simple t is [$t]" );
             $q->param($t) = $app->{$t};
