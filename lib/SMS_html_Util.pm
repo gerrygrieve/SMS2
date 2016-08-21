@@ -10,7 +10,6 @@ my $bs_style = "buttonstyle";
 
 1;
 
-
 sub student_register {
 
 	my $q = shift;
@@ -32,7 +31,7 @@ sub student_register {
 				);
 		next if ( $element_info{$t}{cat} eq "internal" );
 
-		my $value = $q->param($t) ? $q->param($t) : "" ;
+#		my $value = $q->param($t) ? $q->param($t) : "" ;
 		my $pout  = $element_info{$t}{prompt} ? $element_info{$t}{prompt}: "";
 		my $qout  = $element_info{$t}{qtype}  ? $element_info{$t}{qtype} : "";
 		next unless $pout;
