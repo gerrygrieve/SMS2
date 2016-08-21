@@ -9,7 +9,21 @@ my $bs_style = "buttonstyle";
 
 
 1;
+sub sms2form {
 
+    my $app = shift;
+    my $q   = shift;
+    foreach my $t ( keys %element_info ) {
+        next unless $app->{$t};
+        if ($t =~ /^\d/) {
+           my $tt = $t.$app->{$t};
+           $q->param($t) = $app->{$t};
+        } else {
+            $q->param($t) = $app->{$t};
+        }
+    }
+    return $q;
+}
 sub student_register {
 
 	my $q = shift;

@@ -163,8 +163,11 @@ sub do_App {
 sub edit_App {
      my $sn = $q->param("View App");
 
-    Debug::dsay ("do_App:; snis {$sn}");
+    Debug::dsay ("edit_App:; sn is {$sn}");
 
+    my $app = get_Data_for_ID($sn);
+    $q = SMS_html_Util::sms2form($app, $q);
+    
     print  do_selectTable();
 
 	print  qq{<div class="student_reg"};
