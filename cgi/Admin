@@ -63,7 +63,7 @@ elsif ( $q->param("AddNewApp")  )             { do_App();        }
 elsif ( $q->param("AppSort")    )             { do_showApps();   } 
 elsif ( $q->param("Save Dates")  )            { do_Save_Dates(); }
 elsif ( $q->param("Delete App")  )            { do_DeleteApp();  }
-elsif ( $q->param("View App")  )              { edit_App();        } 
+elsif ( $q->param("View App")  )              { edit_App($q);        } 
 elsif ( $q->param('next') eq "Manage Courses")  { do_manage_Courses();}
 elsif ( $q->param('next') eq "Mail It" )      { do_mail_invites();}
 elsif ( $q->param('next') eq "Save w/o Mail") { do_Save_Course();}
@@ -161,8 +161,8 @@ sub do_App {
 }
 
 sub edit_App {
-     my $sn = $q->param("View App");
-
+    my $sn = $q->param("View App");
+    my $q = shift;
     Debug::dsay ("edit_App:; sn is {$sn}");
 
     my $app = get_Data_for_ID($sn);
