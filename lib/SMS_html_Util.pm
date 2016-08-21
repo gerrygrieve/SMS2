@@ -16,9 +16,11 @@ sub sms2form {
     foreach my $t ( keys %element_info ) {
         next unless $app->{$t};
         if ($t =~ /^\d/) {
+            Debug::dsay("sms2form:: dated t is [$t]" );
            my $tt = $t.$app->{$t};
            $q->param($t) = $app->{$t};
         } else {
+             Debug::dsay("sms2form:: simple t is [$t]" );
             $q->param($t) = $app->{$t};
         }
     }
