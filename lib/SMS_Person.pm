@@ -718,7 +718,7 @@ sub get_app_hash {
     my $f = shift;
     $nl = "\n";
      Debug::dsay ("get_app_hash:: file  is {$f}  ");
-    $xml_file = $data_dir  . $f ;   
+    $xml_file =  $f ;   
  
     {
        open (X,$xml_file ) ||  return -1;
