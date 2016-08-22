@@ -331,7 +331,7 @@ sub get_Data_for_ID {
    my $id = shift;
    my $s; 
    my $f = $xml_dir . $id . ".xml";
- 
+ Debug::dsay ("get_Data_for_ID:: id  is {$id}  "); 
    $s = get_app_hash($f);
   
    return $s;
@@ -1073,6 +1073,7 @@ sub get_app_hash {
 
     my $f = shift;
     $nl = "\n";
+     Debug::dsay ("get_app_hash:: file  is {$f}  ");
     $xml_file = $data_dir  . $f ;   
  
     {
