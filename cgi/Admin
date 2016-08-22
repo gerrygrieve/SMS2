@@ -10,7 +10,7 @@ use lib "/www/Gform/SMS/lib";
 use course_metadata;
 use Debug;
 use Date::Calc qw(Today Delta_Days Add_Delta_Days Week_of_Year);
-use sshop_part;
+use SMS_Person;
 use signupform;
 use HTML_Util;
 use Form_Util;
