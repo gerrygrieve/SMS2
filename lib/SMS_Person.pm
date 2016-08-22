@@ -330,8 +330,8 @@ sub get_Data_for_ID {
 
    my $id = shift;
    my $s; 
-   my $f = $xml_dir . $id . ".xml";
- Debug::dsay ("get_Data_for_ID:: id  is {$id}  "); 
+   my $f = $data_dir . $id . ".xml";
+   Debug::dsay ("get_Data_for_ID:: id  is {$id} [$f} "); 
    $s = get_app_hash($f);
   
    return $s;
@@ -375,368 +375,11 @@ sub get_WeekData
    return \%apps_by_week; 
 }
 
-sub get_Tues_Date {
-    # gieven a week number & year -- return Tuesday's date in iso 8601.
-    use Date::Calc qw( Add_Delta_Days  Monday_of_Week);
-
-    my $wnum = shift;
-    my $year = shift;
-  
-    @td = Add_Delta_Days(Monday_of_Week($wnum,$year),1);
-    my $out = sprintf "%4.4d-%2.2d-%2.2d", @td;
-    return $out;
-}
-
-sub get_Week {
-   my @apps =  sshop_part::get_Data();
-   my %weeks = ();
-   my @out = ();
-   foreach my $a ( @apps )
-   {
-      foreach my $ii (1..3)
-      {
-          my $t = "preferred_week_".$ii;
-          if (defined $a->{$t})
-          {
-            $weeks{$a->{$t}}{count}++;
-            $weeks{$a->{$t}}{$ii}++ ;
-          }
-      }
-   }
-   foreach my $w (sort byISO  keys %weeks )
-   {
-       my $zut = sprintf "%s  %d ", $w,  $weeks{$w}{count};
-       my $xot = sprintf "( %d, %d, %d )", (map $weeks{$w}{$_}, qw(1 2 3) );
-       push @out, $zut . $xot;         
-   }
-   return @out;
-}
-
-sub get_Week_Avail
-{
-   my @apps =  sshop_part::get_Data();
-   my %weeks = ();
-   my @out = ();
-   foreach my $a ( @apps )
-   {
-      foreach my $pref ( qw [ preferred_week ]) ## unavailable_week ] )
-      {
-         foreach my $ii (1..3)
-         {
-             my $t = $pref."_".$ii;
-             if ( $a->{$t})
-             {
-                $weeks{$a->{$t}}{$t}++ ;
-	     }
-         }
-      }
-   }
-   return %weeks;
-}
-
-sub get_NoRestrict_Apps
-{
-    my $week = shift;
-    Debug::dsay ("this is get_NoRestrict_Apps for  week {$week}");
-    my @apps =  get_Data();
-    my %norest =();
-    foreach my $a (@apps )
-    {
-        my $name = $a->{full_name};
-#	Debug::dsay ("get_NoRestrict_Apps app {$name}");
-        my $id = $a->{ID};
-	my $restricted = 0;
-	foreach my $i (1,2,3)
-        {
-            my $t = "preferred_week_".$i;
-            my $wtest = $a->{$t};
-            next unless $wtest;
-            my $pw = $1 if ($a->{$t} =~ /week # (\d+):/);
-            $restricted++ if $pw == $week;
-        }
-	    my $date1 = $a->{excluded_from} ? $a->{excluded_from} : "";
-	    my $date2 = $a->{excluded_to}   ? $a->{excluded_to}   : "";
-
-#	Debug::dsay ("get_NoRestrict_Apps app {$name} xd1 {$date1} xd2 {$date2}");	
-	my @res_weeks = get_Resweeks( $date1, $date2) if ($date1 and $date2);
-	foreach my $xw ( @res_weeks)  { $restricted++ if $xw == $week; }
-	
-        $norest{$id} = $name unless $restricted;
-   }
-   return %norest;
-}
-
-sub get_Resweeks
-{
-    my $d1 = shift;
-    my $d2 = shift;
-    my @exweeks =();          #restricted weeks numbers will be return 
-    my @sv = split "-", $d1;
-    my @lv = split "-", $d2;
-    my %weeks =  sshop_part::get_excluded_weeks();
-
-    my $wn = Week_of_Year(@sv);
-    my @sm = Monday_of_Week($wn,$sv[0]);
-    my @t1 = Add_Delta_Days(@sm,1);
-    my @f1 = Add_Delta_Days(@sm,4);
- 
-    my @m = @sm;
-    while (1)
-    {
-        my @t = Add_Delta_Days(@m,1);
-        my @f = Add_Delta_Days(@m,4);
-        my $xw = Week_of_Year(@t);
-        my $t = sprintf "%4.4d-%2.2d-%2.2d", @t;
-        my $f = sprintf "%4.4d-%2.2d-%2.2d", @f;
-#     print " \n Tues is $t   Excluding from $d1 to $d2\n";
-        my $x1 = Delta_Days(@t, @sv);
-        my $x2 = Delta_Days(@t, @lv);
-        my $x3 = Delta_Days(@f, @sv);
-        my $x4 = Delta_Days(@f, @lv);
- #       print " delta 1 is $x1 delta  2 is $x2 \n";
-                  
-        if  (   ( ($x1 <  0) and ($x2 > 0) )
-             or ( ($x3 < 0) and ($x4 > 0) )
-            )
-        {
-            push @exweeks, $xw;
-        }
-        @m = Add_Delta_Days(@m,7);
-        last if Delta_Days (@m,@lv) < 0;
-    }
-    return @exweeks;
-}
-
-sub get_Prefercounts
-{
-   use Date::Calc qw(Delta_Days Add_Delta_Days Week_of_Year Monday_of_Week );
-   my $start_wk = shift;
-   my $num_wk   = shift;
-   my $y = 2013;
-   Debug::dsay("get_Prefercounts.. st week  {$start_wk} {$num_wk}");
-   my %eweeks =  sshop_part::get_excluded_weeks();
-    Debug::dsay("call get_Data_by_ID...");
-   my %edata  =  sshop_part::get_Data_by_ID();
-
-   my %unrest = ();
-   my %pcounts= ();
-   my ($this_ref, $b_ref)   = get_Preferred_Dates();
-    my %this = %{$this_ref};
-    my %bdates = %{$b_ref};
-
-    Debug::dsay("get  the unrestricted counts...");
-
-## Get the unrestricted counts...
- 
-    foreach my $w (  $start_wk .. $start_wk+$num_wk-1)
-    {
-	my $iso_wk = sshop_part::ISOWeek($y,$w);
-	APP_LOOP:
-        foreach my $k ( sort keys %edata )
-        {
-#	   Debug::dsay( "working id $k week $iso_wk");
-	   if (grep /$k/, @{ $bdates{$iso_wk} })
-	   {
-		Debug::dsay( "skipping if $k because of booked\n");
-		next APP_LOOP;
-	   }
-           my $es = $edata{$k};
-           my $rest = 0;
-	   PWEEK_LOOP:
-           foreach my $i (1,2,3)
-            {
-		my %p1 = %{$this{$i}};
-		if (grep /$k/, @{ $p1{$iso_wk} } )
-		{
-#		    Debug::dsay( "skipping if $k because of pref $iso_wk\n");
-		    next APP_LOOP;
-		}
-#		Debug::dsay( " id $k no rests  p$i \n");
-                $rest++;
-            }
-            $unrest{$iso_wk}++ if $rest;
-        }
-    }
-   return \%unrest;
-}
-
-sub get_App_excluded_weeks {
-    my $app = shift;			# an applicant object
-    my @res_wks = ();
-    if ($app->{excluded_from} and $app->{excluded_to} )  {
-	
-		my @d2 = datestr_to_array( $app->{excluded_to} );
-		my @d1 = datestr_to_array( $app->{excluded_from} );
-		my @this_date = @d1;
-		my $xc = sprintf "%4d-%2.2d-%2.2d", @this_date;
-		Debug::dsay("get_App_excluded_weeks:: id $app->{ID} $app->{excluded_from} $app->{excluded_to} tis {$xc}");
-	
-		while ( Delta_Days(@d2,@this_date) < 0) {
-		   my ($w1,$y1) = Week_of_Year(@this_date);
-		   my $iso_wk = sprintf "%4d-W%2.2d", $y1, $w1;
-		   push @res_wks, $iso_wk;
-			@this_date = Add_Delta_Days(@this_date, 7);
-		}
-	#	Debug::dsay("get_App_excluded_weeks:: id $app->{ID} $app->{excluded_from} $app->{excluded_to} ");
-    }
- 
-    return @res_wks;
-}
-
 sub datestr_to_array {
     my $d = shift;
     my @array = (split "-",$d);
 }
 
-sub get_NoRestCounts
-{
-    use Date::Calc qw(Delta_Days Add_Delta_Days Week_of_Year Monday_of_Week );
-    my $start_wk = shift;
-    my $y        = shift;
-    my $num_wk   = shift;
-
-    Debug::dsay("get_NoRestCounts.. l:627 st week  {$start_wk} {$y} {$num_wk}");
-    my %eweeks =  sshop_part::get_excluded_weeks();
-    my %edata  =  sshop_part::get_Data_by_ID();
-
-    my %unrest = ();
-    my ($this_ref, $b_ref)   = get_Preferred_Dates();
-    my %this = %{$this_ref};
-    my %bdates = %{$b_ref};
-
-#   Debug::dsay("get  the unrestricted counts...");
-## Get the unrestricted counts...
- 
-    foreach my $w (  $start_wk .. $start_wk+$num_wk-1)
-    {
-	my $iso_wk = sshop_part::ISOWeek($y,$w);
-	APP_LOOP:
-        foreach my $k ( sort keys %edata )
-        {
-	#    Debug::dsay (" working id {$k}");
-	    my $es = $edata{$k};
-####    Check for excluded weeks
-	    my @xweeks = get_App_excluded_weeks($es);
-	 #   Debug::dsay( "working id $k week $iso_wk");
-	    if ( grep /$iso_wk/, @xweeks)
-	    {
-	#	Debug::dsay( "get_NoRestCounts:: skipping  id $k week $iso_wk excluded");
-		next APP_LOOP;
-	    }
-#	   Debug::dsay( "working id $k week $iso_wk");
-##         Check for booked week
-	   if (grep /$k/, @{ $bdates{$iso_wk} })
-	   {
-	#	Debug::dsay( "get_NoRestCounts::l625 skipping id {$k} because of booked\n");
-		next APP_LOOP;
-	   }
-          
-           my $rest = 0;
-	   PWEEK_LOOP:
-           foreach my $i (1,2,3)
-            {
-		my %p1 = %this ? %{$this{$i}} : ();
-		if (grep /$k/, @{ $p1{$iso_wk} } )
-		{
-	#	    Debug::dsay( "skipping if $k because of pref $iso_wk\n");
-		    next APP_LOOP;
-		}
-            }
-	#     Debug::dsay( "put { $k } on the unrest array \n");
-	    push @{$unrest{$iso_wk}}, $k;
- #           $unrest{$iso_wk}++ if $rest;
-        }
-    }
-   return \%unrest;
-}
-
-sub get_UnRestricted_Weeks
-{
-   use Date::Calc qw(Delta_Days Add_Delta_Days Week_of_Year Monday_of_Week );
-   my $start_wk = shift;
-   my $num_wk   = shift;
-   my %eweeks =  sshop_part::get_excluded_weeks();
-   my %edata  =  sshop_part::get_Data_by_ID();
-
-   my %unrest = ();
-   
-   foreach my $week ( $start_wk .. $start_wk+$num_wk-1)
-   {
- 
-       my @date = Monday_of_Week($week,2012);
-   
-       @date = Add_Delta_Days(@date,1);
-       my $d = sprintf "%4d-%2.2d-%2.2d", @date;
-       
-       foreach my $k ( sort keys %edata )
-       {
-          my $restricted = 0;
-          my $es = $edata{$k};
-          foreach my $i ( 1,2,3)
-          {
-             my $n = 0;
-             my $t = "preferred_week_".$i;
-             my $u = "unavailable_week_".$i;
-
-             $restricted++ if exists $es->{$t} and $es->{$t} eq $d;
-             $restricted++ if exists $es->{$u} and $es->{$u} eq $d;
-          }
-          push @{$unrest{$d}}, $es->{ID} unless $restricted;
-       }
-       @date = Add_Delta_Days(@date,7);
-   }
-   return \%unrest;
-}
-
-sub get_excluded_weeks
-{
-    my %weeks  = ();
-    my %xweeks = ();
-    {
-       open (F, $exweeks) || die "Cannot open $exweeks\n";
-       local ( $/ );
-       $_=<F>;
-       close F;
-    }
- 
-    $weeks{start} = $1 if $_ =~ m[<start_date>(.*?)</start_date>];
-    $weeks{last}  = $1 if $_ =~ m[<last_date>(.*?)</last_date>];
-
-    while (/<exweek>(.*?)<\/exweek>/msg )
-    {
-       my $x = $1;
-       my $date = $1 if $x =~ m[<date>(.*)</date>];
-       my $comm = $1 if $x =~ m[<comment>(.*)</comment>];
-#    Debug::dsay("sshop_part::get_excluded_weeks..   {$date} {$comm}");
-       $xweeks{$date} = $comm;
-    }
-    $weeks{excluded} = \%xweeks;
-    return %weeks;
-}
-
-sub save_excluded_weeks {
-    
-    my %weeks = @_;
- 
-    open (F, ">$exweeks") || die "Cannot open $exweeks\n";
-    print F "<dates>\n";
-    print F "   <start_date>$weeks{start}</start_date>\n" if $weeks{start};
-    print F "   <last_date>$weeks{last}</last_date>\n"    if $weeks{last};
-    print F "   <excluded_weeks>\n";
-    my $tag = " "x4;
-    
-    foreach my $k ( keys %{$weeks{excluded}})
-    {
-	print F "   <exweek>\n";
-	print F "   $tab<date>$k</date>\n";
-	print F "   $tab<comment>${$weeks{excluded}}{$k}</comment>\n";
-#	Debug::dsay(" key == {$k} value => ${$weeks{excluded}}{$k}");
-	print F "   </exweek>\n"
-    }
-    print F "   </excluded_weeks>\n";
-    print F "</dates>\n";
-    close F;
-}
 
 sub get_Weeks2 {
    my @apps =  sshop_part::get_Data();
@@ -1099,8 +742,7 @@ sub get_app_hash {
 }
 
 
-sub delete_file
-{
+sub delete_file {
 #        input an app id & delete the file
     my $id = shift;
  
@@ -1113,8 +755,7 @@ sub delete_file
     rename $xml_file, $nfile || die " cannot rename $xml_file "; 
 }
 
-sub set_group
-{
+sub set_group {
 #	accept a number which will be used to set group ownership of files
  
      my $grp = shift;
@@ -1174,8 +815,6 @@ sub Get_Course_List
    return sort @xfiles;
 }
 
-
-
 sub get_element_info { return %elements; }
 
 sub byISO
@@ -1204,4 +843,3 @@ sub byISO
     $am <=> $bm ||
     $ad <=> $bd;
 }
- 
