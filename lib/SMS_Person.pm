@@ -730,14 +730,14 @@ sub get_app_hash {
     m[<$xml_element>(.*?)</$xml_element>]msg;
     my $talk = $1;
     my %app = ();
-
+    Debug::dsay("get_app_hash:: $talk ");
     while  ($talk =~ m[<(\w+?)>(.*?)</\1>]msg) {
         next unless ($1 );
       	my $field = $1;
         my $value = $2;
         $value =~ s/\s*$//;
         $app{$field} = $value;
-	Debug::dsay("get_app_hash:: tag {$field} valu {$value} ");
+        Debug::dsay("get_app_hash:: tag {$field} valu {$value} ");
     } 
     return \%app;
 }
