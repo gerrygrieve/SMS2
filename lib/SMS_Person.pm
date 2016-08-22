@@ -331,7 +331,7 @@ sub get_Data_for_ID {
    my $id = shift;
    my $s; 
    my $f = $xml_dir . $id . ".xml";
-    Debug::dsay ("get_Data_for_ID:; id  is {$id}");
+ 
    $s = get_app_hash($f);
   
    return $s;
@@ -1072,7 +1072,6 @@ sub get_app_hash {
 	use CGI::Carp qw(fatalsToBrowser set_message);
 
     my $f = shift;
-
     $nl = "\n";
     $xml_file = $data_dir  . $f ;   
  
@@ -1085,17 +1084,17 @@ sub get_app_hash {
 
     m[<$xml_element>(.*?)</$xml_element>]msg;
     my $talk = $1;
-    my %t = ();
+    my %app = ();
 
     while  ($talk =~ m[<(\w+?)>(.*?)</\1>]msg) {
         next unless ($1 );
       	my $field = $1;
         my $value = $2;
         $value =~ s/\s*$//;
-        $t{$field} = $value;
-#	Debug::dsay("rd-file:: tag {$field} valu {$value} ");
+        $app{$field} = $value;
+	Debug::dsay("get_app_hash:: tag {$field} valu {$value} ");
     } 
-    return \%t;
+    return \%app;
 }
 
 
