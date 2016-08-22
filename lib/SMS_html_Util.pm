@@ -13,7 +13,7 @@ sub sms2form {
     Debug::dsay("sms2form:: ..." );
     my $app = shift;
     my $q   = shift;
-    foreach my $t ( keys %element_info ) {
+    foreach my $t ( keys %{$app} ) {
         next unless $app->{$t};
         next if ($t eq "_permitted" );
         if ($t =~ /^\d/) {
@@ -42,7 +42,6 @@ sub student_register {
                           $element_info{$b}{rank} }
                    keys %element_info ) {
    ###  Debug::dsay("do_form:: t is {$t}");
-
 		next if ( $element_info{$t}{cat} eq "admin"
 				  and $my_cat ne "admin"
 				);
@@ -61,7 +60,6 @@ sub student_register {
  
 		$out .= qq{<td class="input"> $xout</td></tr>\n};
 	}
-
 
 	$out .=  qq{ <tr><td class="explain" colspan="2"> Below is the list of upcoming courses.
  
@@ -87,7 +85,7 @@ sub student_register {
 		$ctable .= qq{  <tr><td class="ct"> Module # $modnum</td>};
 		$ctable .= qq{      <td  class="ct"> $title</td>};
 		my @dates = @{$c->{date_upcoming}};
-		my $dtable = "";
+		my $dtable = qq{<table class="dtable"><tr>};
 		$ctable .= qq{  <td  class="ct">};
 		foreach my $date ( @dates ) {
 			next if $date < $isotoday;
@@ -97,6 +95,7 @@ sub student_register {
 		foreach my $date ( @dates ) {
 			next if $date < $isotoday;
 			my $but = "$modnum.ask.$date";
+            
 			my $xbut = $q->checkbox(-name=>$but,
 			                        -checked=>0,
 									-value=>'ON',

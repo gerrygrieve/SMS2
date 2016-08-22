@@ -332,10 +332,8 @@ sub get_Data_for_ID {
    my $s; 
    my $f = $xml_dir . $id . ".xml";
     Debug::dsay ("get_Data_for_ID:; id  is {$id}");
-   $s = rd_file($f);
-   foreach my $k ( keys %{$s} ) {
-          Debug::dsay ("get_Data_for_ID:; key  is {$k}");
-   }
+   $s = get_app_hash($f);
+  
    return $s;
 }
 
@@ -1068,6 +1066,38 @@ sub rd_file {
     } 
     return $t;
 }
+sub get_app_hash {
+#        input a filename 
+#####    return Survey object reference...
+	use CGI::Carp qw(fatalsToBrowser set_message);
+
+    my $f = shift;
+
+    $nl = "\n";
+    $xml_file = $data_dir  . $f ;   
+ 
+    {
+       open (X,$xml_file ) ||  return -1;
+       local ( $/ );
+       $_=<X>;
+       close X;
+    }
+
+    m[<$xml_element>(.*?)</$xml_element>]msg;
+    my $talk = $1;
+    my %t = ();
+
+    while  ($talk =~ m[<(\w+?)>(.*?)</\1>]msg) {
+        next unless ($1 );
+      	my $field = $1;
+        my $value = $2;
+        $value =~ s/\s*$//;
+        $t{$field} = $value;
+#	Debug::dsay("rd-file:: tag {$field} valu {$value} ");
+    } 
+    return \%t;
+}
+
 
 sub delete_file
 {
