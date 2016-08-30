@@ -208,7 +208,7 @@ sub do_Save {
 		if ($ftag =~ /_[AP]M$) {
 			
 			my $tag  = "avail_" . $ftag;
-			$part->{$tag}  = $q->.param($ftag);
+			$part->{$tag}  = $q->param($ftag);
 			$summ .= qq{<tr><td class="thanks">$tag: </td><td>$date</td></tr>};
 		}
 		else {
