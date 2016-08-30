@@ -243,7 +243,7 @@ sub do_Save {
     my $today = sprintf "%4d%2.2d%2.2d", Today();
     $part->{"date_request"} = $today;
 
-	foreach my $tt ( keys %elements) {
+	foreach my $tt ( keys %element_info) {
 		my $val = $part->{$tt};
 		Debug::dsay( " tag [$tt] value [$val]"); 
 	}
