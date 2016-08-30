@@ -237,6 +237,11 @@ sub do_Save {
 #    }
     my $today = sprintf "%4d%2.2d%2.2d", Today();
     $part->{"date_request"} = $today;
+
+	forach my $tt ( keys %part) {
+		my $val = $part{$tt};
+		Debug::dsay( tag [$tt] value [$val]"}; 
+	}
     my $xid = SMS_Person::save( $part );
     Debug::dsay ("do_Save:: id is {$xid}");
    
