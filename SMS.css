@@ -27,9 +27,12 @@ table.appinfo {
                 padding: 6px;
             }
 
-.avail { border: 2px solid green;
-       padding: 6px;
+.avail { border: 2px solid green
+     padding: 6px;
        }
+.req   { color: red;
+		 font-size: Large;
+      }
 
 #coursetable .module:nth-child(even) {
  background-color: Lavender;
@@ -47,8 +50,7 @@ td.prompt { vertical-align: top;
            }
 td.input { vertical-align: top;
             text-align: left;
-        #    border: 1px solid black;
-            padding: 12px 12px 2px 2px;
+              padding: 12px 12px 2px 2px;
             
            }
            

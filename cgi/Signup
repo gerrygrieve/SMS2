@@ -44,7 +44,7 @@ print $q->start_html( -title  =>  $title,
                                    {'src'=>'/Gform//sshop/css/reset.css'}, 
                                    {'src'=>'/Gform//sshop/css/zebra_datepicker.css'},
                                    {'src'=>'/Gform//sshop/css/style.css'}, 
-                                   {'src'=>'/Gform//SMS/css/sshop.css'},
+                                   {'src'=>'/Gform//SMS/css/SMS.css'},
                                    {'src'=>'/Gform/sshop/css/shCoreDefault.css'}
                                  ],
                        -script => [ {-type=>"text/javascript",
@@ -83,7 +83,7 @@ exit;
 sub do_mainpage2 {
 
    Debug::dsay ("This is main page2 sub ;");
-	print  qq{<div class="mainpg"};
+	print  qq{<div class="mainpg>"};
     print  get_Intro();
 
 	my $html = SMS_html_Util::student_register($q, "student");

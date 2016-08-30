@@ -61,7 +61,7 @@ sub student_register {
 		my $xinp = Form_Util::input_query(\%{$element_info{$t}}, $t, $value);
 
 		my $req = defined ($element_info{$t}{required})
-             ? qq{<span id="req"> required </span>}
+             ? qq{<span class="req">  &#9756; required </span>}
 			 : q[&nbsp;];
 
 		$out .= qq{<td class="input"> $xinp $req </td>};
