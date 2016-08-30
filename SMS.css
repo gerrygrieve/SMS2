@@ -20,6 +20,17 @@ table.appinfo {
  padding: 8px;
 }
 
+#avail {  border: 3px solid green;
+                margin: 20px;
+        }
+.avail_head {  background-color: khaki;
+                padding: 6px;
+            }
+
+.avail { border: 2px solid green;
+       padding: 6px;
+       }
+
 #coursetable .module:nth-child(even) {
  background-color: Lavender;
  margin: 0px;
@@ -27,17 +38,17 @@ table.appinfo {
  border-bottom: 1px dashed green;
 }
 
-td {   border: 1px solid black;
-       cellspacing: 12px;}
+td {   border: 2px solid green;
+       }
 td.prompt { vertical-align: top;
             text-align: right;
-            padding: 2px 2px 2px 2px;
+            padding: 12px 12px 2px 2px;
             width: auto;
            }
 td.input { vertical-align: top;
             text-align: left;
-            border: 0px solid black;
-              padding: 12px 12px 2px 2px;
+        #    border: 1px solid black;
+            padding: 12px 12px 2px 2px;
             
            }
            

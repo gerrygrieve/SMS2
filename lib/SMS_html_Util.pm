@@ -127,7 +127,14 @@ sub mk_avail_table {
 	my $q = shift;
 	my $out = "";
 
+#	$out .= qq{ <p> Below is a table with which you can indicate your availibility
+#				for SMS courses.  Uncheck the slots where you would NOT be available
+#               </p>};
+
 	$out .= qq{<table id="avail">};
+    $out .= qq{<caption> <p> Below is a table with which you can indicate your availibility
+				for SMS courses.  Uncheck the slots where you would NOT be available
+               </p></caption>};
 	$out .= qq{<tr class="avail_head">};
 	$out .= qq{   <th class="avail_head"> &nbsp; </th>};
 	$out .= qq{   <th class="avail_head"> Mon </th>};
@@ -137,19 +144,19 @@ sub mk_avail_table {
 	$out .= qq{   <th class="avail_head"> Fri </th>};
 	$out .= qq{   </tr>};
 
-	$out .= qq{<tr class="avail">};
+	$out .= qq{<tr class="avail">\n};
 	foreach my $time ( "AM", "PM" ){
-		$out .= qq{   <td class="avail"> $time </td>};
+		$out .= qq{   <td class="avail"> $time </td>\n};
 		foreach $day ( qw[ Mon Tue Wed Thr Fri] ) {
 			my $butname = $day . "_" . $time;
 			my $but = $q->checkbox(-name=>$butname,
 			                       -checked=>1,
 			                       -value=>'ON',
 			                       -label=>'Available ');
-			$out .= qq{   <td class="avail"> $but</td>};
+			$out .= qq{   <td class="avail"> $but</td>\n};
 		}
-		$out .= qq{   </tr>};
+		$out .= qq{   </tr>\n};
 	}
-	$out .= qq{   </table>};
+	$out .= qq{   </table>\n};
 }
 	
