@@ -69,8 +69,7 @@ sub save {
     Debug::dsay("sshop::save   ID is  {$id} sn is  {$sn}"); 
     my $f = get_file_name($sn);
  
-  
-     Debug::dsay("sshop::save  get a file name w ID  {$id}  -- {$f}");
+    Debug::dsay("sshop::save  get a file name w ID  {$id}  -- {$f}");
 
     open (O, ">$f") || die "cannot open $f $!\n"; 
     print O "<$xml_element>\n";
@@ -84,6 +83,7 @@ sub save {
 
     print O "</$xml_element>\n";    
     close O;
+exit;
 ##
 ## set the mod & ownership of file...; for now we do not worry about
 ## failures...$> is ggk for Real_user_id
@@ -648,8 +648,7 @@ sub save_Course {
    close C;
 }
 
-sub update_app_record
-{
+sub update_app_record {
     my $id = shift;
     my $tags = shift;
     my $action = shift;
@@ -773,14 +772,12 @@ sub get_hdr {
 	my $out = qq{<h2  class="ss_head">Physics &amp; Astronomy Student Machine Shop (SMS)</h2>};
 }
 
-sub get_weeklist
-{
+sub get_weeklist {
     use Date::Calc qw( Add_Delta_Days Week_of_Year);
     my $nweeks = shift;
     my @start  = @_;
     my @out = ();
-    foreach my $i ( 0..$nweeks )
-    {
+    foreach my $i ( 0..$nweeks )  {
        my $weeknum = Week_of_Year(@start);
        my $iso = sprintf "%4d-%2.2D-%2.2d", @start;
        @fri =  Add_Delta_Days(@start,3);
@@ -792,16 +789,14 @@ sub get_weeklist
 
 } 
 
-sub get_date_time
-{
+sub get_date_time {
     my ($s, $Min, $Hrs,$mday, $month,$year) = localtime();
     $year += 1900;
     $month++;
     my $xx = sprintf ("%4d-%2.2d-%2.2dT%2.2d:%2.2d", $year, $month, $mday,$Hrs,$Min);
 }
 
-sub is_tainted
-{
+sub is_tainted {
     my $v = shift;
     return ! eval { $v++,0; 1;};
 }
@@ -823,21 +818,19 @@ sub byISO
     my ($ay, $am, $ad);
     my ($by, $bm, $bd);
    
-    if ( $a =~ /(\d\d\d\d)-(\d\d)-(\d\d)/)
-    {
-	$ay = $1;
+    if ( $a =~ /(\d\d\d\d)-(\d\d)-(\d\d)/) {
+		$ay = $1;
         $am = $2;
         $ad = $3;
     } else
     {  	$ay = $am = $ad = 0 ;
     }
-    if ( $b =~ /(\d\d\d\d)-(\d\d)-(\d\d)/)
-    {
-	$by = $1;
+    if ( $b =~ /(\d\d\d\d)-(\d\d)-(\d\d)/)  {
+		$by = $1;
         $bm = $2;
         $bd = $3;
-    } else
-    {  	$by = $bm = $bd = 0 ;
+    } else {
+		$by = $bm = $bd = 0 ;
     }
 
     $ay <=> $by ||

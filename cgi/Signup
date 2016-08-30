@@ -202,13 +202,13 @@ sub do_Save {
     my $summ = "<table>";
     my $app_info = "";
     Debug::dsay ("Admin::do_Save new version -- copying cgi params in hash;");
-	exit;
+
 	foreach my $ftag ( $q->param ) {
 		next if ($ftag eq "Save");
-		if ($ftag =~ /(\d.*?)\.(\d{8})$/) {
-			my $date = $2;
-			my $tag  = $1;
-			$part->{$tag}  = $date;
+		if ($ftag =~ /_[AP]M$) {
+			
+			my $tag  = "avail_" . $ftag;
+			$part->{$tag}  = $q->.param($ftag);
 			$summ .= qq{<tr><td class="thanks">$tag: </td><td>$date</td></tr>};
 		}
 		else {
