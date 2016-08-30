@@ -119,8 +119,11 @@ sub do_mainpage {
     
 		$value = $today  if ($t eq "date" and !$value);                
 		my $out = Form_Util::input_query(\%{$element_info{$t}}, $t, $value);
- 
-		print qq{<td class="input"> $out</td></tr>\n};
+		$req = defined ($t->{requried})
+             ? qq{<span id="req"> &#9756;</span>};
+			 : q[&bnsp;];
+		print qq{<td class="input"> $out</td> <td>$req</td>};
+		print qq</tr>\n};
 	}
 	print qq{ <tr><td class="explain" colspan="2"> Below is the list of upcoming courses.
  
@@ -238,9 +241,9 @@ sub do_Save {
     my $today = sprintf "%4d%2.2d%2.2d", Today();
     $part->{"date_request"} = $today;
 
-	forach my $tt ( keys %part) {
-		my $val = $part{$tt};
-		Debug::dsay( tag [$tt] value [$val]"}; 
+	foreach my $tt ( keys %elements) {
+		my $val = $part->{$tt};
+		Debug::dsay( " tag [$tt] value [$val]"); 
 	}
     my $xid = SMS_Person::save( $part );
     Debug::dsay ("do_Save:: id is {$xid}");

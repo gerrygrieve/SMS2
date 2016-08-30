@@ -14,6 +14,7 @@
         <maxchar>60</maxchar>
     </input>
     <rank>116</rank>
+  <required>true</required>
 </tag>
 
 <tag>
@@ -25,6 +26,7 @@
         <maxchar>14</maxchar>
     </input>
      <rank>118</rank>
+  <required>true</required>
 </tag>
 
 <tag>
@@ -36,6 +38,7 @@
         <maxchar>60</maxchar>
     </input>
     <rank>136</rank>
+  <required>true</required>
 </tag>
 
 <tag>
@@ -69,6 +72,7 @@
         <maxchar>60</maxchar>
     </input>
     <rank>166</rank>
+  <required>true</required>
 </tag>
 
 <tag>
