@@ -86,7 +86,6 @@ sub do_mainpage2 {
 	print  qq{<div class="mainpg"};
     print  get_Intro();
 
-
 	my $html = SMS_html_Util::student_register($q, "student");
 
 	print $html;
@@ -203,7 +202,7 @@ sub do_Save {
     my $summ = "<table>";
     my $app_info = "";
     Debug::dsay ("Admin::do_Save new version -- copying cgi params in hash;");
-
+	exit;
 	foreach my $ftag ( $q->param ) {
 		next if ($ftag eq "Save");
 		if ($ftag =~ /(\d.*?)\.(\d{8})$/) {
