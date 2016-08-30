@@ -119,9 +119,11 @@ sub do_mainpage {
     
 		$value = $today  if ($t eq "date" and !$value);                
 		my $out = Form_Util::input_query(\%{$element_info{$t}}, $t, $value);
-		my $req = defined ($t->{required)
-             ? qq{<span id="req"> &#9756;</span>};
-			 : q[&bnsp;];
+
+		my $req = defined ($t->{required})
+             ? qq{<span id="req"> &#9756;</span>}
+			 : q[&nbsp;];
+
 		print qq{<td class="input"> $out</td> <td>$req</td>};
 		print qq{</tr>\n};
 	}
