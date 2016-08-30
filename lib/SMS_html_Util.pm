@@ -60,7 +60,7 @@ sub student_register {
 		$value = $today  if ($t eq "date" and !$value);                
 		my $xinp = Form_Util::input_query(\%{$element_info{$t}}, $t, $value);
 
-		my $req = defined ($t->{required})
+		my $req = defined ($element_info{$t}{required})
              ? qq{<span id="req"> required </span>}
 			 : q[not required];
 

@@ -1,0 +1,66 @@
+#!/usr/bin/perl -wT
+
+use lib "/www/Gform/SMS/lib/";
+use lib "/www/Gform/lib";
+
+use Debug;
+use SMS_Person;
+use Data::Dumper;
+Debug::Set_Debug(1,"ansi");
+
+Debug::dsay("this is list_elements");
+
+my %el_info =  SMS_Person::get_element_info();
+
+print Dumper(%el_info);
+
+print_req();
+sub print_req {
+	print "element info is\n";
+	
+#( sort {$el_info{$a}{rank} <=>
+#                          $el_info{$b}{rank} }
+#                   keys %el_info )
+	foreach my $t  ("supervisor", "UBC_id" ) {
+		print "tag $t \n"; # is required ? $element_info{$t}{required} \n";
+		my %tag_obj = %{$el_info{$t}};
+		print Dumper(%tag_obj);
+		print "tag $t is required ? $el_info{$t}{required} \n";
+	}
+}
+
+sub print_out {
+	print "element info is\n";
+	
+	
+	foreach my $t ( keys %el_info  )
+	{
+		my %tag_obj = %{$el_info{$t}};
+		foreach $tkey ( keys %tag_obj)
+		{
+		   print "tag {$t} key {$tkey}  $tag_obj{$tkey}\n";
+		}
+	}
+}
+
+
+
+
+
+exit;
+{
+    if ($el_info->{qtype} eq "pulldown")
+    {
+       print "$t has a pulldown\n";
+      foreach my $ll (0..$#{$el_info->{label}})
+      {
+         my $val = $el_info->{value}[$ll];
+         my $l = $el_info->{label}[$ll];                    
+         print "$ll $t -- val $val label {$l}\n";
+      }
+    } else
+    { 
+       print "$t -- $el_info->{qtype}\n";
+    }
+}
+exit;
