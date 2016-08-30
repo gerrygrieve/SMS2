@@ -21,11 +21,15 @@ sub print_req {
 #( sort {$el_info{$a}{rank} <=>
 #                          $el_info{$b}{rank} }
 #                   keys %el_info )
-	foreach my $t  ("supervisor", "UBC_id" ) {
+	foreach my $t  ("supervisor", "UBC_id", "phone" ) {
 		print "tag $t \n"; # is required ? $element_info{$t}{required} \n";
 		my %tag_obj = %{$el_info{$t}};
-		print Dumper(%tag_obj);
-		print "tag $t is required ? $el_info{$t}{required} \n";
+	#	print Dumper(%tag_obj);
+        my $req = defined ($el_info{$t}{required})
+             ? qq{<span id="req"> required </span>}
+			 : q[not required];
+
+		print "tag $t is required ? $req \n";
 	}
 }
 

@@ -62,9 +62,9 @@ sub student_register {
 
 		my $req = defined ($element_info{$t}{required})
              ? qq{<span id="req"> required </span>}
-			 : q[not required];
+			 : q[&nbsp;];
 
-		$out .= qq{<td class="input"> $xinp $req xxxxx</td>};
+		$out .= qq{<td class="input"> $xinp $req </td>};
 		$out .= qq{</tr>\n};
 	
 	}
