@@ -205,7 +205,7 @@ sub do_Save {
 
 	foreach my $ftag ( $q->param ) {
 		next if ($ftag eq "Save");
-		if ($ftag =~ /_[AP]M$) {
+		if ($ftag =~ /_[AP]M$/) {
 			
 			my $tag  = "avail_" . $ftag;
 			$part->{$tag}  = $q->param($ftag);
@@ -236,8 +236,8 @@ sub do_Save {
 #    }
     my $today = sprintf "%4d%2.2d%2.2d", Today();
     $part->{"date_request"} = $today;
-    my $id = SMS_Person::save( $part );
-    Debug::dsay ("do_Save:: id is {$id}");
+    my $xid = SMS_Person::save( $part );
+    Debug::dsay ("do_Save:: id is {$xid}");
    
  
     $summ .= qq{</table>};
