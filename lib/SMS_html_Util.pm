@@ -31,6 +31,8 @@ sub student_register {
 
 	my $q = shift;
 	my $my_cat = shift;
+           Debug::dsay("student_register:: cat  [$my_cat]" );
+
 	use SMS_Person;
     my %element_info = SMS_Person::get_element_info();
 	my $out = "";
@@ -53,7 +55,7 @@ sub student_register {
 		next unless $pout;
 		$pout =~ s[\s+][\&nbsp;]g;
      
-		$out .= qq{<tr> <td class="prompt"> $pout: </td>\n}; 
+		$out .= qq{<tr> <td class="prompt"> $pout: </td>\n    }; 
     
 		$value = $today  if ($t eq "date" and !$value);                
 		my $xinp = Form_Util::input_query(\%{$element_info{$t}}, $t, $value);
@@ -62,7 +64,7 @@ sub student_register {
              ? qq{<span id="req"> &#9756;</span>}
 			 : q[&nbsp;];
 
-		$out .= qq{<td class="input"> $xinp $req</td>};
+		$out .= qq{<td class="input"> $xinp $req xxxxx</td>};
 		$out .= qq{</tr>\n};
 	
 	}
