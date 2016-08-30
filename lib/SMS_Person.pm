@@ -19,6 +19,13 @@ my $xml_element = "sms_person";
 
 my %elements = Form_Util::_Read_Defaults_Simple($def);
 
+foreach my $time ( "AM", "PM" ){		
+	foreach $day ( qw[ Mon Tue Wed Thr Fri] ) {
+		my $tag  = "avail_" . $day . "_" . $time;
+		$elements{$tag}++;
+	}
+}
+
 my @etags = sort ( keys  %elements);
 
 my $Next_ID = get_NextID();
@@ -59,17 +66,17 @@ sub AUTOLOAD {
 
 sub save {
     my $t  = shift;
-    my $id = shift;
-    Debug::dsay("sshop_part:: line 80   save...");
+  
+    Debug::dsay("SMS_Person::save  line 80   save...");
     my $tab = " "x4;
  
-    $id = $t->{ID} unless $id;
+
 	$xid = $t->{ID};
 	my $sn = $t->{UBC_id};
-    Debug::dsay("sshop::save   ID is  {$id} sn is  {$sn}"); 
+    Debug::dsay("sshop::save   ID is  {$xid} sn is  {$sn}"); 
     my $f = get_file_name($sn);
  
-    Debug::dsay("sshop::save  get a file name w ID  {$id}  -- {$f}");
+    Debug::dsay("sshop::save  get a file name w ID  {$xid}  -- {$f}");
 
     open (O, ">$f") || die "cannot open $f $!\n"; 
     print O "<$xml_element>\n";
@@ -77,7 +84,7 @@ sub save {
     foreach $e (@etags) {
         $out = defined ($t->{$e}) ? $t->{$e} : "";
 
-        Debug::dsay("sshop::save;; element {$e} value {$out}");
+        Debug::dsay("SMS_Person::save:: element {$e} value {$out}");
         print O $tab, "<$e>", $out,"</$e>\n" if $out;
     }
 
