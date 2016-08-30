@@ -53,11 +53,19 @@ sub student_register {
 		next unless $pout;
 		$pout =~ s[\s+][\&nbsp;]g;
      
-		$out .= qq{<tr> <td class="prompt"> $pout: </td>}; 
+		$out .= qq{<tr> <td class="prompt"> $pout: </td>\n}; 
     
 		$value = $today  if ($t eq "date" and !$value);                
 		my $xout = Form_Util::input_query(\%{$element_info{$t}}, $t, $value);
- 
+
+		my $req = defined ($t->{required})
+             ? qq{<span id="req"> &#9756;</span>}
+			 : q[&nbsp;];
+
+		print qq{<td class="input"> $out $req</td>};
+		print qq{</tr>\n};
+	} 
+
 		$out .= qq{<td class="input"> $xout</td></tr>\n};
 	}
 	$out .= mk_avail_table($q);
