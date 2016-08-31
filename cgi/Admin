@@ -60,6 +60,7 @@ dump_it();
 
    if ( $q->param('next') eq "Book Course")   { do_BookCourse(); }
 elsif ( $q->param("AddNewApp")  )             { do_App();        }
+elsif ( $q->param("Showavail")  )			  { do_showAvail }
 elsif ( $q->param("AppSort")    )             { do_showApps();   } 
 elsif ( $q->param("Save Dates")  )            { do_Save_Dates(); }
 elsif ( $q->param("Delete App")  )            { do_DeleteApp();  }
@@ -93,15 +94,21 @@ sub do_mainpage{
     print $out;
 }
 
-sub do_Save_Dates
-{
+sub do_showAvail {
+	Debug::dsay ("This is  do_showAvail;");
+#	my @apps = $show_current ? sshop_part::get_Current_Data()
+#                             : sshop_part::get_Data();
+	my @apps =  SMS_Person::get_Data();
+}
+
+sub do_Save_Dates {
     my %weeks =  sshop_part::get_excluded_weeks();
     
     $weeks{"start"} = $q->param("startdate") if $q->param("startdate") ;
     $weeks{"last"}  = $q->param("lastdate")  if $q->param("lastdate") ;
     my $newdate     = $q->param("new_excluded")  if $q->param("new_excluded");
     my $newcomment  = $q->param("new_comment")   if $q->param("new_comment");
-    Debug::dsay ("do_Save_Dates:; {$newdate} {$newcomment}");    
+      
 	my $error = "";
     if ( $newdate =~ m[\d\d\d\d-\d\d-\d\d] ) {
 		$weeks{"excluded"}{$newdate} = $q->param('new_comment');
@@ -743,8 +750,7 @@ sub do_getAppsTable {
     $out   .= qq{<p> (i,j,k) are number of apps with 1st choise,2nd & 3rd</p>};
     $out   .= qq{\n<table class="apptable">};
     my $i=0;
-    foreach my $o ( sshop_part::get_Weeks() )
-    {
+    foreach my $o ( sshop_part::get_Weeks() ) {
 
         my $x = $q->submit(-name=>'week',-value=>$o);
 		$i++;
@@ -756,7 +762,7 @@ sub do_getAppsTable {
 }
 
 sub do_showApps {
-    my $show_current = 1;
+    my $show_current = 0;
     my $out = do_selectTable();
     print $out;
     Debug::dsay ("this is do_showApps ;");
@@ -951,13 +957,15 @@ sub  do_selectTable {
     my $b4 = $q->submit(-name=>'next',-value=>'Manage Courses');
     my $b5 = $q->submit(-name=> "AddNewApp", -value => "Add New Student");
     my $b6 = $q->submit(-name=>'next',-value=>'Edit Student');
+	my $b7 = $q->submit(-name=>'ShowAvail',-value=>'Show Availability');
 	$out .= qq{<tr>};
-#    $out .= qq{<td> $b1 </td> };
+    $out .= qq{<td> $b1 </td> };
     $out .= qq{    <td> $b4 </td> };
 #    $out .= qq{    <td> $b3 </td> };
  #   $out .= qq{    <td> $b2 </td> <td> $b3 </td>
 	$out .= qq{<td>$b5</td>};
 	$out .= qq{<td>$b6</td>};
+	$out .= qq{<td>$b7</td>};
     $out .= qq{</tr></table>};
     $out .= qq{<hr />};
     return $out;

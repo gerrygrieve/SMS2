@@ -254,8 +254,8 @@ sub get_Data {
    
    foreach my $f (@xfiles) {
     #  Debug::dsay("get_Data:: reading file {$f}");
-       my $s = rd_file($f); 
-      push @apps, $s;
+		my $s = rd_file($f); 
+		push @apps, $s;
    }
    return @apps;
 }
