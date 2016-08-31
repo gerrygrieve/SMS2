@@ -248,16 +248,17 @@ sub get_Current_Data {
 sub get_Data {
 	
    opendir (XD, $data_dir ) || die "cannot get dir $data_dir  $! \n";
+	Debug::dsay("get_Data:: reading dir [$data_dir]  ");
    my  @xfiles =  grep { /xml$/ } readdir (XD);
    closedir(XD);
    my @apps = ();
    
    foreach my $f (@xfiles) {
-      Debug::dsay("get_Data:: reading file {$f}");
+		Debug::dsay("get_Data:: reading file {$f}");
 		my $s = rd_file($f); 
 		push @apps, $s;
    }
-exit;
+
    return @apps;
 }
 

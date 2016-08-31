@@ -148,10 +148,10 @@ sub do_Save {
 
 	foreach my $tt ( keys %element_info) {
 		my $val = $part->{$tt};
-		Debug::dsay( " tag [$tt] value [$val]"); 
+	#	Debug::dsay( " tag [$tt] value [$val]"); 
 	}
     my $xid = SMS_Person::save( $part );
-    Debug::dsay ("do_Save:: id is {$xid}");
+ #   Debug::dsay ("do_Save:: id is {$xid}");
    
  
     $summ .= qq{</table>};

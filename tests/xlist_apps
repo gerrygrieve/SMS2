@@ -1,0 +1,21 @@
+#!/usr/bin/perl -wT
+
+use lib "/www/Gform/SMS/lib/";
+use lib "/www/Gform/lib";
+
+use Debug;
+use SMS_Person;
+use Data::Dumper;
+Debug::Set_Debug(1,"ansi");
+
+Debug::dsay("this is list_elements");
+
+my @apps =  SMS_Person::get_Data();
+my $napps = scalar @apps;
+Debug::dsay ("Admin::do_showApps number of apps is [$napps] ");
+
+foreach my $o ( @apps )   {
+    my $x  = $o->{full_name};
+	Debug::dsay ("Admin::do_showApps working entry for  is [$x] ");
+}
+
