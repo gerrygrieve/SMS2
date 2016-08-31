@@ -253,10 +253,11 @@ sub get_Data {
    my @apps = ();
    
    foreach my $f (@xfiles) {
-    #  Debug::dsay("get_Data:: reading file {$f}");
+      Debug::dsay("get_Data:: reading file {$f}");
 		my $s = rd_file($f); 
 		push @apps, $s;
    }
+exit;
    return @apps;
 }
 

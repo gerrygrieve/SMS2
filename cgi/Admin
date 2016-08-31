@@ -11,7 +11,7 @@ use course_metadata;
 use Debug;
 use Date::Calc qw(Today Delta_Days Add_Delta_Days Week_of_Year);
 use SMS_Person;
-use signupform;
+#use signupform;
 use HTML_Util;
 use Form_Util;
 use SMS_html_Util;
@@ -60,7 +60,7 @@ dump_it();
 
    if ( $q->param('next') eq "Book Course")   { do_BookCourse(); }
 elsif ( $q->param("AddNewApp")  )             { do_App();        }
-elsif ( $q->param("Showavail")  )			  { do_showAvail }
+elsif ( $q->param("Showavail")  )			  { do_showAvail();  }
 elsif ( $q->param("AppSort")    )             { do_showApps();   } 
 elsif ( $q->param("Save Dates")  )            { do_Save_Dates(); }
 elsif ( $q->param("Delete App")  )            { do_DeleteApp();  }
@@ -765,10 +765,10 @@ sub do_showApps {
     my $show_current = 0;
     my $out = do_selectTable();
     print $out;
-    Debug::dsay ("this is do_showApps ;");
+    Debug::dsay ("this is do_showApps line 768 ;");
  
-    my @apps = $show_current ? sshop_part::get_Current_Data()
-                             : sshop_part::get_Data();
+    my @apps = $show_current ? SMS_Person::get_Current_Data()
+                             : SMS_Person::get_Data();
     my $id_but    = $q->submit(-name=>'AppSort', -value=> "ID");
     my $name_but  = $q->submit(-name=>'AppSort', -value=> "Name");
     my $rdate_but = $q->submit(-name=>'AppSort', -value=> "Request Date");
@@ -900,53 +900,7 @@ sub sort_by_ID {
     return  reverse @sorted;
 }
 
-sub do_Exclusions {
-	my $error = shift;
 
-    my $out = qq {<p> list are the excluded weeks.  you can use this
-                      form to add to the list.</p>};
-
-    $out .= $error if $error;
-    my %weeks =  sshop_part::get_excluded_weeks();
-    $out .= qq{ <table class="excluded">\n};
-    my $sv = $weeks{"start"};
-    my $lv = $weeks{"last"};
-    my $qs = $q->textfield(-name=>"startdate",
-                           -value => $sv );
-    my $ql = $q->textfield(-name=>"lastdate",
-                           -value => $lv );
-    $out .= qq{<tr><td> Start Date : </td><td>$qs</td></tr>};
-    $out .= qq{<tr><td> Last Date :  </td><td>$ql</td></tr>};
-    $out .= qq{<tr><td colspan="2"> Weeks excluded from courses</td>
-                   <td> Week Number</td><td>Delete</td><tr>};
-    my %eweeks = %{$weeks{"excluded"}};
-    foreach my $e ( sort  keys  %eweeks ) {
-        my $c = $eweeks{$e};
-        my @c = (split "-", $e);
-        my ($cw, $cy) = Week_of_Year(@c);
-		my $isowk = sshop_part::ISOWeek($cy,$cw);
-		my $yy = $q->checkbox(-name=>"delexweek-$e",
-                              -label=>"",
-                              -checked=>0);
-        $out .= qq{<tr> <td>$c</td> <td>$e</td> <td>$isowk</td>
-                        <td>$yy</td></tr>\n};
-    }
-    $q->delete( "new_comment", "new_excluded",);
-    my $q1 = $q->textfield(-name=>"new_comment",
-                           -value => "" );
-    my $q2 = $q->textfield(-name=>"new_excluded",
-                           -value => "" );                            
-    $out .= qq{<tr> <td colspan="2"><hr></td> </tr>\n};
-    $out .= qq{<tr> <td colspan="2">Add a new exclusion below</td> </tr>\n};
-    $out .= qq{<tr> <td colspan="2">Comment $q1</td> 
-                    <td colspan="2">Date(yyyy-mm-dd): $q2</td> </tr>\n};
-    my $xx = $q->submit(-name=>'Save Dates');
-    $out .= qq{<tr> <td>$xx</td>  </tr>\n};
-    $out .= qq{ </table> };
-
-    print $out;
-    return;
-}
 
 sub  do_selectTable {
 #    Debug::dsay ("this is do_selectTable ;");
@@ -1022,7 +976,7 @@ sub footer {
 }
 
 sub do_Save {
-    my %element_info = sshop_part::get_element_info();
+    my %element_info = SMS_Person::get_element_info();
     my %bd = ();
 	my $part = "";
     my $id = $q->param("App_ID");
@@ -1030,7 +984,7 @@ sub do_Save {
 
 	if (! $id) {
 		Debug::dsay ("do_Save -- make new ;");
-		$part  = sshop_part::new();
+		$part  = SMS_Person::new();
 		my $idx = $part->{ID};
 
 		$bd{"ID"} = $idx;
@@ -1045,8 +999,8 @@ sub do_Save {
 		 if ( $t eq "ID") 	{ $bd{ID} = $id; }
 		 else 				{ $bd{$t} = $q->param($t) ?  $q->param($t) : ""; }
     }
-	Debug::dsay ( "call sshop_part::save w $bd{ID}" );
-    my $err = sshop_part::save( \%bd, $id);
+	Debug::dsay ( "call SMS_Person::save w $bd{ID}" );
+    my $err = SMS_Person::save( \%bd, $id);
     Debug::dsay ("do_Save -- returning;");
     my $out = qq{<p> This information has been saved.. </p>};
     $out .= do_selectTable();
