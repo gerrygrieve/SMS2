@@ -33,9 +33,7 @@ my $sp = '&nbsp;';
 my $q = new CGI;
 #my $Debug = 2;
 my $bs_style = "buttonstyle";
-my $qsave =$q->submit( -name  => "Save",
-                       -class => $bs_style,      
-                       -value => "Save"); 
+
 my $Hidden;
 
 print $q->header(-type=> "text/html", -expires=>'now'), "\n";
@@ -57,11 +55,20 @@ print $q->start_html( -title  =>  $title,
                                       -src=>"/Gform/sshop/javascript/shBrushJScript.js"},
                                     {-type=>"text/javascript",
                                       -src=>"/Gform/sshop/javascript/myzebradp1.js"},
+									{ -type=>"text/javascript",
+                                      -src=>"/Gform/SMS/js/validates.js"},
                                     ]
                       ),"\n";
 print signupform::mk_myfuncs();
 
 dump_it();
+
+my $qsave =$q->submit( -name  => "Save",
+                       -class => $bs_style,      
+                       -value => "Save");
+my $qsub =$q->submit( -name  => "Submit_Reg",
+                       -class => $bs_style,      
+                       -value => "Submit"); 
 print $q->start_multipart_form("POST", $this_script), "\n";
 
 my ($this_y, $this_m, $this_d) = Today();
@@ -73,8 +80,9 @@ my $then = sprintf("%4d-%2.2d-%2.2d",$exp_date[0], $exp_date[1],$exp_date[2]);
 
 print $q->start_multipart_form("POST", $this_script), "\n";
 
-if ($q->param('Save') )  { do_Save();}
-else                     { do_mainpage2(); }
+if ($q->param('Submit_Reg') )  { do_check_params();}
+elsif ($q->param('Save') )     { do_Save();}
+else                     	   { do_mainpage2(); }
 
 print $q->endform;
 print $q->end_html;
@@ -83,6 +91,7 @@ exit;
 sub do_mainpage2 {
 
    Debug::dsay ("This is main page2 sub ;");
+	print  qq{<script src="/Gform/lib/js/valid.js"></script>};
 	print  qq{<div class="mainpg>"};
     print  get_Intro();
 
@@ -151,6 +160,9 @@ sub do_Save {
     SMS_Person::mail_signup($app_info);
 }
 
+sub do_check_params{
+	    Debug::dsay ("do_check_params:: id is {$xid}");
+}
 sub do_thanks {
 #   my $name = $q->param{"full_name"};
     my $summ = shift;
