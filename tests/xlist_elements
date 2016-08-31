@@ -15,22 +15,25 @@ my %el_info =  SMS_Person::get_element_info();
 print Dumper(%el_info);
 
 print_req();
+
+
 sub print_req {
 	print "element info is\n";
 	
-#( sort {$el_info{$a}{rank} <=>
-#                          $el_info{$b}{rank} }
-#                   keys %el_info )
-	foreach my $t  ("supervisor", "UBC_id", "phone" ) {
-		print "tag $t \n"; # is required ? $element_info{$t}{required} \n";
-		my %tag_obj = %{$el_info{$t}};
-	#	print Dumper(%tag_obj);
-        my $req = defined ($el_info{$t}{required})
-             ? qq{<span id="req"> required </span>}
-			 : q[not required];
+   foreach my $t ( sort {$el_info{$a}{rank} <=>
+                          $el_info{$b}{rank} }
+                   keys %el_info ) {
+	
+	#	print "tag [$t] \n";
 
-		print "tag $t is required ? $req \n";
+		my %myinfo = %{$el_info{$t}};
+	
+	    my $rank = defined ($myinfo{rank}) ? $myinfo{rank} : 999;
+		my $req  = defined ( $myinfo{required} ) ?
+					"required" : "optional";
+		printf "%22s %3d %s \n",$t, $rank, $req ;
 	}
+	
 }
 
 sub print_out {

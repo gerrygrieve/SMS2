@@ -18,11 +18,13 @@ my $invite  = $Root . "lib/invitemessage";
 my $xml_element = "sms_person";
 
 my %elements = Form_Util::_Read_Defaults_Simple($def);
-
+my $t900 = 900;
 foreach my $time ( "AM", "PM" ){		
 	foreach $day ( qw[ Mon Tue Wed Thr Fri] ) {
 		my $tag  = "avail_" . $day . "_" . $time;
-		$elements{$tag}++;
+		$t900++;
+#		$elements{$tag}++;
+		$elements{$tag}{rank} = $t900;
 	}
 }
 
@@ -81,7 +83,7 @@ sub save {
 
     foreach $e (@etags) {
         $out = defined ($t->{$e}) ? $t->{$e} : "";
-  #      Debug::dsay("SMS_Person::save:: element {$e} value {$out}");
+        Debug::dsay("SMS_Person::save:: element {$e} value {$out}");
         print O $tab, "<$e>", $out,"</$e>\n" if $out;
     }
 
