@@ -33,12 +33,15 @@ sub student_register {
 	my $my_cat = shift;
            Debug::dsay("student_register:: cat  [$my_cat]" );
 
+	my $qsub =$q->submit( -name  => "Submit_Reg",
+						   -class => $bs_style,      
+						   -value => "Submit"); 
+
 	use SMS_Person;
     my %element_info = SMS_Person::get_element_info();
 	my $out = "";
-
-    $out .=  qq{<table border="1" cellpadding="4"
-                       cellspacing="10" width="600px">\n};
+	$out .= qq{<div id="inputform">};
+    $out .=  qq{<table class="appinfo">\n};
 
     foreach my $t ( sort {$element_info{$a}{rank} <=>
                           $element_info{$b}{rank} }
@@ -69,6 +72,8 @@ sub student_register {
 	
 	}
 	$out .= mk_avail_table($q);
+	$out .= qq{<p>$qsub</p>};
+	$out .= qq{</div>};
 
 #	$out .=  qq{ <tr><td class="explain" colspan="2"> Below is the list of upcoming courses.
 # 
@@ -127,7 +132,23 @@ sub student_register {
 #	$out .= qq{<table id="ctable">$headers $ctable</table>};     
 
 	return $out;
+}
 
+sub check_input {
+	my $q = shift;
+	my %element_info = SMS_Person::get_element_info();
+	my $out = "";
+
+	foreach my $p ( $q->param ) {
+		my $input = $q->param($p);
+		next if $input;
+		if  (defined ($element_info{$p}{required}) )	{
+			$out .= qq{Field $p is Required !! <br />};
+		}
+	}
+	$out = qq{<div class="warn"> $out </div> } if ( $out ); 
+		
+	return $out;
 }
 
 sub mk_avail_table {

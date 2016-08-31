@@ -91,14 +91,14 @@ exit;
 sub do_mainpage2 {
 
    Debug::dsay ("This is main page2 sub ;");
-	print  qq{<script src="/Gform/lib/js/valid.js"></script>};
+
 	print  qq{<div class="mainpg>"};
     print  get_Intro();
 
 	my $html = SMS_html_Util::student_register($q, "student");
 
 	print $html;
-    print  qq{<p>$qsave</p>};
+
     print  qq{</div>};
 }
 
@@ -161,7 +161,18 @@ sub do_Save {
 }
 
 sub do_check_params{
-	    Debug::dsay ("do_check_params:: ");
+    Debug::dsay ("do_check_params:: ");
+	my $err = SMS_html_Util::check_input($q);
+
+	if ($err) {
+		print $err;
+		my $html = SMS_html_Util::student_register($q, "student");
+
+		print $html;
+		print  qq{<p>$qsub</p>};
+	} else {
+		do_Save();
+	}
 }
 sub do_thanks {
 #   my $name = $q->param{"full_name"};

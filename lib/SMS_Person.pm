@@ -67,10 +67,8 @@ sub AUTOLOAD {
 sub save {
     my $t  = shift;
   
-    Debug::dsay("SMS_Person::save  line 80   save...");
+    Debug::dsay("SMS_Person::save  line 80   save... [$t]");
     my $tab = " "x4;
- 
-
 	$xid = $t->{ID};
 	my $sn = $t->{UBC_id};
     Debug::dsay("sshop::save   ID is  {$xid} sn is  {$sn}"); 
@@ -83,21 +81,18 @@ sub save {
 
     foreach $e (@etags) {
         $out = defined ($t->{$e}) ? $t->{$e} : "";
-
-        Debug::dsay("SMS_Person::save:: element {$e} value {$out}");
+  #      Debug::dsay("SMS_Person::save:: element {$e} value {$out}");
         print O $tab, "<$e>", $out,"</$e>\n" if $out;
     }
 
     print O "</$xml_element>\n";    
     close O;
-exit;
 ##
 ## set the mod & ownership of file...; for now we do not worry about
 ## failures...$> is ggk for Real_user_id
 
     chmod 0664, $f;
-    if ($Group_for_file_ownership)
-    {   my $cnt = chown  $>, $Group_for_file_ownership, $f; }
+    my $cnt = chown  $>, $Group_for_file_ownership, $f if ($Group_for_file_ownership);
     return $id;
 } 
 
