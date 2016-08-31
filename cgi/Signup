@@ -161,7 +161,7 @@ sub do_Save {
 }
 
 sub do_check_params{
-	    Debug::dsay ("do_check_params:: id is {$xid}");
+	    Debug::dsay ("do_check_params:: ");
 }
 sub do_thanks {
 #   my $name = $q->param{"full_name"};
