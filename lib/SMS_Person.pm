@@ -456,7 +456,7 @@ sub mail_signup {
                    $app_info\n"
                   };
    
-    mail_it($to, $from, $subj, $body);    
+    mail_it($to, $from, $subj, $body) unless $Debug;    
 
     return;
 }
