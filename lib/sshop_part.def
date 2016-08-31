@@ -100,20 +100,19 @@
 </tag>
 
 <tag>
-    <tname>request_date</tname>
-    <prompt>Request Date</prompt>
+    <tname>date_signup</tname>
+    <prompt>Signup Date</prompt>
     <input>
         <type>text</type>
         <nchar>40</nchar>
         <maxchar>60</maxchar>
     </input>
- 
     <rank>379</rank>
 </tag>
+
 <tag>
     <tname>invited_to_course</tname>
     <prompt>Invited to Course</prompt>
- 
     <rank>380</rank>
 </tag>
 <tag>

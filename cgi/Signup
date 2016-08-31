@@ -144,7 +144,7 @@ sub do_Save {
 #        $app_info .= "$t:  $pp\n" if $pp;
 #    }
     my $today = sprintf "%4d%2.2d%2.2d", Today();
-    $part->{"date_request"} = $today;
+    $part->{"date_signup"} = $today;
 
 	#foreach my $tt ( keys %element_info) {
 	#	my $val = $part->{$tt};
