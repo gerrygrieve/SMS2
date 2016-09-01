@@ -90,7 +90,7 @@ exit;
 
 sub do_mainpage2 {
 
-   Debug::dsay ("This is main page2 sub ;");
+#   Debug::dsay ("This is main page2 sub ;");
 
 	print  qq{<div class="mainpg>"};
     print  get_Intro();
@@ -135,7 +135,9 @@ The following information has been recorded\n\n};
 	}
 	my $id = $part->{UBC_id};
 	my $cn = SMS_Person::confirmationnumber($id);
-	$part->{conf_num} = $cn;
+	$part->{confirmationnumber} = $cn;
+	$summ .= qq{<tr><td class="thanks">confirmationnumber: </td><td>$cn</td></tr>};
+	$asum .= sprintf "%-20s : %s\n","confirmationnumber", $cn;
 #    foreach my $t ( sort {$element_info{$a}{rank} <=>
 #                          $element_info{$b}{rank} }
 #					keys %element_info ) {

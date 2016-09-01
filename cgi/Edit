@@ -1,0 +1,262 @@
+#!/usr/bin/perl -wT
+
+# save the entered info to a file & redisplay
+# this script is intended to management info that is editable by 
+# the course intructors:  course.cgi is a more general tool
+
+$ENV{PATH} = "/bin:/usr/bin";
+
+use lib "/www/Gform/lib/";
+use lib "/www/Gform/SMS/lib/";
+
+use Debug;
+use SMS_Person;
+use signupform;
+use SMS_html_Util;
+
+use HTML_Util;
+use Form_Util;
+
+use strict;
+use CGI;
+use Date::Calc qw [Today Add_Delta_Days Delta_Days Day_of_Week Monday_of_Week Week_of_Year];
+use CGI::Carp 'fatalsToBrowser';
+my $today     = sprintf ("%04d-%02d-%02d", Today() );
+
+my $this_script = "/cgi-bin/SMS/Edit";
+my $title = "P &amp; A Student Shop Sign Up";
+my $version = "0.0.1";
+Debug::Set_Debug(1, "html");
+my ($wel, $fname);
+my $sp = '&nbsp;';
+my $q = new CGI;
+my $Debug = 2;
+
+my $qsave =$q->submit( -name  => "Save",    
+                       -value => "Save"); 
+my $Hidden;
+
+print $q->header(-type=> "text/html", -expires=>'now'), "\n";
+print $q->start_html( -title  =>  $title, 
+                      -style  => [ {'src'=>'/Status/lib/note.css', },
+                                   {'src'=>'/Gform/SMS_Person/css/reset.css'}, 
+                                   {'src'=>'/Gform/SMS_Person/css/zebra_datepicker.css'},
+                                   {'src'=>'/Gform/SMS_Person/css/style.css'}, 
+                                   {'src'=>'/Gform/SMS_Person/css/SMS_Person.css'},
+                                   {'src'=>'/Gform/SMS_Person/css/shCoreDefault.css'}
+                                 ],
+                       -script => [ {-type=>"text/javascript",
+                                     -src=>"/Gform/SMS_Person/javascript/jquery-1.8.2.js"},
+                                    {-type=>"text/javascript",
+                                      -src=>"/Gform/SMS_Person/javascript/XRegExp.js"},
+                                    {-type=>"text/javascript",
+                                      -src=>"/Gform/SMS_Person/javascript/shCore.js"},
+                                    {-type=>"text/javascript",
+                                      -src=>"/Gform/SMS_Person/javascript/shBrushJScript.js"},
+                                    {-type=>"text/javascript",
+                                      -src=>"/Gform/SMS_Person/javascript/myzebradp1.js"},
+                                    ]
+                      ),"\n";
+print signupform::mk_myfuncs();
+
+#dump_it();
+print $q->start_multipart_form("POST", $this_script), "\n";
+
+my ($this_y, $this_m, $this_d) = Today();
+my @exp_date = Add_Delta_Days ($this_y, $this_m, $this_d, 30);
+
+my $now =  sprintf("%4d-%2.2d-%2.2d",$this_y,$this_m,$this_d);  
+my $then = sprintf("%4d-%2.2d-%2.2d",$exp_date[0], $exp_date[1],$exp_date[2]);
+
+print $q->start_multipart_form("POST", $this_script), "\n";
+
+
+if ($q->param('Save') )  { do_Save();}
+else                     { do_mainpage2(); }
+
+print $q->endform;
+print $q->end_html;
+exit;
+
+sub do_mainpage2 {
+
+   Debug::dsay ("This is main page2 sub ;");
+
+	my $cn = $q->param("cn");
+    my $sn = SMS_Person::cn2sn($cn);
+	print  qq{<div class="mainpg>"};
+
+	
+
+	print "<h2> Dump of the query </h2><br />\n";
+        print $q->Dump;
+        print "<hr />";
+
+    print SMS_Person::get_hdr();
+    print  get_Intro();
+
+	my $html = SMS_html_Util::edit_student_register($q, "student", $sn);
+
+	print $html;
+
+    print  qq{</div>};
+}
+
+sub do_mainpage {
+    Debug::dsay(" edit::do_mainpage:: ");
+    my $cn = $q->param("cn");
+    my $sn = SMS_Person::cn2sn($cn);
+    Debug::dsay(" edit::do_mainpage:: cn is {$cn} id is {$sn}");
+    my %element_info = my %el_info = SMS_Person::get_element_info();
+
+    my $this_app = SMS_Person::get_app_by_ID($sn);
+    print SMS_Person::get_hdr();
+    if ($this_app < 0) {
+        print qq{<div class="ss_error"> 
+                 <p> An unknown or invalid confirmation number was entered<br />
+        we cannot  update your application </p></div>};
+        exit;
+    }
+    Debug::dsay ("This is main page sub ");
+    print qq{<div class="mainpg">};
+    print get_Intro($this_app);
+    print qq{<table border="1" cellpadding="4" cellspacing="10" width="600px">\n};   
+    foreach my $t ( sort {$element_info{$a}{rank} <=>
+                          $element_info{$b}{rank} } keys %element_info )
+   {
+   ###  Debug::dsay("do_form:: t is {$t}");
+      print "<p> tag {$t} is typed {$element_info{$t}{qtype}}</p>" 
+          if ($element_info{$t}{qtype} eq "AoH");
+#      my $value = $q->param($t) ? $q->param($t) : "" ;
+     my $value = $this_app->{$t} ? $this_app->{$t} : "" ;
+      my $pout = $element_info{$t}{prompt} ? $element_info{$t}{prompt}: "";
+      my $qout = $element_info{$t}{qtype}  ? $element_info{$t}{qtype} : "";
+      next unless $pout;
+      $pout =~ s[\s+][\&nbsp;]g;
+      last if ($t =~ /week/);
+      print qq{<tr> <td class="prompt"> $pout: </td>\n}; 
+    
+      $value = $today  if ($t eq "date" and !$value);                
+      my $out = Form_Util::input_query(\%{$element_info{$t}}, $t, $value);
+ 
+      print qq{<td class="input"> $out</td></tr>\n};
+   }
+   print qq{ <tr><td class="explain" colspan="2"> Please use the calendar tools bellow to selcted one or more preferred week in which
+                                   you would like to attend a student shop course.  The courses are normally held
+                                   4 consecutive days (Tues, Wed, Thrus & Fri).
+              </td></tr>};
+   foreach my $i (1..3)
+   {
+        my $t = "preferred_week_$i";
+        my $value = $this_app->{$t} ? $this_app->{$t} : "" ;
+        print qq {<tr><td class="prompt">Preferred Week $i:</td>
+                  <td class="input"><div><input id="week$i" type="text" size='60' name="$t" value="$value"></div></td></tr>\n};
+   }
+    my $t = "excluded_from";
+    my $value = $this_app->{$t} ? $this_app->{$t} : "" ;
+    print qq{<tr><td class="explain" colspan="2"> You can also set an excluded interval during which you};
+    print qq{            would be unavailable for the training course ( away on vacation, say). };
+    print qq{          </td></tr>};
+    print qq {<tr><td class="prompt">Excluded\&nbsp;Interval\&nbsp;Start:</td>
+                  <td class="input"><div><input id="mystart" type="text" size='60' name="$t" value="$value"></div></td></tr>\n};
+    $t = "excluded_to";
+    $value = $this_app->{$t} ? $this_app->{$t} : "" ;
+    print qq {<tr><td class="prompt">Excluded Interval End:</td>
+                  <td class="input"><div><input id="myend" type="text" size='60' name="$t" value="$value"></div></td></tr>\n};
+
+    print "</table>\n";
+    print "<p>$qsave</p>";
+    print qq{</div>};
+    print  $q->hidden("ID",$sn) . "\n";
+}
+
+sub do_Save {
+    my %element_info =  SMS_Person_part::get_element_info();
+    my $id = $q->param("ID") ? $q->param("ID") : "";
+    my $part  = SMS_Person_part::new();
+    Debug::dsay ("do_Save new version -- copying cgi params in hash;id {$id}");
+    my $summ = "<table>";
+    foreach my $t ( sort {$element_info{$a}{rank} <=>
+                          $element_info{$b}{rank} } keys %element_info )
+    {
+#        next if ($t eq "ID");
+        $part->{$t} = $q->param($t) ?  $q->param($t) : "";
+        my $pp      = $part->{$t};
+        $summ .= qq{<tr><td class="thanks">$t: </td><td>$pp</td></tr>} if $pp;
+    }
+ 
+    my $err = SMS_Person_part::save( $part, $id);
+    do_thanks($summ, );
+}
+
+sub do_thanks
+{
+#   my $name = $q->param{"full_name"};
+    my $summ = shift;
+
+    my $out = qq{ <div class="thanks"><h1 class="SMS">SMS signup</h1>
+                <p> Thank you  for your continued interest in the student shop course. <br /> 
+               The following  information has been recorded </p> $summ <br /> </div> };
+    print $out;
+    
+}
+
+sub get_exdates
+{
+    my %weeks =  SMS_Person_part::get_excluded_weeks();
+    my $sv = $weeks{"start"};
+    my $lv = $weeks{"last"};
+    my %eweeks = %{$weeks{"excluded"}};
+    my $out ="";
+    foreach my $e ( keys  %eweeks )
+    {
+ 
+       my $days ="";
+       my ($y, $m,$d) = split "-", $e;
+ 
+       my $wk = Week_of_Year($y,$m,$d);
+       my ($my,$mm,$md) = Monday_of_Week($wk,$y);
+      
+       my ($fy,$fm,$fd) = Add_Delta_Days($my,$mm,$md,4);
+ 
+       if ( $mm == $fm)
+       {
+            $days = qq{'$md-$fd $mm $my'}; ;
+       } else
+       {
+          if ($fd > 1) { $days = qq{'1-$fd $fm $fy'}; }
+          else         { $days = qq{'$fd $fm $fy"};}
+          my ($xy,$xm,$xd) = Add_Delta_Days($my,$mm,$md,$fd);   # get last days og monday's month
+          $days = qq{'$md-$xd $mm $my',$days};
+       }
+       $out .= $days . ",";
+    }
+    return $out;    
+}
+
+
+sub get_Intro
+{
+    my $app =shift;
+    my $name = $app->{full_name};
+    my $ifile = "/www/Gform/SMS_Person/lib/edit_intro_text";
+
+    my $intro = "";
+    {
+	open (X, $ifile) || warn "cannot open $ifile \n";
+	local ( $/ );
+	$intro = <X>;
+	close X;  
+    }
+    $intro =~ s/%%App%%/$name/;
+    return $intro;
+}
+
+sub dump_it
+{
+	print "<h2> Dump of the query </h2><br />\n";
+        print $q->Dump;
+        print "<hr />";
+}
+
+

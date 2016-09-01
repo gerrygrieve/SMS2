@@ -14,7 +14,8 @@
         <maxchar>60</maxchar>
     </input>
     <rank>116</rank>
-  <required>true</required>
+    <required>true</required>
+    <cat>student</cat>
 </tag>
 
 <tag>
@@ -26,7 +27,8 @@
         <maxchar>14</maxchar>
     </input>
      <rank>118</rank>
-  <required>true</required>
+    <required>true</required>
+    <cat>student</cat>
 </tag>
 
 <tag>
@@ -39,6 +41,7 @@
     </input>
     <rank>136</rank>
   <required>true</required>
+    <cat>student</cat>
 </tag>
 
 <tag>
@@ -50,6 +53,7 @@
         <maxchar>60</maxchar>
     </input>
     <rank>146</rank>
+    <cat>student</cat>
 </tag>
 
 <tag>
@@ -61,6 +65,7 @@
        <ncol>60</ncol>
     </input>
     <rank>226</rank>
+    <cat>student</cat>
 </tag>
 
 <tag>
@@ -73,6 +78,7 @@
     </input>
     <rank>166</rank>
   <required>true</required>
+    <cat>student</cat>
 </tag>
 
 <tag>
@@ -91,7 +97,7 @@
     <tname>AdComments</tname>
     <prompt>Admin's Comment</prompt>
     <cat>admin</cat>
-  <input>
+    <input>
        <type>textarea</type>
        <nrow>5</nrow>
        <ncol>60</ncol>
@@ -108,6 +114,7 @@
         <maxchar>60</maxchar>
     </input>
     <rank>379</rank>
+    <cat>internal</cat>
 </tag>
 
 <tag>
@@ -120,24 +127,28 @@
     <prompt>Booked Date</prompt>
  
     <rank>381</rank>
+   <cat>internal</cat>
 </tag>
 <tag>
     <tname>booked_for_course</tname>
     <prompt>Booked in Course</prompt>
  
     <rank>379</rank>
+   <cat>internal</cat>
 </tag>
 <tag>
     <tname>completed_ok</tname>
     <prompt>Completed OK</prompt>
  
     <rank>379</rank>
+   <cat>internal</cat>
 </tag>
 <tag>
     <tname>confirmed_booking</tname>
     <prompt>Confirmed Booking</prompt>
  
     <rank>409</rank>
+   <cat>internal</cat>
 </tag>
 
 <tag>
@@ -145,6 +156,7 @@
     <prompt>Declined Booking</prompt>
  
     <rank>409</rank>
+   <cat>internal</cat>
 </tag>
 
 <tag>
@@ -152,6 +164,7 @@
     <prompt>Confirmation Number</prompt>
  
     <rank>459</rank>
+   <cat>internal</cat>
 </tag>
 
 </sms_person>

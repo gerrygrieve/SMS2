@@ -4,7 +4,8 @@ use lib "/www/Gform/lib/";
 use lib "/www/Gform/SMS/lib";
 
 use Form_Util;
-
+use Date::Calc qw (Today);
+my $today = printf "%4d-%2.2d-%2.2d", Today();
 my $bs_style = "buttonstyle";    
 
 
@@ -13,12 +14,14 @@ sub sms2form {
     Debug::dsay("sms2form:: ..." );
     my $app = shift;
     my $q   = shift;
-    foreach my $t ( keys %{$app} ) {
+
+	my %element_info = SMS_Person::get_element_info();
+    foreach my $t ( keys %element_info ) {
         next unless $app->{$t};
         next if ($t eq "_permitted" );
-        if ($t =~ /^\d/) {
-            Debug::dsay("sms2form:: dated t is [$t]" );
-           my $tt = $t.$app->{$t};
+        if ($t =~ /^avail/) {
+            Debug::dsay("sms2form:: t is [$t]" );
+           my $val = $app->{$t};
            $q->param($tt) = "ON";
         } else {
              Debug::dsay("sms2form:: simple t is [$t]" );
@@ -32,13 +35,12 @@ sub student_register {
 
 	my $q = shift;
 	my $my_cat = shift;
-           Debug::dsay("student_register:: cat  [$my_cat]" );
+    Debug::dsay("student_register:: cat  [$my_cat]" );
 
 	my $qsub =$q->submit( -name  => "Submit_Reg",
 						   -class => $bs_style,      
 						   -value => "Submit"); 
 
-	use SMS_Person;
     my %element_info = SMS_Person::get_element_info();
 	my $out = "";
 	$out .= qq{<div id="inputform">};
@@ -135,6 +137,65 @@ sub student_register {
 	return $out;
 }
 
+sub edit_student_register {
+
+	my $q = shift;
+	my $my_cat = shift;
+	my $sn = shift;
+    Debug::dsay("student_register:: cat  [$my_cat]" );
+
+	my $qsub =$q->submit( -name  => "Submit_Reg",
+						   -class => $bs_style,      
+						   -value => "Submit"); 
+	my $this_app     = SMS_Person::get_app_by_ID($sn);
+    my %element_info = SMS_Person::get_element_info();
+	my $out = "";
+	$out .= qq{<div id="inputform">};
+    $out .=  qq{<table class="appinfo">\n};
+
+    foreach my $t ( sort {$element_info{$a}{rank} <=>
+                          $element_info{$b}{rank} }
+                   keys %element_info ) {
+   ###  Debug::dsay("do_form:: t is {$t}");
+		next if ( $element_info{$t}{cat} eq "admin"
+				  and $my_cat ne "admin"
+				);
+		next if ( $element_info{$t}{cat} eq "internal" );
+
+		if ($t =~ /_[AP]M$/) {
+			
+			my $tag  = "avail_" . $t;
+			my $value = $this_app->{$t};
+		}
+
+		my $value = $this_app->{$t} ? $this_app->{$t} : "" ;
+		my $pout  = $element_info{$t}{prompt} ? $element_info{$t}{prompt}: "";
+		my $qout  = $element_info{$t}{qtype}  ? $element_info{$t}{qtype} : "";
+		next unless $pout;
+		$pout =~ s[\s+][\&nbsp;]g;
+     
+		$out .= qq{<tr> <td class="prompt"> $pout: </td>\n    }; 
+    
+		$value = $today  if ($t eq "date" and !$value);                
+		my $xinp = Form_Util::input_query(\%{$element_info{$t}}, $t, $value);
+
+		my $req = defined ($element_info{$t}{required})
+                ? qq{<span class="req">  &#9756; required </span>}
+			    : q[&nbsp;];
+
+		$out .= qq{<td class="input"> $xinp $req </td>};
+		$out .= qq{</tr>\n};
+	
+	}
+	$out .= mk_avail_table($q);
+	$out .= qq{<p>$qsub</p>};
+	$out .= qq{</div>};
+
+
+	return $out;
+}
+
+
 sub check_input {
 	my $q = shift;
 	my %element_info = SMS_Person::get_element_info();
@@ -179,9 +240,12 @@ sub mk_avail_table {
 		$out .= qq{   <td class="avail"> $time </td>\n};
 		foreach $day ( qw[ Mon Tue Wed Thr Fri] ) {
 			my $butname = $day . "_" . $time;
+			my $tagname = "avail_" . $butname;
+			my $checked = $q->param($tagname) ? 1 :0;
+			my $value   = $checked ? "On" : "";
 			my $but = $q->checkbox(-name=>$butname,
-			                       -checked=>1,
-			                       -value=>'ON',
+			                       -checked=>$checked,
+			                       -value=>$value,
 			                       -label=>'Available ');
 			$out .= qq{   <td class="avail"> $but</td>\n};
 		}
