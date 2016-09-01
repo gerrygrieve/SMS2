@@ -452,9 +452,9 @@ sub mail_signup {
    Debug::dsay("SMS_person:: mail_signup ");
     my $mailer = "/usr/sbin/sendmail -oi -t ";	
  
-    my $app_info = shift;
+    my $to = shift;
 	my $body = shift;
-    my $to = $app_info{email};
+  
     my $from = "sms_signup";
     my $subj = "SMS Course Registration";
      
