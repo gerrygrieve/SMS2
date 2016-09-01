@@ -56,7 +56,7 @@ dump_it();
 
    if ( $q->param('next') eq "Book Course")   { do_BookCourse(); }
 elsif ( $q->param("AddNewApp")  )             { do_App();        }
-elsif ( $q->param("Showavail")  )			  { do_showAvail();  }
+elsif ( $q->param("ShowAvail")  )			  { do_showAvail();  }
 elsif ( $q->param("AppSort")    )             { do_showApps();   } 
 elsif ( $q->param("Save Dates")  )            { do_Save_Dates(); }
 elsif ( $q->param("Delete App")  )            { do_DeleteApp();  }
@@ -95,6 +95,38 @@ sub do_showAvail {
 #	my @apps = $show_current ? SMS_Person::get_Current_Data()
 #                             : SMS_Person::get_Data();
 	my @apps =  SMS_Person::get_Data();
+
+	my $out = qq{<table class="timeslots"> };
+
+	foreach my $day ( qw[ Mon Tue Wed Thr Fri] ) {	
+		foreach my $time ( "AM", "PM" )	{
+		
+			my $tag  = "avail_" . $day . "_" . $time;
+			my $tslot =  $day . "_" . $time;
+			$out .= qq{ <tr>};
+			$out .= qq{<td class="timeslots">$tslot</td>};
+			my $alist = "";
+			my $hlist = "";
+			foreach my $a ( @apps) {
+				my %app = %{$a};
+				if ( defined($app{$tag} )) {
+					my $sn = $app{UBC_id};
+					my $name = $app{full_name};
+					my $bname = "Edit_$sn";
+					my $but = $q->submit(-name=>"$bname", -value=>$name);
+				
+					$alist .= "$but &nbsp";
+				}			
+			}
+			$out .= qq{<td class="timeslots">$alist</td>} ;
+			$out .= qq{</tr>};
+		}
+	}
+
+	$out .= qq{</table>};
+
+	print $out;
+
 }
 
 
@@ -580,7 +612,7 @@ sub do_showApps {
                    <th>Completed OK</th></tr>};
     my %sort_routines = ( Name           => \&sort_by_Name,
                           ID             => \&sort_by_ID,
-                          "Request Date" => \&sort_by_ReqDate,
+                          "SignUp Date" => \&sort_by_ReqDate,
                           "UBC #"        => \&sort_by_UBC,
 	                );
     #my $sort = $q->param("AppSort") ? $q->param("AppSort") : "ID";
@@ -594,7 +626,9 @@ sub do_showApps {
         my $xx = $q->submit(-name=>'View App',-value=>$id);
 		my $ubc = $o->{UBC_id};
  
-
+		my $rf = defined ($o->{date_signup})  
+               ? $o->{date_signup}
+               : "???";
 		my $bf = $o->{booked_for_course}  
                ? $q->submit(-name=>'Print Course',
                             -value=>$o->{booked_for_course})
@@ -606,6 +640,7 @@ sub do_showApps {
         $out .= qq{<td> $xx</td>
                    <td> $x</td>
                    <td>$ubc</td>
+				   <td>$rf</td>
                    <td>$bf</td>
                    <td>$cd</td>};
         $out .= qq{</tr>};

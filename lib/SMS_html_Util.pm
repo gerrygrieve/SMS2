@@ -22,7 +22,8 @@ sub sms2form {
            $q->param($tt) = "ON";
         } else {
              Debug::dsay("sms2form:: simple t is [$t]" );
-            $q->param($t) = $app->{$t};
+			$val = $app->{$t};
+            $q->param(name =>$t, value =>$val);
         }
     }
     return $q;
