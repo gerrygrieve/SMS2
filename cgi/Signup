@@ -108,6 +108,7 @@ sub do_Save {
    
     my $part  = SMS_Person::new();
     my $summ = "<table>";
+
     my $app_info = "";
     Debug::dsay ("Admin::do_Save new version -- copying cgi params in hash;");
 
@@ -159,6 +160,12 @@ sub do_Save {
     # try mailing this info to course admin
 	Debug::dsay ("SignUp:: do_Save:: call SMS_Person::mail_signup ");
     SMS_Person::mail_signup($app_info);
+	Debug::dsay ("SignUp:: do_Save:: call SMS_Person::mail_signup ");
+	$summ .= qq{<p> To change your info, go to 
+             <a href="http://sms.phas.ubc.ca/cgi-bin/SMS/Edit?cn=$cn">
+                http://sms.phas.ubc.ca/cgi-bin/SMS/Edit?cn=$cn</a>
+              </p>  };
+    SMS_Person::mail_signup($app_info, $summ );
 }
 
 sub do_check_params{

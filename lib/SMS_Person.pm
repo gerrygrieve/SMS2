@@ -441,7 +441,7 @@ sub mail_admin {
         $body = qq{ Applicant $id ($name) has declined course $course.};
         
     } else {
-        $body = qq{This is from mail-adimn:: this should not happen};
+        $body = qq{This is from mail-admin:: this should not happen};
     }
     mail_it($to, $from, $subj, $body);    
 
@@ -453,15 +453,14 @@ sub mail_signup {
     my $mailer = "/usr/sbin/sendmail -oi -t ";	
  
     my $app_info = shift;
-    my $to = $Course_email;
+	my $body = shift;
+    my $to = $app_info{email};
     my $from = "sms_signup";
-    my $subj = "New SMS Course Applicant";
-    my $body = qq {FYI:  The following person has signed up for a SMS course \n\n
-                   $app_info\n"
-                  };
-     Debug::dsay("SMS_person:: $to $from $subject");
+    my $subj = "SMS Course Registration";
+     
+     Debug::dsay("SMS_person:: $to $from $subj");
      Debug::dsay("SMS_person:: $body");
-    mail_it($to, $from, $subj, $body) unless $Debug;    
+    mail_it($to, $from, $subj, $body);    
 
     return;
 }
