@@ -147,6 +147,13 @@
     <rank>409</rank>
 </tag>
 
+<tag>
+    <tname>confirmationnumber</tname>
+    <prompt>Confirmation Number</prompt>
+ 
+    <rank>459</rank>
+</tag>
+
 </sms_person>
 
 

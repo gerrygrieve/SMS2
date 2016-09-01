@@ -1,0 +1,59 @@
+#!/usr/bin/perl -wT
+
+use lib "/www/Gform/SMS/lib/";
+use lib "/www/Gform/lib";
+
+use Debug;
+
+use Data::Dumper;
+Debug::Set_Debug(1,"ansi");
+
+
+
+my @tests = ( 12345678, 78563411, 89783333);
+
+foreach my $t ( @tests) {
+
+	my $cn = sn2cn ($t);
+	
+	my $u = cn2sn( $cn);
+	print "$t ==> $cn ==> $u \n";
+
+}
+
+sub sn2cn {
+	my $sn = shift;
+	my $r = reverse $sn;
+    my @chars = split //, $r;
+
+	my $s = $chars[0] + 65 +12;
+	$chars[0] = chr $s;
+
+	my $s2 = $chars[2] + 8 + 65;
+	$chars[2] = chr $s2;
+
+	$cn = join "",@chars;
+	
+	return $cn;
+}
+
+sub cn2sn {
+	my $cn = shift;
+
+	my @chars = split //, $cn;
+
+	my $s = ord($chars[0]) - 12 - 65;
+	$chars[0] =  $s;
+	my $s2 = ord($chars[2]) - 8 - 65;
+	$chars[2] =  $s2;
+
+	$r = join "", @chars;
+
+	my $u = reverse $r;
+
+	return $u;
+}
+
+#12345678 ==> U7S54321 ==> 12345678  85 [U]
+#78563411 ==> N1Q36587 ==> 78563411  78 [N]
+#89783333 ==> P3P38798 ==> 89783333  80 [P]

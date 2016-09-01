@@ -109,22 +109,28 @@ sub do_Save {
     my $part  = SMS_Person::new();
     my $summ = "<table>";
 
+	my $asum = qq { Thanks for your interest in the student shop courses. \n
+The following information has been recorded\n\n};
+	my $tab = " "x4;
     my $app_info = "";
     Debug::dsay ("Admin::do_Save new version -- copying cgi params in hash;");
 
 	foreach my $ftag ( $q->param ) {
-		next if ($ftag eq "Save");
+		next if ($ftag =~ /Submit/ );
 		if ($ftag =~ /_[AP]M$/) {
 			
 			my $tag  = "avail_" . $ftag;
 			my $value = $q->param($ftag);
 			$part->{$tag}  = $value;
 			$summ .= qq{<tr><td class="thanks">$tag: </td><td>$value</td></tr>};
+			$value =~ s/ON/Yes/;
+			$asum .= sprintf "%-20s : %s\n",$tag, $value;
 		}
 		else {
 			$part->{$ftag}  = $q->param($ftag);
-			my $pp = $part->{$ftag};
-			$summ .= qq{<tr><td class="thanks">$ftag: </td><td>$pp</td></tr>} if $pp;
+			my $value = $part->{$ftag};
+			$summ .= qq{<tr><td class="thanks">$ftag: </td><td>$value</td></tr>} if $value;
+			$asum .= sprintf ("%-20s : %s\n",$ftag, $value) if $value;;
 		}
 	}
 	my $id = $part->{UBC_id};
@@ -165,8 +171,8 @@ sub do_Save {
              <a href="http://sms.phas.ubc.ca/cgi-bin/SMS/Edit?cn=$cn">
                 http://sms.phas.ubc.ca/cgi-bin/SMS/Edit?cn=$cn</a>
               </p>  };
-	my $email = $part->{email} 
-    SMS_Person::mail_signup($email, $summ );
+	my $email = $part->{email};
+    SMS_Person::mail_signup($email, $asum );
 }
 
 sub do_check_params{
@@ -192,7 +198,7 @@ sub do_thanks {
                The following  information has been recorded </p> $summ <br /> <p>You should receive
                an invitation to a course via email when you are 
                scheduled <br /> To change your info, go to 
-             <a href="http://sms.phas.ubc.ca/cgi-bin/SMS/Edit?cn=$cn">
+             <a href="http://sms.phas.ubc.ca/cgi-bin/SMS2/Edit?cn=$cn">
                 http://sms.phas.ubc.ca/cgi-bin/SMS/Edit?cn=$cn</a>
               </p></div> };
     print $out;

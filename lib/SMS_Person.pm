@@ -460,6 +460,17 @@ sub mail_signup {
      
      Debug::dsay("SMS_person:: $to $from $subj");
      Debug::dsay("SMS_person:: $body");
+
+#	my $html_top =<<EndofTop;
+#		<html>
+#		<body>
+#EndofTop
+#	my $html_bot =<<EndofBot;
+#		</body>
+#		</html>
+#EndofBot
+#
+#	$body = $html_top . $body . $html_bot;
     mail_it($to, $from, $subj, $body);    
 
     return;
@@ -494,31 +505,44 @@ sub  confirmationnumber {
 ## this routine is to obfuscate the applicant's id number
 ## into a random looking url 
 #
-#   current procedure:
-##    prefix $ID with randon uppercase letters until length is three chars.
-##    add 3 random numbers to front
-##    add 3 random # to rear
-    my $id = shift;
-	$id = substr $id,1,2; 
-    my $l = length $id;
- #   Debug::dsay ("confirmationnnumber:: id starts at {$id}");
-    my $charcount = 0;
-    while ($charcount < 3)   {
-        my $s = int (rand 25) + 65;
-        $id =  (chr $s) . $id;
-# Debug::dsay ("confirmationnnumber:: id is at {$id}");
-		$charcount++;
-    }
-	$l = length $id;
-#	Debug::dsay ("confirmationnnumber:: padding id is now {$id} length is {$l}");
+#
+    my $sn  = shift;
+	my $cn = sn2cn($sn);
 
- 
-    for $i (1,2,3) {
-		$id .= int (rand 9);
-	}
-#	Debug::dsay ("confirmationnnumber:: append  id is now {$id}");
-    return $id;  
+	return $cn;
 }
+
+sub sn2cn {
+	my $sn = shift;
+	my $r = reverse $sn;
+    my @chars = split //, $r;
+
+	my $s = $chars[0] + 65 +12;
+	$chars[0] = chr $s;
+
+	my $s2 = $chars[2] + 8 + 65;
+	$chars[2] = chr $s2;
+	$cn = join "",@chars;
+	
+	return $cn;
+}
+
+sub cn2sn {
+	my $cn = shift;
+
+	my @chars = split //, $cn;
+
+	my $s = ord($chars[0]) - 12 - 65;
+	$chars[0] =  $s;
+	my $s2 = ord($chars[2]) - 8 - 65;
+	$chars[2] =  $s2;
+
+	$r = join "", @chars;
+	my $u = reverse $r;
+
+	return $u;
+}
+
 
 sub update_course_record {
     my $iso_wk = shift;
