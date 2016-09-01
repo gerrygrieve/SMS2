@@ -449,7 +449,7 @@ sub mail_admin {
 }
 
 sub mail_signup {
-   Debug::dsay("sshop:: mail_signup ");
+   Debug::dsay("SMS_person:: mail_signup ");
     my $mailer = "/usr/sbin/sendmail -oi -t ";	
  
     my $app_info = shift;
@@ -459,7 +459,8 @@ sub mail_signup {
     my $body = qq {FYI:  The following person has signed up for a SMS course \n\n
                    $app_info\n"
                   };
-   
+     Debug::dsay("SMS_person:: $to $from $subject");
+     Debug::dsay("SMS_person:: $body");
     mail_it($to, $from, $subj, $body) unless $Debug;    
 
     return;

@@ -157,6 +157,7 @@ sub do_Save {
     $summ .= qq{</table>};
     do_thanks($summ, $cn);
     # try mailing this info to course admin
+	Debug::dsay ("SignUp:: do_Save:: call SMS_Person::mail_signup ");
     SMS_Person::mail_signup($app_info);
 }
 
