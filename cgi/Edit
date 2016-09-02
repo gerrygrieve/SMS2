@@ -39,22 +39,22 @@ my $Hidden;
 print $q->header(-type=> "text/html", -expires=>'now'), "\n";
 print $q->start_html( -title  =>  $title, 
                       -style  => [ {'src'=>'/Status/lib/note.css', },
-                                   {'src'=>'/Gform/SMS_Person/css/reset.css'}, 
-                                   {'src'=>'/Gform/SMS_Person/css/zebra_datepicker.css'},
-                                   {'src'=>'/Gform/SMS_Person/css/style.css'}, 
-                                   {'src'=>'/Gform/SMS_Person/css/SMS_Person.css'},
-                                   {'src'=>'/Gform/SMS_Person/css/shCoreDefault.css'}
+                                   {'src'=>'/Gform/SMS/css/reset.css'}, 
+                                   {'src'=>'/Gform/SMS/css/zebra_datepicker.css'},
+                                   {'src'=>'/Gform/SMS/css/style.css'}, 
+                                   {'src'=>'/Gform/SMS/css/SMS.css'},
+                                   {'src'=>'/Gform/SMS/css/shCoreDefault.css'}
                                  ],
                        -script => [ {-type=>"text/javascript",
-                                     -src=>"/Gform/SMS_Person/javascript/jquery-1.8.2.js"},
+                                     -src=>"/Gform/SMS/javascript/jquery-1.8.2.js"},
                                     {-type=>"text/javascript",
-                                      -src=>"/Gform/SMS_Person/javascript/XRegExp.js"},
+                                      -src=>"/Gform/SMS/javascript/XRegExp.js"},
                                     {-type=>"text/javascript",
-                                      -src=>"/Gform/SMS_Person/javascript/shCore.js"},
+                                      -src=>"/Gform/SMS/javascript/shCore.js"},
                                     {-type=>"text/javascript",
-                                      -src=>"/Gform/SMS_Person/javascript/shBrushJScript.js"},
+                                      -src=>"/Gform/SMS/javascript/shBrushJScript.js"},
                                     {-type=>"text/javascript",
-                                      -src=>"/Gform/SMS_Person/javascript/myzebradp1.js"},
+                                      -src=>"/Gform/SMS/javascript/myzebradp1.js"},
                                     ]
                       ),"\n";
 print signupform::mk_myfuncs();

@@ -18,17 +18,21 @@ sub sms2form {
 	my %element_info = SMS_Person::get_element_info();
     foreach my $t ( keys %element_info ) {
         next unless $app->{$t};
+		my $vv =  $app->{$t};
         next if ($t eq "_permitted" );
-        if ($t =~ /^avail/) {
-            Debug::dsay("sms2form:: t is [$t]" );
-           my $val = $app->{$t};
-           $q->param($tt) = "ON";
-        } else {
-             Debug::dsay("sms2form:: simple t is [$t]" );
+#        if ($t =~ /^avail/) {
+#            Debug::dsay("sms2form:: t is [$t]" );
+#			my $val = $app->{$t};
+#			$q->param(name =>$t, value =>$val);
+#          
+#        } else {
+           
 			$val = $app->{$t};
-            $q->param(name =>$t, value =>$val);
-        }
+            $q->param(-name=>$t, -value=>$val);
+#        }
     }
+
+
     return $q;
 }
 sub student_register {
@@ -148,6 +152,8 @@ sub edit_student_register {
 						   -class => $bs_style,      
 						   -value => "Submit"); 
 	my $this_app     = SMS_Person::get_app_by_ID($sn);
+	$q = SMS_html_Util::sms2form ( $this_app,   $q );
+
     my %element_info = SMS_Person::get_element_info();
 	my $out = "";
 	$out .= qq{<div id="inputform">};
@@ -224,7 +230,7 @@ sub mk_avail_table {
 
 	$out .= qq{<table id="avail">};
     $out .= qq{<caption> <p> Below is a table with which you can indicate your availibility
-				for SMS courses.  Uncheck the slots where you would NOT be available
+				for SMS courses.  Check the slots where you would  be available
                </p></caption>};
 	$out .= qq{<tr class="avail_head">};
 	$out .= qq{   <th class="avail_head"> &nbsp; </th>};
@@ -241,8 +247,11 @@ sub mk_avail_table {
 		foreach $day ( qw[ Mon Tue Wed Thr Fri] ) {
 			my $butname = $day . "_" . $time;
 			my $tagname = "avail_" . $butname;
+			my $pq = $q->param($tagname);
+
 			my $checked = $q->param($tagname) ? 1 :0;
 			my $value   = $checked ? "On" : "";
+
 			my $but = $q->checkbox(-name=>$butname,
 			                       -checked=>$checked,
 			                       -value=>$value,
