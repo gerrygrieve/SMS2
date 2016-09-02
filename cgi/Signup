@@ -31,7 +31,7 @@ Debug::Set_Debug(1, "html");
 my ($wel, $fname);
 my $sp = '&nbsp;';
 my $q = new CGI;
-#my $Debug = 2;
+
 my $bs_style = "buttonstyle";
 
 my $Hidden;
@@ -118,12 +118,10 @@ The following information has been recorded\n\n};
 	foreach my $ftag ( $q->param ) {
 		next if ($ftag =~ /Submit/ );
 		if ($ftag =~ /_[AP]M$/) {
-			
-			my $tag  = "avail_" . $ftag;
-			my $value = $q->param($ftag);
+			my $tag  =  $ftag;
+			my $value = "Yes";
 			$part->{$tag}  = $value;
 			$summ .= qq{<tr><td class="thanks">$tag: </td><td>$value</td></tr>};
-			$value =~ s/ON/Yes/;
 			$asum .= sprintf "%-20s : %s\n",$tag, $value;
 		}
 		else {
@@ -136,42 +134,25 @@ The following information has been recorded\n\n};
 	my $id = $part->{UBC_id};
 	my $cn = SMS_Person::confirmationnumber($id);
 	$part->{confirmationnumber} = $cn;
-	$summ .= qq{<tr><td class="thanks">confirmationnumber: </td><td>$cn</td></tr>};
-	$asum .= sprintf "%-20s : %s\n","confirmationnumber", $cn;
-#    foreach my $t ( sort {$element_info{$a}{rank} <=>
-#                          $element_info{$b}{rank} }
-#					keys %element_info ) {
-#        next if ($t eq "ID");
-#        $part->{$t}  = $q->param($t) ?  $q->param($t) : "";
-#		if ($t =~/^\d/ ) {
-#			Debug::dsay ( "Admin::do_Save:: tag is now {$t}");
-#
-#		}
-#
-#        my $pp = $part->{$t};
-#        $summ .= qq{<tr><td class="thanks">$t: </td><td>$pp</td></tr>} if $pp;
-#        $app_info .= "$t:  $pp\n" if $pp;
-#    }
+#	$summ .= qq{<tr><td class="thanks">confirmationnumber: </td><td>$cn</td></tr>};
+#	$asum .= sprintf "%-20s : %s\n","confirmationnumber", $cn;
+
     my $today = sprintf "%4d%2.2d%2.2d", Today();
     $part->{"date_signup"} = $today;
+	$summ .= qq{<tr><td class="thanks">confirmationnumber: </td><td>$cn</td></tr>};
+	$asum .= sprintf "%-20s : %s\n","confirmationnumber", $cn;
 
-	#foreach my $tt ( keys %element_info) {
-	#	my $val = $part->{$tt};
-	##	Debug::dsay( " tag [$tt] value [$val]"); 
-	#}
     my $xid = SMS_Person::save( $part );
- #   Debug::dsay ("do_Save:: id is {$xid}");
    
- 
     $summ .= qq{</table>};
     do_thanks($summ, $cn);
     # try mailing this info to course admin
 #	Debug::dsay ("SignUp:: do_Save:: call SMS_Person::mail_signup ");
  #   SMS_Person::mail_signup($app_info);
 	Debug::dsay ("SignUp:: do_Save:: call SMS_Person::mail_signup ");
-	$summ .= qq{<p> To change your info, go to 
+	$summ .= qq{<p> at end of Summary,,,To change your info, go to 
              <a href="http://sms.phas.ubc.ca/cgi-bin/SMS/Edit?cn=$cn">
-                http://sms.phas.ubc.ca/cgi-bin/SMS/Edit?cn=$cn</a>
+                http://sms.phas.ubc.ca/cgi-bin/SMS/Edit?confirmationnumber=$cn</a>
               </p>  };
 	my $email = $part->{email};
     SMS_Person::mail_signup($email, $asum );
@@ -197,11 +178,12 @@ sub do_thanks {
     my $cn = shift;
     my $out = qq{ <div class="thanks"><h1 class="SMS">SMS signup</h1>
                 <p> Thanks for your interest in the student shop course. <br /> 
-               The following  information has been recorded </p> $summ <br /> <p>You should receive
+               The following  information has been recorded </p> $summ <br />
+              <p>in thanks You should receive
                an invitation to a course via email when you are 
                scheduled <br /> To change your info, go to 
-             <a href="http://sms.phas.ubc.ca/cgi-bin/SMS2/Edit?cn=$cn">
-                http://sms.phas.ubc.ca/cgi-bin/SMS/Edit?cn=$cn</a>
+             <a href="http://sms.phas.ubc.ca/cgi-bin/SMS2/Edit?confirmationnumber=$cn">
+                http://sms.phas.ubc.ca/cgi-bin/SMS/Edit?confirmationnumber=$cn</a>
               </p></div> };
     print $out;
 }

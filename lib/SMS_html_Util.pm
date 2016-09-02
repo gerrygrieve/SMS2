@@ -244,15 +244,15 @@ sub mk_avail_table {
 	$out .= qq{<tr class="avail">\n};
 	foreach my $time ( "AM", "PM" ){
 		$out .= qq{   <td class="avail"> $time </td>\n};
-		foreach $day ( qw[ Mon Tue Wed Thr Fri] ) {
+		foreach my  $day ( qw[ Mon Tue Wed Thr Fri] ) {
 			my $butname = $day . "_" . $time;
 			my $tagname = "avail_" . $butname;
 			my $pq = $q->param($tagname);
 
-			my $checked = $q->param($tagname) ? 1 :0;
-			my $value   = $checked ? "On" : "";
+			my $checked = $q->param($tagname) ? 1 : 0;
+			my $value   = $checked ? "Yes" : "no";
 
-			my $but = $q->checkbox(-name=>$butname,
+			my $but = $q->checkbox(-name=>$tagname,
 			                       -checked=>$checked,
 			                       -value=>$value,
 			                       -label=>'Available ');

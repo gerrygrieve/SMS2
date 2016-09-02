@@ -73,17 +73,17 @@ sub save {
     my $tab = " "x4;
 	$xid = $t->{ID};
 	my $sn = $t->{UBC_id};
-    Debug::dsay("sshop::save   ID is  {$xid} sn is  {$sn}"); 
+ #   Debug::dsay("sshop::save   ID is  {$xid} sn is  {$sn}"); 
     my $f = get_file_name($sn);
  
-    Debug::dsay("sshop::save  get a file name w ID  {$xid}  -- {$f}");
+  #  Debug::dsay("sshop::save  get a file name w ID  {$xid}  -- {$f}");
 
     open (O, ">$f") || die "cannot open $f $!\n"; 
     print O "<$xml_element>\n";
 
     foreach $e (@etags) {
         $out = defined ($t->{$e}) ? $t->{$e} : "";
-        Debug::dsay("SMS_Person::save:: element {$e} value {$out}");
+ #       Debug::dsay("SMS_Person::save:: element {$e} value {$out}");
         print O $tab, "<$e>", $out,"</$e>\n" if $out;
     }
 

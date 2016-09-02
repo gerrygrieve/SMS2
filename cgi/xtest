@@ -1,0 +1,145 @@
+#!/usr/bin/perl -wT
+
+# save the entered info to a file & redisplay
+# this script is intended to management info that is editable by 
+# the course intructors:  course.cgi is a more general tool
+
+$ENV{PATH} = "/bin:/usr/bin";
+
+use lib "/www/Gform/lib/";
+use lib "/www/Gform/SMS/lib/";
+
+use Debug;
+use SMS_Person;
+
+use SMS_html_Util;
+
+use strict;
+use CGI;
+use Date::Calc qw [Today ];
+use CGI::Carp 'fatalsToBrowser';
+my $today     = sprintf ("%04d-%02d-%02d", Today() );
+
+my $this_script = "/cgi-bin/SMS/xtest";
+my $title = "P &amp; A Student Shop Sign Up";
+my $version = "0.0.1";
+Debug::Set_Debug(1, "html");
+
+my $q = new CGI;
+my $Debug = 2;
+
+my $qsave =$q->submit( -name  => "Save",    
+                       -value => "Save"); 
+my $Hidden;
+
+print $q->header(-type=> "text/html", -expires=>'now'), "\n";
+print $q->start_html( -title  =>  $title, 
+                      -style  => [ {'src'=>'/Status/lib/note.css', }, 
+                                   {'src'=>'/Gform/SMS/css/SMS.css'},
+                                 ],
+                       
+                      ),"\n";
+
+Debug::dsay("this is Edit...");
+
+dump_it();
+print $q->start_multipart_form("POST", $this_script), "\n";
+
+print $q->start_multipart_form("POST", $this_script), "\n";
+
+
+if ($q->param('Submit_Reg') )  { do_check_params();}
+else                           { do_mainpage2(); }
+
+print $q->endform;
+print $q->end_html;
+exit;
+
+sub do_mainpage2 {
+
+   Debug::dsay ("This is main page2 sub ;");
+
+	my $cn = $q->param("cn");
+    my $sn = SMS_Person::cn2sn($cn);
+	
+	print qq{<div><p>};
+	print qq{<h2> maind page </h2>};
+	print qq{ <p> cn = $cn <br /> sn is [$sn] </p>};
+
+    print  qq{</div>};
+}
+
+sub do_check_params{
+    Debug::dsay ("do_check_params:: ");
+#	my $err = SMS_html_Util::check_input($q);
+#
+#	if ($err) {
+#		print $err;
+#		my $sn = $q->param(UBC_id);
+#		my $html = SMS_html_Util::edit_student_register($q, "student", $sn);
+#		my $qsub =$q->submit( -name  => "Submit_Reg",
+#                       -class => $bs_style,      
+#                       -value => "Submit"); 
+#		$html .=   qq{<p>$qsub</p>};
+#		print $html;
+#	} else {
+#		do_Save();
+#	}
+}
+sub do_Save {
+#    my %element_info =  SMS_Person_part::get_element_info();
+#    my $id = $q->param("ID") ? $q->param("ID") : "";
+#    my $part  = SMS_Person_part::new();
+#    Debug::dsay ("do_Save new version -- copying cgi params in hash;id {$id}");
+#    my $summ = "<table>";
+#    foreach my $t ( sort {$element_info{$a}{rank} <=>
+#                          $element_info{$b}{rank} } keys %element_info )
+#    {
+##        next if ($t eq "ID");
+#        $part->{$t} = $q->param($t) ?  $q->param($t) : "";
+#        my $pp      = $part->{$t};
+#        $summ .= qq{<tr><td class="thanks">$t: </td><td>$pp</td></tr>} if $pp;
+#    }
+# 
+#    my $err = SMS_Person_part::save( $part, $id);
+#    do_thanks($summ, );
+}
+
+sub do_thanks
+{
+
+    my $summ = shift;
+
+    my $out = qq{ <div class="thanks"><h1 class="SMS">SMS signup</h1>
+                <p> Thank you  for your continued interest in the student shop course. <br /> 
+               The following  information has been recorded </p> $summ <br /> </div> };
+    print $out;
+    
+}
+
+
+sub get_Intro
+{
+    my $app =shift;
+    my $name = $app->{full_name};
+    my $ifile = "/www/Gform/SMS_Person/lib/edit_intro_text";
+
+    my $intro = "";
+    {
+	open (X, $ifile) || warn "cannot open $ifile \n";
+	local ( $/ );
+	$intro = <X>;
+	close X;  
+    }
+    $intro =~ s/%%App%%/$name/;
+    return $intro;
+}
+
+sub dump_it
+{
+	print "<h2> Dump of the query </h2><br />\n";
+        print $q->Dump;
+        print "<hr />";
+}
+
+

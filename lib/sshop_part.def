@@ -121,6 +121,7 @@
     <tname>invited_to_course</tname>
     <prompt>Invited to Course</prompt>
     <rank>380</rank>
+   <cat>internal</cat>
 </tag>
 <tag>
     <tname>booked_date</tname>
