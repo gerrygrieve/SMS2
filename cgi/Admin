@@ -5,13 +5,12 @@
 $ENV{PATH} = "/bin:/usr/bin";
 
 use lib "/www/Gform/lib/";
-use lib "/www/Gform/SMS/lib";
+use lib "../lib";
 
 use course_metadata;
 use Debug;
 use Date::Calc qw(Today Delta_Days Add_Delta_Days Week_of_Year);
 use SMS_Person;
-#use signupform;
 use HTML_Util;
 use Form_Util;
 use SMS_html_Util;
@@ -23,7 +22,7 @@ use CGI::Carp 'fatalsToBrowser';
 my $today     = sprintf ("%04d-%02d-%02d", Today() );
 my $n_Weeks_to_Display = 10;
 
-my $this_script = "/cgi-bin/SMS2/Admin";
+my $this_script = "/cgi-bin/SMS2/cgi/Admin";
 my $styleURL = '/css/SMS.css';
 my $title = "P &amp; A Student Shop Sign Up Admin Tool";
 my $version = "0.1.0";

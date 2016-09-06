@@ -7,13 +7,11 @@
 $ENV{PATH} = "/bin:/usr/bin";
 
 use lib "/www/Gform/lib/";
-use lib "/www/Gform/SMS/lib";
+use lib "../lib";
 
 use Debug;
 use SMS_Person;
 use course_metadata;
-use signupform;
-
 use HTML_Util;
 use Form_Util;
 use SMS_html_Util;
@@ -42,7 +40,7 @@ print $q->start_html( -title  =>  $title,
                                    {'src'=>'/Gform//sshop/css/reset.css'}, 
                                    {'src'=>'/Gform//sshop/css/zebra_datepicker.css'},
                                    {'src'=>'/Gform//sshop/css/style.css'}, 
-                                   {'src'=>'/Gform//SMS/css/SMS.css'},
+                                   {'src'=>'/Gform/SMS/css/SMS.css'},
                                    {'src'=>'/Gform/sshop/css/shCoreDefault.css'}
                                  ],
                        -script => [ {-type=>"text/javascript",
@@ -59,7 +57,7 @@ print $q->start_html( -title  =>  $title,
                                       -src=>"/Gform/SMS/js/validates.js"},
                                     ]
                       ),"\n";
-print signupform::mk_myfuncs();
+
 
 dump_it();
 
@@ -189,8 +187,7 @@ sub do_thanks {
 }
 
 sub get_Intro {
-    my $ifile = "/www/Gform/sshop/lib/signup_intro_text";
-
+    my $ifile = "/www/Gform/SMS/lib/signup_intro_text";
     my $intro = "";
     {
 	open (X, $ifile) || warn "cannot open $ifile \n";

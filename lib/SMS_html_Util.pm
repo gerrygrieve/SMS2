@@ -1,15 +1,16 @@
 package SMS_html_Util;
 
 use lib "/www/Gform/lib/";
-use lib "/www/Gform/SMS/lib";
+use lib "../lib";
 
 use Form_Util;
 use Date::Calc qw (Today);
 my $today = printf "%4d-%2.2d-%2.2d", Today();
 my $bs_style = "buttonstyle";    
 
-
 1;
+
+
 sub sms2form {
     Debug::dsay("sms2form:: ..." );
     my $app = shift;
@@ -31,8 +32,6 @@ sub sms2form {
             $q->param(-name=>$t, -value=>$val);
 #        }
     }
-
-
     return $q;
 }
 sub student_register {
@@ -54,6 +53,8 @@ sub student_register {
                           $element_info{$b}{rank} }
                    keys %element_info ) {
    ###  Debug::dsay("do_form:: t is {$t}");
+   
+        my $this_cat = $element_info{$t}{cat};
 		next if ( $element_info{$t}{cat} eq "admin"
 				  and $my_cat ne "admin"
 				);

@@ -7,11 +7,10 @@
 $ENV{PATH} = "/bin:/usr/bin";
 
 use lib "/www/Gform/lib/";
-use lib "/www/Gform/SMS/lib/";
+use lib "../lib/";
 
 use Debug;
 use SMS_Person;
-use signupform;
 use SMS_html_Util;
 
 use HTML_Util;
@@ -31,8 +30,6 @@ my ($wel, $fname);
 my $sp = '&nbsp;';
 my $q = new CGI;
 my $Debug = 2;
-
-
 
 print $q->header(-type=> "text/html", -expires=>'now'), "\n";
 print $q->start_html( -title  =>  $title, 
@@ -55,8 +52,7 @@ print $q->start_html( -title  =>  $title,
                                       -src=>"/Gform/SMS/javascript/myzebradp1.js"},
                                     ]
                       ),"\n";
-print signupform::mk_myfuncs();
-Debug::dsay("this is Edit...");
+
 
 dump_it();
 print $q->start_multipart_form("POST", $this_script), "\n";

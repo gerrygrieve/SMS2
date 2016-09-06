@@ -1,6 +1,6 @@
 #!/usr/bin/perl -wT
 
-use lib "/www/Gform/SMS/lib/";
+use lib "../lib/";
 use lib "/www/Gform/lib";
 
 use Debug;
@@ -12,10 +12,8 @@ Debug::dsay("this is list_elements");
 
 my %el_info =  SMS_Person::get_element_info();
 
-print Dumper(%el_info);
-
+#print Dumper(%el_info);
 print_req();
-
 
 sub print_req {
 	print "element info is\n";
@@ -23,15 +21,15 @@ sub print_req {
    foreach my $t ( sort {$el_info{$a}{rank} <=>
                           $el_info{$b}{rank} }
                    keys %el_info ) {
-	
 	#	print "tag [$t] \n";
-
 		my %myinfo = %{$el_info{$t}};
 	
 	    my $rank = defined ($myinfo{rank}) ? $myinfo{rank} : 999;
 		my $req  = defined ( $myinfo{required} ) ?
 					"required" : "optional";
-		printf "%22s %3d %s \n",$t, $rank, $req ;
+	my $cat = defined ( $myinfo{cat} ) ?
+                            $myinfo{cat}     : "nocat";
+		printf "%22s %3d %s %s \n",$t, $rank, $req, $cat;
 	}
 	
 }
