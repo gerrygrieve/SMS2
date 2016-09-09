@@ -11,6 +11,11 @@ table.appinfo {
     cellspacing="10" width="600px"
     
 }
+
+table.apptable {   border: 2px solid green;
+                    border-collapse: collapse;
+                    padding: 24px;
+               }
 #inputform {  clear: both;
                 margin-top: 20px;
 }       
@@ -26,7 +31,8 @@ table.appinfo {
 }
 
 #avail {  border: 3px solid green;
-                margin-top: 20px;
+            border-collapse: collapse;
+            margin-top: 20px;
         }
 .avail_head {  background-color: khaki;
                 padding: 6px;
@@ -53,6 +59,7 @@ div.warn {  float: left;
 }
 
 td,th {   border: 2px solid green;
+            padding: 4px;
        }
 td.prompt { vertical-align: top;
             text-align: right;

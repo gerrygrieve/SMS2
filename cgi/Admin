@@ -64,7 +64,7 @@ elsif ( $q->param('next') eq "Manage Courses")  { do_manage_Courses();}
 elsif ( $q->param('next') eq "Mail It" )      { do_mail_invites();}
 elsif ( $q->param('next') eq "Save w/o Mail") { do_Save_Course();}
 elsif ( $q->param('next') eq "Manage Dates")  { do_Exclusions(); }
-elsif ( $q->param('next') eq "Edit Student")  { do_Edit_Student(); }
+elsif ( $q->param("Edit_sn") )  			  { do_Edit_Student(); }
 elsif ( $q->param('week') ) 	              { do_WeekPage($q->param('week'));}
 elsif ( $q->param('Print Course') )           { do_PrintCourse(); }
 elsif ( $q->param('MoreWeeks') )              { do_MoreWeeks(); }
@@ -91,8 +91,7 @@ sub do_mainpage{
 
 sub do_showAvail {
 	Debug::dsay ("This is  do_showAvail;");
-#	my @apps = $show_current ? SMS_Person::get_Current_Data()
-#                             : SMS_Person::get_Data();
+
 	my @apps =  SMS_Person::get_Data();
 
 	my $out = qq{<table class="timeslots"> };
@@ -110,11 +109,13 @@ sub do_showAvail {
 				my %app = %{$a};
 				if ( defined($app{$tag} )) {
 					my $sn = $app{UBC_id};
-					my $name = $app{full_name};
-					my $bname = "Edit_$sn";
+					my $name = $app{full_name} ."_$sn";
+					my $bname = "Edit_sn";
 					my $but = $q->submit(-name=>"$bname", -value=>$name);
 				
 					$alist .= "$but &nbsp";
+				#	$alist .= $q->hidden( -name=>'Edit_SN',
+				#						  -default=>[$sn]);
 				}			
 			}
 			$out .= qq{<td class="timeslots">$alist</td>} ;
@@ -137,20 +138,12 @@ sub do_DeleteApp {
 }
 
 sub do_Edit_Student {
-	Debug::dsay ("This is Admin do_Edit_Student ;");
 
-	my @apps = SMS_Person::get_Data();
-
-	print do_selectTable();
-	print qq{<p> select the student to Edit</p>};
-
-	foreach my $a ( @apps ) {
-		my $sn = $a->{UBC_id};
-		my $name = $a->{full_name};
-
-		my $xx = $q->submit(-name=>'View App',-value=>$sn);
-		print "$xx $name <br />";
-	}
+	my $student = $q->param("Edit_sn");
+	my ($name, $sn) = split "_", $student; 
+	Debug::dsay ("This is Admin do_Edit_Student sn = [$sn];");
+	print "<h2> q is [$q]</h2>";
+	edit_App($sn, $q);
 }
 
 sub do_App {
@@ -170,7 +163,9 @@ sub do_App {
 
 sub edit_App {
     Debug::dsay ("This is Admin Edit_App ;");
-    my $sn = $q->param("View App");
+    my $sn = $q->param("View App") ?
+			 $q->param("View App") :
+			 shift;
     my $q = shift;
     Debug::dsay ("edit_App:; sn is {$sn}");
 
@@ -598,10 +593,16 @@ sub do_showApps {
 	my $napps = scalar @apps;
 
 	Debug::dsay ("Admin::do_showApps number of apps is [$napps] ");
-    my $id_but    = $q->submit(-name=>'AppSort', -value=> "ID");
-    my $name_but  = $q->submit(-name=>'AppSort', -value=> "Name");
-    my $rdate_but = $q->submit(-name=>'AppSort', -value=> "Request Date");
-    my $ubc_but   = $q->submit(-name=>'AppSort', -value=> "UBC #");
+    my $id_but    = "ID";
+    my $name_but  = "Name";
+    my $rdate_but = "Request Date";
+    my $ubc_but   = "UBC #";
+
+   #my $id_but    = $q->submit(-name=>'AppSort', -value=> "ID");
+   # my $name_but  = $q->submit(-name=>'AppSort', -value=> "Name");
+   # my $rdate_but = $q->submit(-name=>'AppSort', -value=> "Request Date");
+   # my $ubc_but   = $q->submit(-name=>'AppSort', -value=> "UBC #");
+
     $out  = qq{<table class="apptable">};
     $out .= qq{<tr><th>$id_but</th>
                    <th>$name_but</th>
@@ -620,7 +621,7 @@ sub do_showApps {
     foreach my $o ( @apps )   {
         my $x  = $o->{full_name};
 
-        my $id = $o->{ID};
+        my $id = $o->{UBC_id};
         my $v  = $x . "  ID=$id";
         my $xx = $q->submit(-name=>'View App',-value=>$id);
 		my $ubc = $o->{UBC_id};
@@ -740,7 +741,7 @@ sub  do_selectTable {
     my $b3 = $q->submit(-name=>'next',-value=>'Manage Dates');
     my $b4 = $q->submit(-name=>'next',-value=>'Manage Courses');
     my $b5 = $q->submit(-name=> "AddNewApp", -value => "Add New Student");
-    my $b6 = $q->submit(-name=>'next',-value=>'Edit Student');
+ #   my $b6 = $q->submit(-name=>'next',-value=>'Edit Student');
 	my $b7 = $q->submit(-name=>'ShowAvail',-value=>'Show Availability');
 	$out .= qq{<tr>};
     $out .= qq{<td> $b1 </td> };
@@ -748,7 +749,7 @@ sub  do_selectTable {
 #    $out .= qq{    <td> $b3 </td> };
  #   $out .= qq{    <td> $b2 </td> <td> $b3 </td>
 	$out .= qq{<td>$b5</td>};
-	$out .= qq{<td>$b6</td>};
+#	$out .= qq{<td>$b6</td>};
 	$out .= qq{<td>$b7</td>};
     $out .= qq{</tr></table>};
     $out .= qq{<hr />};

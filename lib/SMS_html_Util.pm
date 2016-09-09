@@ -251,7 +251,7 @@ sub mk_avail_table {
 			my $pq = $q->param($tagname);
 
 			my $checked = $q->param($tagname) ? 1 : 0;
-			my $value   = $checked ? "Yes" : "no";
+			my $value   = "Yes" ;
 
 			my $but = $q->checkbox(-name=>$tagname,
 			                       -checked=>$checked,

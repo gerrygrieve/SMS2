@@ -8,13 +8,11 @@ use lib "/www/Gform/lib";
 use Form_Util;
 use Data::Dumper;
 use Perl6::Slurp;
-my $Root = '../';
+my $Root = '/www/Gform/SMS/';
 
-$data_dir   = "/www/Gform/SMS/Data/";
-
-my $def     = $Root . "/lib/SMS_Person.def";
-
-Debug::dsay( " def [$def]");
+$data_dir   = $Root . "Data/";
+my $cdir    = $data_dir . "Courses/";
+my $def     = $Root . "lib/SMS_Person.def";
 my $exweeks = $data_dir . "excluded_weeks";
 my $invite  = $Root . "lib/invitemessage";
 my $xml_element = "sms_person";
@@ -25,6 +23,7 @@ foreach my $time ( "AM", "PM" ){
 	foreach $day ( qw[ Mon Tue Wed Thr Fri] ) {
 		my $tag  = "avail_" . $day . "_" . $time;
 		$t900++;
+#		$elements{$tag}++;
 		$elements{$tag}{rank} = $t900;
 	}
 }
@@ -317,19 +316,25 @@ sub get_Preferred_Dates {
     return \%prefdates, \%bdates;
 }
 
-sub get_Data_by_ID {    
-   opendir (XD, $data_dir ) || die "cannot get dir $data_dir  $! \n";
-   my  @xfiles =  grep { /xml/ } readdir (XD);
-   closedir(XD);
-   my %things = ();
-   foreach my $f (@xfiles) {
-      my $s = rd_file($f);
-      my $id = $s->{ID};
-      next if $id <= 169;
-   #   Debug::dsay ("get_Data_byID:: id is {$id}  ");
-      $things{$id} = $s;
-   }
-   return %things;
+sub get_Data_by_ID {
+
+	my $sn   = shift;
+	my $file = $data_dir.$sn;
+	my $s = rd_file($file);
+	
+	return $s;
+   ##opendir (XD, $data_dir ) || die "cannot get dir $data_dir  $! \n";
+   ##my  @xfiles =  grep { /xml/ } readdir (XD);
+   ##closedir(XD);
+   #my %things = ();
+   #foreach my $f (@xfiles) {
+   #   my $s = rd_file($f);
+   #   my $id = $s->{ID};
+   # 
+   ##   Debug::dsay ("get_Data_byID:: id is {$id}  ");
+   #   $things{$id} = $s;
+   #}
+   #return %things;
 }
 
 sub get_Data_for_ID {  
@@ -842,9 +847,7 @@ sub Get_Course_List
    return sort @xfiles;
 }
 
-sub get_element_info {
-    Debug::dsay ( "get_element_info:: ");
-    return %elements; }
+sub get_element_info { return %elements; }
 
 sub byISO
 {
