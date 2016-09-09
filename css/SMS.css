@@ -1,9 +1,12 @@
-body ( margin: 20px 20px 20px 20px;)
+body { margin: 20px 20px 20px 20px;
+        width:900px; 
+}
 
 
 table.appinfo {
     border: 2px solid green;
-    border-spacing: 2px;
+ #   border-spacing: 2px;
+    border-collapse: collapse;
     padding: 4px;
     cellspacing="10" width="600px"
     
@@ -82,7 +85,8 @@ td.input { vertical-align: top;
 h2.ss_head { font-size: 150%;
              color: black;
              background-color: lightblue;
-             padding: 20px 0px 20px 30px;}
+             padding: 20px 0px 20px 30px;
+            text-align: center;}
 
 
 td.explain { text-align: left;

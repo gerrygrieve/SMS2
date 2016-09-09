@@ -8,11 +8,13 @@ use lib "/www/Gform/lib";
 use Form_Util;
 use Data::Dumper;
 use Perl6::Slurp;
-my $Root = '/www/Gform/SMS/';
+my $Root = '../';
 
-$data_dir   = $Root . "Data/";
-my $cdir    = $data_dir . "Courses/";
-my $def     = $Root . "lib/sshop_part.def";
+$data_dir   = "/www/Gform/SMS/Data/";
+
+my $def     = $Root . "/lib/SMS_Person.def";
+
+Debug::dsay( " def [$def]");
 my $exweeks = $data_dir . "excluded_weeks";
 my $invite  = $Root . "lib/invitemessage";
 my $xml_element = "sms_person";
@@ -23,7 +25,6 @@ foreach my $time ( "AM", "PM" ){
 	foreach $day ( qw[ Mon Tue Wed Thr Fri] ) {
 		my $tag  = "avail_" . $day . "_" . $time;
 		$t900++;
-#		$elements{$tag}++;
 		$elements{$tag}{rank} = $t900;
 	}
 }
@@ -841,7 +842,9 @@ sub Get_Course_List
    return sort @xfiles;
 }
 
-sub get_element_info { return %elements; }
+sub get_element_info {
+    Debug::dsay ( "get_element_info:: ");
+    return %elements; }
 
 sub byISO
 {
