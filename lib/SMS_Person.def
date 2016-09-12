@@ -82,6 +82,14 @@
 </tag>
 
 <tag>
+    <tname>confirmationnumber</tname>
+    <prompt>Confirmation Number</prompt>
+    <cat>admin</cat>
+  
+    <rank>267</rank>
+</tag>
+
+<tag>
     <tname>speedchart</tname>
     <prompt>Speedchart</prompt>
     <cat>admin</cat>
@@ -90,7 +98,7 @@
         <nchar>40</nchar>
         <maxchar>60</maxchar>
     </input> 
-    <rank>167</rank>
+    <rank>367</rank>
 </tag>
 
 <tag>

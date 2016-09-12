@@ -53,10 +53,12 @@ Form_Welcome();
 #print "dump query...<br />";
 dump_it();
 
-   if ( $q->param('next') eq "Book Course")   { do_BookCourse(); }
-elsif ( $q->param("AddNewApp")  )             { do_App();        }
-elsif ( $q->param("ShowAvail")  )			  { do_showAvail();  }
-elsif ( $q->param("AppSort")    )             { do_showApps();   } 
+   if ( $q->param('next') eq "Schedule Course")     { do_Schedule_Course(); }
+elsif ( $q->param('next') eq "Select_Invitees")     { do_select_Invitees();}
+elsif ( $q->param('next') eq "do_Invitees")         { do_Invitees();}
+elsif ( $q->param("AddNewApp")  )                   { do_App();        }
+elsif ( $q->param("ShowAvail")  )			        { do_showAvail();  }
+elsif ( $q->param("AppSort")    )                   { do_showApps();   } 
 elsif ( $q->param("Save Dates")  )            { do_Save_Dates(); }
 elsif ( $q->param("Delete App")  )            { do_DeleteApp();  }
 elsif ( $q->param("View App")  )              { edit_App($q);        } 
@@ -122,14 +124,112 @@ sub do_showAvail {
 			$out .= qq{</tr>};
 		}
 	}
-
 	$out .= qq{</table>};
-
 	print $out;
-
 }
 
+sub do_Invitees {
+    use Date::Calc qw (Today);
+    Debug::dsay ("This is do_Invitees ");
+    
+    my $today = sprintf "%4d-%2.2d-%2.2d", Today();
+    
+    my $mod = "Mod".$q->param("module");
+    my $cn_tag = $mod. "_course_name";
+    my $in_tag = $mod. "_invited";
+    my $cname =  $q->param("course");
+    my ($modnum,$yr,$doy,$time) = split "-", $cname;
+  
+    $modnum =~ s/^m//i;
+    Debug::dsay(" modnum is [$modnum]");
+    my ($year,$month,$day) = Add_Delta_Days($yr,1,1, $doy - 1);
+    my $iso_cdate = sprintf "%4d-%2.2d-%2.2d", ($year,$month,$day);
+    my $invite_message = SMS_Person::getInviteTempplate();
+    
+    print qq{<p> The template of the invite message to be sent out is...<br />
+              <pre>$invite_message</pre> </p>  
+    };
 
+    my %courses = course_metadata::get_Courses_by_ModNum();
+    my $course_title = $courses{$modnum}{title};
+    my $out = "";
+    
+    #Debug::dsay ( "$cn_tag -- $cname" );
+    #Debug::dsay ( "$in_tag -- $today" );
+    my @invitees = $q->param('invited');
+    foreach my $sn (@invitees) {
+        my $mess ="";
+        $out .= qq{<p class="info">};
+        $out .= qq{student number -- $sn<br /> };
+        my $edata = SMS_Person::get_Data_by_ID($sn);
+        $edata->{$cn_tag} = $cname;
+        $edata->{$in_tag} = $today;
+        SMS_Person::save ($edata);
+        my $email = $edata->{email};
+        my $cn    = $edata->{confirmationnumber};
+        my $fname = $edata->{full_name};
+        Debug::dsay (" cn is [$cn]");
+        $out .= qq{$cn_tag  -- $cname<br /> };
+        $out .= qq{$in_tag  -- $today<br /> };
+        $out .= qq{</p>};
+        
+        $mess = $invite_message;
+        $mess =~ s/%% name %%/$fname/;
+        $mess =~ s/%%\s+title\s+%%/"$course_title"/;
+        $mess =~ s/%%\s+ampm\s+%%/$time/;
+        $mess =~ s/%%\s+date\s+%%/$iso_cdate/;
+        $mess =~ s/%%\s+modnum\s+%%/$modnum/;
+        $mess =~ s/%%\s+cn\s+%%/$cn/g;
+   print qq{<pre> $mess</pre>};    
+    }
+    print $out;
+
+  
+  
+    print do_selectTable();
+    
+}
+
+sub do_showAvail_in_TS {
+    my $this_ts = shift; 
+	Debug::dsay ("This is  do_showAvail_in_TS; ts is [$this_ts]");
+
+	my @apps =  SMS_Person::get_Data();
+
+	my $out = qq{<table class="timeslots"> };
+
+	foreach my $day ( qw[ Mon Tue Wed Thr Fri] ) {	
+		foreach my $time ( "AM", "PM" )	{
+			my $tag  = "avail_" . $day . "_" . $time;
+			my $tslot =  $day . "_" . $time;
+            next unless ($tslot eq $this_ts);
+			$out .= qq{ <tr>};
+			$out .= qq{<td class="timeslots">$tslot</td>};
+			my $alist = "";
+			my $hlist = "";
+			foreach my $a ( @apps) {
+				my %app = %{$a};
+				if ( defined($app{$tag} )) {
+					my $sn    = $app{UBC_id};
+					my $name  = $app{full_name} ."_$sn";
+					my $bname = "Edit_sn";
+					my $but   = $q->submit(-name=>"$bname", -value=>$name);
+                    my $ibox  = $q->checkbox(-name=>'invited',
+                                             -checked=>0,
+                                             -value=>$sn,
+                                             -label=>'Invite');
+                    
+					$alist   .= "$but &nbsp $ibox <br />";
+				}			
+			}
+            $alist = $alist =~ /_\d/ ? $alist  : "no apps available"; 
+			$out .= qq{<td class="timeslots">$alist</td>} ;
+			$out .= qq{</tr>};
+		}
+	}
+	$out .= qq{</table>};
+	print $out;
+}
 sub do_DeleteApp {
     my $id = $q->param("App_ID");
     Debug::dsay ("delele_App:; a is {$id}");
@@ -245,56 +345,81 @@ sub add_inst_input {
     $out .=   qq{ </tr></table> };
 }
 
-sub do_BookCourse {
-    my $week = $q->param("week");
-    my $inst = $q->param("instructor") ? $q->param("instructor") : "";
-    Debug::dsay ("do_BookCourse::  inst is {$inst}");
-    my %edata =  SMS_Person::get_Data_by_ID();
-    my @emails = ();
-    my $out = qq { \n <p> Booking a Course for week: $week </p>};
-    $out .=  qq{<table><tr><td colspan="2"> 
-		      Invitees to course on $week</td></tr>\n};
-    my $hide = "";
-    foreach my $p ( $q->param ) {
-	Debug::dsay ("do_BookCourse:: p is {$p}");
-       next unless $p =~/^book-(\d+)/;
-       my $id = $1;
-       my $es = $edata{$id};
-       my $name = $es->{full_name};
-       	Debug::dsay ("do_BookCourse:: id is {$id}  name is is {$name}");
-       my $email = $es->{email};
-       push @emails, $email;
-       $out .= qq{<tr><td>name $name</td><td>email $email</td></tr>};
-       my $ntag = "name".$id;
-       my $etag = "email".$id;
-       $hide .= $q->hidden($ntag,$name) . "\n";
-       $hide .= $q->hidden($etag,$email) . "\n";
+sub do_select_Invitees{
+    use Date::Calc qw[  Day_of_Year ];
+    Debug::dsay("this is do_select_Invitees ");
+     
+    my $mod  = $q->param('module');
+    my $ts   = $q->param('timeslot');
+    my $date = $q->param('date');
+    my ($day,$time) = split "_", $ts;
+    my @course_date = split "-", $date;
+    my $doy = Day_of_Year(@course_date);
+    my $year = $course_date[0];
+    
+    my $Course_designation = sprintf "M%d-%4d-%3.3d-%s",$mod,$year, $doy,$time;
+    
+    print "course Name : $Course_designation is to be held on $date, $ts\n";
+    print qq{ <p> The following table shows the applicants which have indicated
+                  their availability for the given Time slot.<br />
+                  Select the applicants which are to be invited to this course </p>};
+    do_showAvail_in_TS($ts);
+    print $q->hidden('module',$mod);
+    print $q->hidden('timeslot',$ts);
+    print $q->hidden('course',$Course_designation);
+    my $xx = $q->submit(-name=>'next',-value=>"do_Invitees");
+    
+    print qq{<p>$xx</p>};
+    return;
+}
+
+sub do_Schedule_Course {
+ 
+    Debug::dsay("this is do_Schedule_Course ");
+    
+    print "<h3> Select a module></h3>";
+    
+    my $data = course_metadata::get_Course_Data_json();
+	my @courses = @{$data->{course_data}};
+
+    my $out = "";
+    $out .= qq{<table class="ctable">};
+	foreach my $c ( sort {$a->{num} <=> $b->{num} } @courses ) {
+        $out .= qq{<tr>};
+		my $modnum = $c->{num};
+        my $value = $c->{title};
+        
+        my $but =qq{<label><input   type="radio"
+                                    name="module"
+                                    value=$modnum
+                                    checked="" />chose me!</label>};
+	
+		$out .= qq{<td >$modnum  </td><td> $value</td>
+                   <td> $but</td> </tr>\n};
     }
-    $out .= qq{</table\n>};
-    $out .= qq{<p> You can edit the text of the below message<br />
-                     But Please do NOT alter the "[[ name ]]" string</p>};
-    my $im = SMS_Person::get_InviteMessage();
-    $im =~ s/\[\[ week \]\]/$week/;
-    $out .= qq{<textarea name="mailmess" rows=12 
-                 cols="60">$im</textarea>};
-    my $xx = $q->submit(-name=>'next',-value=>"Mail It");
-    my $yy = $q->submit(-name=>'next',-value=>"Save w/o Mail");
-    $out .= qq{ <table cellpadding="10"><tr><td>$xx</td><td>$yy<//td></table>\n};
-    print $out;
-    $hide .= $q->hidden("week",$week) . "\n";
-    $hide .= $q->hidden("instructor",$inst) . "\n";
-    print $hide;
+    $out .= qq{</table>\n};
+
+	print $out;
+    
+    print SMS_html_Util::mk_ts_table($q);
+    
+    print " Select a date (yyyy-mm-dd) >", $q->textfield('date','',12,80);
+    my $xx = $q->submit(-name=>'next',-value=>"Select_Invitees");
+    
+    print qq{<p>$xx</p>};
+    return;
 }
 
 sub do_mail_invites {
-    my $week = $q->param("week");
-    Debug::dsay("Admin::do_mail_invites..week is {$week}");
+ 
+    Debug::dsay("Admin::do_mail_invites...");
  
     my @emails = @_;
     my $sub = "Student Shop Training";
     my $x = 'grieve@phas.ubc.ca';
     my $from = "";
-    my $out = qq{<h1>SMS Admin confirmation of Course Schedule</h1> <p> Invitations have been mailed to ...</p><ul>};
+    my $out = qq{<h1>SMS Admin confirmation of Course Schedule</h1>
+                  <p> Invitations have been mailed to ...</p><ul>};
     my %names = ();
     my @ids = ();
     foreach my $p ( $q->param ) {
@@ -313,10 +438,9 @@ sub do_mail_invites {
        $out .= qq{<li>$name -- $email </li>}
     }
     $out .= qq{</li>};
-    Debug::dsay("Admin::do_mail_invites:: call SMS_Person::save_Course is {$week}");
+    
     do_Save_Course(@ids);
-    my ($wk,$tdate) = split ":", $week;
-    $out .= qq{<p> Course Info for week $wk  Starting on Tues $tdate has been saved.</p>};
+
 
     print $out;
 }
@@ -731,8 +855,6 @@ sub sort_by_ID {
     return  reverse @sorted;
 }
 
-
-
 sub  do_selectTable {
 #    Debug::dsay ("this is do_selectTable ;");
     my $out = qq{<table id="selectTable">};
@@ -743,6 +865,7 @@ sub  do_selectTable {
     my $b5 = $q->submit(-name=> "AddNewApp", -value => "Add New Student");
  #   my $b6 = $q->submit(-name=>'next',-value=>'Edit Student');
 	my $b7 = $q->submit(-name=>'ShowAvail',-value=>'Show Availability');
+    my $b8 = $q->submit(-name=>'next',-value=>'Schedule Course');
 	$out .= qq{<tr>};
     $out .= qq{<td> $b1 </td> };
     $out .= qq{    <td> $b4 </td> };
@@ -751,6 +874,7 @@ sub  do_selectTable {
 	$out .= qq{<td>$b5</td>};
 #	$out .= qq{<td>$b6</td>};
 	$out .= qq{<td>$b7</td>};
+    $out .= qq{<td>$b8</td>};
     $out .= qq{</tr></table>};
     $out .= qq{<hr />};
     return $out;

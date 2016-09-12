@@ -1,0 +1,14 @@
+
+
+Hi %% name %%,
+
+   You are invited to a student shop training  module #  %% modnum %%  entitled %% title %% to held
+on   %% date %% in the %% ampm %%
+
+Please confirm or decline  the url 
+<a href="http://$webhost/cgi-bin/SMS/Edit?cn=%% cn %%">
+         http://$webhost/cgi-bin/SMS/Edit?confirmationnumber=%% cn %%</a>
+
+
+
+thx... the management. 

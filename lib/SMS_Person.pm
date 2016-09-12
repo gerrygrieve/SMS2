@@ -5,6 +5,7 @@ package SMS_Person;
 ###
 
 use lib "/www/Gform/lib";
+use course_metadata;
 use Form_Util;
 use Data::Dumper;
 use Perl6::Slurp;
@@ -28,6 +29,17 @@ foreach my $time ( "AM", "PM" ){
 	}
 }
 
+my $data = course_metadata::get_Course_Data_json();
+my @courses = @{$data->{course_data}};
+foreach my $c (  @courses ) {
+	my $modnum = $c->{num};
+    foreach my $subtag ( qw [ course_name invited accepted declined completed ]) {
+        my $tag  = "Mod" . $modnum . "_$subtag";
+        $t900++;
+		$elements{$tag}{rank} = $t900;
+    }
+}
+
 my @etags = sort ( keys  %elements);
 
 my $Next_ID = get_NextID();
@@ -36,13 +48,26 @@ $Course_email = q{sms-course\@phas.ubc.ca};
 
 1;
 
-sub Intro {
+sub get_Intro {
+    my $ifile = "/www/Gform/SMS/lib/signup_intro_text";
+    my $intro = slurp $ifile;
+    return $intro;
+}
+
+sub get_Intro {
     my $ifile = $Root ."lib/Intro";
-	my $intro = slurp $ifile;
+	
    
 	return $intro;
 }
 
+sub getInviteTempplate {
+    my $ifile = $invite;
+	my $invite_tt = slurp $ifile;
+   
+	return $invite_tt;
+    
+}
 sub new  {
     my $class = shift;
     my $self = { _permitted => \%elements };
@@ -69,21 +94,23 @@ sub AUTOLOAD {
 sub save {
     my $t  = shift;
   
-    Debug::dsay("SMS_Person::save  line 80   save... [$t]");
+ #   Debug::dsay("SMS_Person::save  line 80   save... [$t]");
     my $tab = " "x4;
 	$xid = $t->{ID};
 	my $sn = $t->{UBC_id};
- #   Debug::dsay("sshop::save   ID is  {$xid} sn is  {$sn}"); 
     my $f = get_file_name($sn);
  
-  #  Debug::dsay("sshop::save  get a file name w ID  {$xid}  -- {$f}");
+    if (-f $f) {
+        my $oldf = $f . $$; 
+        rename $f, $oldf;
+    }
 
     open (O, ">$f") || die "cannot open $f $!\n"; 
     print O "<$xml_element>\n";
 
     foreach $e (@etags) {
         $out = defined ($t->{$e}) ? $t->{$e} : "";
- #       Debug::dsay("SMS_Person::save:: element {$e} value {$out}");
+    #    Debug::dsay("SMS_Person::save:: element {$e} value {$out}");
         print O $tab, "<$e>", $out,"</$e>\n" if $out;
     }
 
@@ -250,13 +277,13 @@ sub get_Current_Data {
 sub get_Data {
 	
    opendir (XD, $data_dir ) || die "cannot get dir $data_dir  $! \n";
-	Debug::dsay("get_Data:: reading dir [$data_dir]  ");
+#	Debug::dsay("get_Data:: reading dir [$data_dir]  ");
    my  @xfiles =  grep { /xml$/ } readdir (XD);
    closedir(XD);
    my @apps = ();
    
    foreach my $f (@xfiles) {
-		Debug::dsay("get_Data:: reading file {$f}");
+#		Debug::dsay("get_Data:: reading file {$f}");
 		my $s = rd_file($f); 
 		push @apps, $s;
    }
@@ -317,10 +344,13 @@ sub get_Preferred_Dates {
 }
 
 sub get_Data_by_ID {
+    
+ 
 
 	my $sn   = shift;
-	my $file = $data_dir.$sn;
-	my $s = rd_file($file);
+#	my $file = $data_dir.$sn. ".xml";
+#       Debug::dsay ( "get_Data_by_ID sn is [$sn] file is [$file]");
+	my $s = rd_file($sn);
 	
 	return $s;
    ##opendir (XD, $data_dir ) || die "cannot get dir $data_dir  $! \n";
@@ -692,8 +722,7 @@ sub update_app_record {
 
  #   my $value = shift;
     my $app  = get_app_by_ID($id);
-    foreach my $t ( keys %$tags )
-    {
+    foreach my $t ( keys %$tags )  {
 #	Debug::dsay("sshoppart::update_app_record:: tag is {$t} $tags->{$t} ");
 	if ($action eq "Delete") { delete $app->{$t}; }
 	else                     { $app->$t($tags->{$t}); }
@@ -722,10 +751,11 @@ sub rd_file {
     my $f = shift;
 
     $nl = "\n";
-    $xml_file = $data_dir  . $f ;   
+    $xml_file = $data_dir  . $f ;
+    $xml_file .= ".xml" unless $xml_file =~ /xml$/;
  #	Debug::dsay("rd-file:: $f ");
     {
-       open (X,$xml_file ) ||  return -1;
+       open (X,$xml_file ) ||  croak "cannot open $xml_file";
        local ( $/ );
        $_=<X>;
        close X;

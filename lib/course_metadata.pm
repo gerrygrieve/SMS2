@@ -32,6 +32,18 @@ sub get_Course_Data_json {
 	return $data;
 }
 
+sub get_Courses_by_ModNum {
+	my $data = course_metadata::get_Course_Data_json();
+	my @courses = @{$data->{course_data}};
+	
+    my %out = ();
+	foreach my $c (  @courses ) {
+		my $modnum = $c->{num};
+        $out{$modnum}{title} = $c->{title},
+        $out{$modnum}{desc}  = $c->{desc};
+    }
+    return %out;
+}
 sub get_Course_Data_XML {
 	use XML::Simple;
 	#my $xml_file = "/www/Gform/SMS/lib/coursedata.xml";

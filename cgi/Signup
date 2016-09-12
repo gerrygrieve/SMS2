@@ -25,6 +25,8 @@ my $today     = sprintf ("%04d-%02d-%02d", Today() );
 my $this_script = "/cgi-bin/SMS2/cgi/Signup";
 my $title = "P &amp; A Student Shop Sign Up";
 my $version = "0.0.1";
+#my $webhost = "sms.phas.ubc.ca";
+my $webhost = "localhost";
 Debug::Set_Debug(1, "html");
 my ($wel, $fname);
 my $sp = '&nbsp;';
@@ -40,19 +42,19 @@ print $q->start_html( -title  =>  $title,
                                    {'src'=>'/css/SMS.css'},
         
                                  ],
-                       -script => [ {-type=>"text/javascript",
-                                     -src=>"/Gform/sshop/javascript/jquery-1.8.2.js"},
-                                    {-type=>"text/javascript",
-                                      -src=>"/Gform/sshop/javascript/XRegExp.js"},
-                                    {-type=>"text/javascript",
-                                      -src=>"/Gform/sshop/javascript/shCore.js"},
-                                    {-type=>"text/javascript",
-                                      -src=>"/Gform/sshop/javascript/shBrushJScript.js"},
-                                    {-type=>"text/javascript",
-                                      -src=>"/Gform/sshop/javascript/myzebradp1.js"},
-									{ -type=>"text/javascript",
-                                      -src=>"/Gform/SMS/js/validates.js"},
-                                    ]
+#                       -script => [ {-type=>"text/javascript",
+#                                     -src=>"/Gform/sshop/javascript/jquery-1.8.2.js"},
+#                                    {-type=>"text/javascript",
+#                                      -src=>"/Gform/sshop/javascript/XRegExp.js"},
+#                                    {-type=>"text/javascript",
+#                                      -src=>"/Gform/sshop/javascript/shCore.js"},
+#                                    {-type=>"text/javascript",
+#                                      -src=>"/Gform/sshop/javascript/shBrushJScript.js"},
+#                                    {-type=>"text/javascript",
+#                                      -src=>"/Gform/sshop/javascript/myzebradp1.js"},
+#									{ -type=>"text/javascript",
+#                                      -src=>"/Gform/SMS/js/validates.js"},
+#                                    ]
                       ),"\n";
 
 dump_it();
@@ -74,9 +76,9 @@ my $then = sprintf("%4d-%2.2d-%2.2d",$exp_date[0], $exp_date[1],$exp_date[2]);
 
 print $q->start_multipart_form("POST", $this_script), "\n";
 
-if ($q->param('Submit_Reg') )  { do_check_params();}
-elsif ($q->param('Save') )     { do_Save();}
-else                     	   { do_mainpage2(); }
+if    ($q->param('Submit_Reg') )    { do_check_params();}
+elsif ($q->param('Save') )          { do_Save();}
+else                     	        { do_mainpage2(); }
 
 print $q->endform;
 print $q->end_html;
@@ -92,14 +94,13 @@ sub do_mainpage2 {
 	my $html = SMS_html_Util::student_register($q, "student");
 
 	print $html;
-
     print  qq{</div>};
 }
 
 
 sub do_Save {
     my %element_info =  SMS_Person::get_element_info();
-   
+    Debug::dsay ("Signup::do_Save ;");
     my $part  = SMS_Person::new();
     my $summ = "<table>";
 
@@ -128,6 +129,7 @@ The following information has been recorded\n\n};
 	my $id = $part->{UBC_id};
 	my $cn = SMS_Person::confirmationnumber($id);
 	$part->{confirmationnumber} = $cn;
+    Debug::dsay ("Admin::do_Save:;cn is [$cn");
 #	$summ .= qq{<tr><td class="thanks">confirmationnumber: </td><td>$cn</td></tr>};
 #	$asum .= sprintf "%-20s : %s\n","confirmationnumber", $cn;
 
@@ -141,12 +143,12 @@ The following information has been recorded\n\n};
     $summ .= qq{</table>};
     do_thanks($summ, $cn);
     # try mailing this info to course admin
-#	Debug::dsay ("SignUp:: do_Save:: call SMS_Person::mail_signup ");
+	Debug::dsay ("SignUp:: do_Save:: webhost [$webhost]  ");
  #   SMS_Person::mail_signup($app_info);
 	Debug::dsay ("SignUp:: do_Save:: call SMS_Person::mail_signup ");
 	$summ .= qq{<p> at end of Summary,,,To change your info, go to 
-             <a href="http://sms.phas.ubc.ca/cgi-bin/SMS/Edit?cn=$cn">
-                http://sms.phas.ubc.ca/cgi-bin/SMS/Edit?confirmationnumber=$cn</a>
+             <a href="http://$webhost/cgi-bin/SMS/Edit?cn=$cn">
+                http://$webhost/cgi-bin/SMS/Edit?confirmationnumber=$cn</a>
               </p>  };
 	my $email = $part->{email};
     SMS_Person::mail_signup($email, $asum );
@@ -173,11 +175,11 @@ sub do_thanks {
     my $out = qq{ <div class="thanks"><h1 class="SMS">SMS signup</h1>
                 <p> Thanks for your interest in the student shop course. <br /> 
                The following  information has been recorded </p> $summ <br />
-              <p>in thanks You should receive
+              <p> You should receive
                an invitation to a course via email when you are 
                scheduled <br /> To change your info, go to 
-             <a href="http://sms.phas.ubc.ca/cgi-bin/SMS2/Edit?confirmationnumber=$cn">
-                http://sms.phas.ubc.ca/cgi-bin/SMS/Edit?confirmationnumber=$cn</a>
+             <a href="http://$webhost/cgi-bin/SMS2/cgi/Edit?confirmationnumber=$cn">
+                http://$webhost/cgi-bin/SMS2/cgi/Edit?confirmationnumber=$cn</a>
               </p></div> };
     print $out;
 }

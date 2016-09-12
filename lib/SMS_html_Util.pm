@@ -198,10 +198,8 @@ sub edit_student_register {
 	$out .= qq{<p>$qsub</p>};
 	$out .= qq{</div>};
 
-
 	return $out;
 }
-
 
 sub check_input {
 	my $q = shift;
@@ -215,6 +213,14 @@ sub check_input {
 			$out .= qq{Field $p is Required !! <br />};
 		}
 	}
+    
+# studentnumber length check
+    my $sn = $q->param("UBC_id");
+    if ($sn =~ /^\d{8}$/) {
+    } else {
+        $out .= qq{ student number should be 8 digits};
+    }
+    
 	$out = qq{<div class="warn"> $out </div> } if ( $out ); 
 		
 	return $out;
@@ -262,5 +268,40 @@ sub mk_avail_table {
 		$out .= qq{   </tr>\n};
 	}
 	$out .= qq{   </table>\n};
+}
+	
+sub mk_ts_table {
+
+	my $q = shift;
+	my $out = "";
+
+	$out .= qq{<table id="timeslots">};
+    $out .= qq{<caption> <p> select a time slot
+               </p></caption>};
+	$out .= qq{<tr class="avail_head">};
+	$out .= qq{   <th class="avail_head"> &nbsp; </th>};
+	$out .= qq{   <th class="avail_head"> Mon </th>};
+	$out .= qq{   <th class="avail_head"> Tue </th>};
+	$out .= qq{   <th class="avail_head"> Wed </th>};
+	$out .= qq{   <th class="avail_head"> Thr </th>};
+	$out .= qq{   <th class="avail_head"> Fri </th>};
+	$out .= qq{   </tr>};
+
+	$out .= qq{<tr class="avail">\n};
+	foreach my $time ( "AM", "PM" ){
+		$out .= qq{   <td class="avail"> $time </td>\n};
+      #  my @values = ();
+		foreach my  $day ( qw[ Mon Tue Wed Thr Fri] ) {
+			my $ts = $day . "_" . $time;
+            my $but =qq{<label><input type="radio"
+                                      name="timeslot"
+                                      value=$ts
+                                      checked="" />$ts</label>};
+            $out .= qq{   <td class="avail"> $but</td>\n};    		
+        }
+		$out .= qq{   </tr>\n};
+	}
+	$out .= qq{   </table>\n};
+    return $out;
 }
 	

@@ -22,7 +22,7 @@ use Date::Calc qw [Today Add_Delta_Days Delta_Days Day_of_Week Monday_of_Week We
 use CGI::Carp 'fatalsToBrowser';
 my $today     = sprintf ("%04d-%02d-%02d", Today() );
 
-my $this_script = "/cgi-bin/SMS2/Edit";
+my $this_script = "/cgi-bin/SMS2/cgi/Edit";
 my $title = "P &amp; A Student Shop Sign Up";
 my $version = "0.0.1";
 Debug::Set_Debug(1, "html");
@@ -75,18 +75,16 @@ exit;
 
 sub do_mainpage2 {
 
-   Debug::dsay ("This is main page2 sub ;");
+   Debug::dsay ("This is main page2 sub in Edit ;");
 
 	my $cn = $q->param("confirmationnumber");
     my $sn = SMS_Person::cn2sn($cn);
 	print  qq{<div class="mainpg>"};
 
-#	print "<h2> Dump of the query </h2><br />\n";
-#    print $q->Dump;
-#    print "<hr />";
 
     print SMS_Person::get_hdr();
-    print  get_Intro();
+    Debug::dsay ("call SMS_Person::get_Intro");
+    print SMS_Person::get_Intro();
 
 	my $html = SMS_html_Util::edit_student_register($q, "student", $sn);
 
@@ -154,22 +152,7 @@ sub do_thanks
 }
 
 
-sub get_Intro
-{
-    my $app =shift;
-    my $name = $app->{full_name};
-    my $ifile = "/www/Gform/SMS_Person/lib/edit_intro_text";
 
-    my $intro = "";
-    {
-	open (X, $ifile) || warn "cannot open $ifile \n";
-	local ( $/ );
-	$intro = <X>;
-	close X;  
-    }
-    $intro =~ s/%%App%%/$name/;
-    return $intro;
-}
 
 sub dump_it
 {
