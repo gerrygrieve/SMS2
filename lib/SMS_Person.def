@@ -117,9 +117,8 @@
     <tname>date_signup</tname>
     <prompt>Signup Date</prompt>
     <input>
-        <type>text</type>
-        <nchar>40</nchar>
-        <maxchar>60</maxchar>
+        <type>static</type>
+ 
     </input>
     <rank>379</rank>
     <cat>internal</cat>

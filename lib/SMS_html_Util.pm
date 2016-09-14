@@ -163,11 +163,11 @@ sub edit_student_register {
     foreach my $t ( sort {$element_info{$a}{rank} <=>
                           $element_info{$b}{rank} }
                    keys %element_info ) {
-   ###  Debug::dsay("do_form:: t is {$t}");
+ #    Debug::dsay("do_form:: t is {$t}");
 		next if ( $element_info{$t}{cat} eq "admin"
 				  and $my_cat ne "admin"
 				);
-		next if ( $element_info{$t}{cat} eq "internal" );
+	#	next if ( $element_info{$t}{cat} eq "internal" );
 
 		if ($t =~ /_[AP]M$/) {
 			
@@ -176,6 +176,7 @@ sub edit_student_register {
 		}
 
 		my $value = $this_app->{$t} ? $this_app->{$t} : "" ;
+		next if ( $element_info{$t}{cat} eq "internal" and $value eq "");
 		my $pout  = $element_info{$t}{prompt} ? $element_info{$t}{prompt}: "";
 		my $qout  = $element_info{$t}{qtype}  ? $element_info{$t}{qtype} : "";
 		next unless $pout;
@@ -186,6 +187,12 @@ sub edit_student_register {
 		$value = $today  if ($t eq "date" and !$value);                
 		my $xinp = Form_Util::input_query(\%{$element_info{$t}}, $t, $value);
 
+		if ($element_info{$t}{qtype} eq "static") {
+			$xinp = $value;
+			$out .= $q->hidden( -name => $t,
+                                -default=>[$value]);
+		}
+	
 		my $req = defined ($element_info{$t}{required})
                 ? qq{<span class="req">  &#9756; required </span>}
 			    : q[&nbsp;];
