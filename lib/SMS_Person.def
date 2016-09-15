@@ -32,6 +32,19 @@
 </tag>
 
 <tag>
+   <tname>Dept_Degree</tname>
+    <prompt>Dept/Degree</prompt>
+ <input>
+        <type>text</type>
+        <nchar>40</nchar>
+        <maxchar>60</maxchar>
+    </input>
+     <rank>128</rank>
+    <required>true</required>
+    <cat>student</cat>
+</tag>
+
+<tag>
     <tname>email</tname>
     <prompt>email</prompt>
     <input>
@@ -71,6 +84,19 @@
 <tag>
     <tname>supervisor</tname>
     <prompt>Supervisor</prompt>
+    <input>
+        <type>text</type>
+        <nchar>40</nchar>
+        <maxchar>60</maxchar>
+    </input>
+    <rank>165</rank>
+  <required>true</required>
+    <cat>student</cat>
+</tag>
+
+<tag>
+    <tname>superEmail/tname>
+    <prompt>Supervisor's Email</prompt>
     <input>
         <type>text</type>
         <nchar>40</nchar>

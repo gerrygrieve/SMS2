@@ -1,0 +1,123 @@
+#!/usr/local/bin/perl -wT
+
+# save the entered info to a file & redisplay
+# this script is intended to management info that is editable by 
+# the course intructors:  course.cgi is a more general tool
+
+$ENV{PATH} = "/bin:/usr/bin";
+
+use lib "/www/Gform/lib/";
+use lib "../lib/";
+
+
+use Debug;
+
+use Date::Calc qw [Today ];
+use SMS_Person;
+use SMS_html_Util;
+
+use Form_Util;
+use strict;
+use CGI;
+use CGI::Carp 'fatalsToBrowser';
+
+my $this_script = "/cgi-bin/SMS/Confirm";
+my $title = "P &amp; A Student Shop Course Confirm";
+my $version = "0.0.1";
+Debug::Set_Debug(1, "html");
+my ($wel, $fname);
+my $sp = '&nbsp;';
+my $q = new CGI;
+
+my $qsave =$q->submit( -name  => "Save",
+#                       -class => $bs_style,      
+                       -value => "Save"); 
+my $Hidden;
+    
+print $q->header(-type=> "text/html", -expires=>'now'), "\n";
+print $q->start_html( -title  => "PandA  ", 
+                      -style  =>{'src'=>'/Status/lib/note.css'},),"\n";
+print $q->start_multipart_form("POST", $this_script), "\n";
+
+#print "try dumping the query edit field ",  $q->param('edit')," <br />";
+#print "dump query...<br />";
+dump_it();
+
+if ($q->param('Read_File') ) 		#a submit from some page se
+{
+ #  do_Upload();
+#    do_Read_File();
+} elsif ($q->param('Submit') ) 		#a submit from some page se
+{
+   do_Save();
+} 
+else
+{
+    Debug::dsay ("Call Mainpage;");
+    do_form();
+}
+print $q->endform;
+print $q->end_html;
+exit;
+
+sub do_form {
+#print the welcome    
+#     Debug::dsay(" do_form()");  
+    my $tdtopright = '<td valign="top" align="right">';
+    my $tdtop      = '<td valign="top">';
+    my $sp = '&nbsp;';
+    my $cellpad = ' cellpadding="4" ';   
+        $wel = <<endxxx;
+The first block of information is welcome junk<br>
+endxxx
+    my $code = $q->param("");
+    Debug::dsay(" do_form:: id code is {$code}");
+    my $id = $1 if ( $code =~ /^\d\d\d(\w\w\w)/);
+    Debug::dsay(" do_form:: id  is {$id}");
+    $id = $1 if $id =~ /(\d+)$/;
+    Debug::dsay(" do_form:: id  is {$id}");
+    my $this_id = sshop_part::get_app_by_ID($id);
+    my $course  = $this_id->{"booked_for_course"};
+    my $t;
+    my $ynow = "2009" ;
+    my $monnow = "02";
+    my $qsave =$q->submit( -name  => "Submit",
+#                         -class => $bs_style,      
+                          -value => "Submit"); 
+    my %element_info = my %el_info =  sshop_part::get_element_info();
+
+    print "<h2> Confirm  Page</h2>";
+ 
+    print "<p> Hello. thanks for responding... <br />";
+    print "you have been invited to a student shop training";
+    print " module, $module, which will be held on the $datetime";
+    print " <br />Please confirm or decline this</p>";
+#    my $qc = "button";
+    my $qc = $q->radio_group (-name=>"confirm",
+                              -values=>["Confirm", "Decline"]
+                             );
+    print $q->hidden("Id", $id);
+    print "<p>$qc</p>";
+    print "<p>$qsave</p>";
+}
+
+sub do_Save {
+    my $id = $q->param("Id");
+    my $dd = $q->param("confirm") ? $q->param("confirm") : "";
+    my $today = sprintf "%4d-%2.2d-%2.2d", Today();
+    if ($dd eq "Confirm") {
+       sshop_part::update_app_record($id, "confirmed_booking", $today);
+       print "<p> Thanks your Confirmation has been noted <br />";
+    } elsif ($dd eq "Decline") {
+       sshop_part::update_app_record($id, "Declined_booking", $today);
+       sshop_part::update_app_record($id, "booked_for_course",$today ,"Delete");
+       print "<p> Thanks, your booking has been dropped <br />";
+    }
+}
+
+sub dump_it {
+	print "<h2> Dump of the query </h2><br />\n";
+        print $q->Dump;
+        print "<hr />";
+}
+

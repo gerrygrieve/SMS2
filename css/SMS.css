@@ -72,6 +72,8 @@ td.input { vertical-align: top;
             
            }
            
+.important { font-size: larger;
+             background-color: LightPink;}
            
 .ss_intro { text-align: left;
             border: 2px solid blue;
