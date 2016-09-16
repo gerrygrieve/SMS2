@@ -1,8 +1,9 @@
 <sms_person>
+    <Mod6_course_name>M6-2016-263-AM</Mod6_course_name>
+    <Mod6_invited>2016-09-15</Mod6_invited>
     <UBC_id>66576769</UBC_id>
     <avail_Mon_AM>Yes</avail_Mon_AM>
     <avail_Mon_PM>Yes</avail_Mon_PM>
-    <confirmationnumber>V6P67566</confirmationnumber>
     <date_signup>20160912</date_signup>
     <email>grieve@phas.ubc.ca</email>
     <full_name>tim horton</full_name>

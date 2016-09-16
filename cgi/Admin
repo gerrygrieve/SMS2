@@ -5,23 +5,27 @@
 $ENV{PATH} = "/bin:/usr/bin";
 
 use lib "/www/Gform/lib/";
+use Debug;
 use lib "../lib";
 
 use course_metadata;
-use Debug;
-use Date::Calc qw(Today Delta_Days Add_Delta_Days Week_of_Year);
 use SMS_Person;
+use SMS_html_Util;
+
 use HTML_Util;
 use Form_Util;
-use SMS_html_Util;
+
 
 use strict;
 use CGI;
-
+use Date::Calc qw(Today Delta_Days Add_Delta_Days Week_of_Year);
 use CGI::Carp 'fatalsToBrowser';
 my $today     = sprintf ("%04d-%02d-%02d", Today() );
 my $n_Weeks_to_Display = 10;
 
+#my $webhost = "sms.phas.ubc.ca";
+#my $webhost = "localhost";
+my $webhost = "karhusen.phas.ubc.ca";
 my $this_script = "/cgi-bin/SMS2/cgi/Admin";
 my $styleURL = '/css/SMS.css';
 my $title = "P &amp; A Student Shop Sign Up Admin Tool";
@@ -157,7 +161,9 @@ sub do_Invitees {
     #Debug::dsay ( "$cn_tag -- $cname" );
     #Debug::dsay ( "$in_tag -- $today" );
     my @invitees = $q->param('invited');
+	my $mess = "";	
     foreach my $sn (@invitees) {
+		
         my $mess ="";
         $out .= qq{<p class="info">};
         $out .= qq{student number -- $sn<br /> };
@@ -166,7 +172,9 @@ sub do_Invitees {
         $edata->{$in_tag} = $today;
         SMS_Person::save ($edata);
         my $email = $edata->{email};
-        my $cn    = $edata->{confirmationnumber};
+        my $cn    = $edata->{confirmationnumber} ?
+					$edata->{confirmationnumber} :
+					SMS_Person::sn2cn($sn);;
         my $fname = $edata->{full_name};
         Debug::dsay (" cn is [$cn]");
         $out .= qq{$cn_tag  -- $cname<br /> };
@@ -180,12 +188,25 @@ sub do_Invitees {
         $mess =~ s/%%\s+date\s+%%/$iso_cdate/;
         $mess =~ s/%%\s+modnum\s+%%/$modnum/;
         $mess =~ s/%%\s+cn\s+%%/$cn/g;
-   print qq{<pre> $mess</pre>};    
-    }
+
+    
+		my $url = qq{<a href="http://$webhost/cgi-bin/SMS2/cgi/Confirm?confirmationnumber=%% cn %%">
+-         		http://$webhost/cgi-bin/SMS2/cgi/Confirm?confirmationnumber=%% cn %%</a>};
+		$url =~  s/%%\s+cn\s+%%/$cn/g;
+		$mess .= $url;
+#		$out .= $mess;
+
+		my $from = "sms-management";
+		my $subj = "SMS Module Invite";
+		SMS_Person::mail_it($email, $from, $subj, $mess);
+		print $out;
+		print $q->hidden("cn", $cn);
+		print $q->hidden("courseID",$cname  );
+	}
     print $out;
 
   
-  
+   
     print do_selectTable();
     
 }

@@ -9,6 +9,7 @@ use course_metadata;
 use Form_Util;
 use Data::Dumper;
 use Perl6::Slurp;
+#use Carp;
 my $Root = '/www/Gform/SMS/';
 
 $data_dir   = $Root . "Data/";
@@ -54,12 +55,7 @@ sub get_Intro {
     return $intro;
 }
 
-sub get_Intro {
-    my $ifile = $Root ."lib/Intro";
-	
-   
-	return $intro;
-}
+
 
 sub getInviteTempplate {
     my $ifile = $invite;
@@ -96,7 +92,7 @@ sub save {
   
  #   Debug::dsay("SMS_Person::save  line 80   save... [$t]");
     my $tab = " "x4;
-	$xid = $t->{ID};
+
 	my $sn = $t->{UBC_id};
     my $f = get_file_name($sn);
  
@@ -122,7 +118,7 @@ sub save {
 
     chmod 0664, $f;
     my $cnt = chown  $>, $Group_for_file_ownership, $f if ($Group_for_file_ownership);
-    return $id;
+    return $sn;
 } 
 
 sub get_file_name {
@@ -715,20 +711,31 @@ sub save_Course {
 }
 
 sub update_app_record {
-    my $id = shift;
-    my $tags = shift;
+    my $sn  = shift;
+	my $mod  = shift;
     my $action = shift;
-    Debug::dsay("sshoppart::update_app_record:: id is {$id}  ");
+	my $acc_tag	= $mod . "_accepted";
+	my $del_tag = $mod . "_declined";
+	my $today = sprintf ("%04d-%02d-%02d", Date::Calc::Today() );
+    
+    Debug::dsay("SMS_Person::update_app_record:: id is {$sn} {$action} mod {$mod}");
+	Debug::dsay("SMS_Person::update_app_record:: $acc_tag $del_tag ");
+ 
+    my $app  = get_app_by_ID($sn);
+    my $edata = SMS_Person::get_Data_by_ID($sn);
+ 
 
- #   my $value = shift;
-    my $app  = get_app_by_ID($id);
-    foreach my $t ( keys %$tags )  {
-#	Debug::dsay("sshoppart::update_app_record:: tag is {$t} $tags->{$t} ");
-	if ($action eq "Delete") { delete $app->{$t}; }
-	else                     { $app->$t($tags->{$t}); }
-#        $app->$t($tags->{$t});
-    }
-    Debug::dsay("sshoppart::update_app_record:: call save...  ");
+	if ($action eq "Delete") {
+		$edata->{$del_tag} = $today; 
+
+	} elsif ($action eq "Confirm") {
+		Debug::dsay( "confirming $mod ");
+		$edata->{$acc_tag} = $today; 
+	} else {
+		die "Unknown acion{$action} in SMS_Person";
+	}	
+
+    Debug::dsay("SMS_Person::update_app_record:: call save...  ");
 
     my $err = save($app);
 }

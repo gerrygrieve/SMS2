@@ -1,4 +1,4 @@
-#!/usr/bin/perl -wT
+#!/usr/bin/perl -w
 
 # save the entered info to a file & redisplay
 # this script is intended to management info that is editable by 

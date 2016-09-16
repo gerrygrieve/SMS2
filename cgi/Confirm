@@ -1,4 +1,4 @@
-#!/usr/local/bin/perl -wT
+#!/usr/bin/perl -wT
 
 # save the entered info to a file & redisplay
 # this script is intended to management info that is editable by 
@@ -8,12 +8,12 @@ $ENV{PATH} = "/bin:/usr/bin";
 
 use lib "/www/Gform/lib/";
 use lib "../lib/";
-
-
+use SMS_Person;
 use Debug;
 
-use Date::Calc qw [Today ];
-use SMS_Person;
+use Date::Calc qw(Today Delta_Days Add_Delta_Days Week_of_Year);
+
+
 use SMS_html_Util;
 
 use Form_Util;
@@ -21,7 +21,7 @@ use strict;
 use CGI;
 use CGI::Carp 'fatalsToBrowser';
 
-my $this_script = "/cgi-bin/SMS/Confirm";
+my $this_script = "/cgi-bin/SMS2/cgi/Confirm";
 my $title = "P &amp; A Student Shop Course Confirm";
 my $version = "0.0.1";
 Debug::Set_Debug(1, "html");
@@ -36,81 +36,91 @@ my $Hidden;
     
 print $q->header(-type=> "text/html", -expires=>'now'), "\n";
 print $q->start_html( -title  => "PandA  ", 
-                      -style  =>{'src'=>'/Status/lib/note.css'},),"\n";
+                      -style  => [    {'src'=>'/Gform//SMS/SMS.css'},
+								 ],
+					),"\n";
 print $q->start_multipart_form("POST", $this_script), "\n";
 
 #print "try dumping the query edit field ",  $q->param('edit')," <br />";
 #print "dump query...<br />";
 dump_it();
 
-if ($q->param('Read_File') ) 		#a submit from some page se
-{
- #  do_Upload();
-#    do_Read_File();
-} elsif ($q->param('Submit') ) 		#a submit from some page se
-{
-   do_Save();
-} 
-else
-{
-    Debug::dsay ("Call Mainpage;");
-    do_form();
-}
+if ($q->param('Save') ) 	{   do_Save(); } 
+else						{   do_form();  }
+
 print $q->endform;
 print $q->end_html;
 exit;
 
 sub do_form {
 #print the welcome    
-#     Debug::dsay(" do_form()");  
-    my $tdtopright = '<td valign="top" align="right">';
-    my $tdtop      = '<td valign="top">';
-    my $sp = '&nbsp;';
-    my $cellpad = ' cellpadding="4" ';   
-        $wel = <<endxxx;
-The first block of information is welcome junk<br>
-endxxx
-    my $code = $q->param("");
-    Debug::dsay(" do_form:: id code is {$code}");
-    my $id = $1 if ( $code =~ /^\d\d\d(\w\w\w)/);
-    Debug::dsay(" do_form:: id  is {$id}");
-    $id = $1 if $id =~ /(\d+)$/;
-    Debug::dsay(" do_form:: id  is {$id}");
-    my $this_id = sshop_part::get_app_by_ID($id);
-    my $course  = $this_id->{"booked_for_course"};
-    my $t;
-    my $ynow = "2009" ;
-    my $monnow = "02";
-    my $qsave =$q->submit( -name  => "Submit",
-#                         -class => $bs_style,      
-                          -value => "Submit"); 
-    my %element_info = my %el_info =  sshop_part::get_element_info();
+  #  Debug::dsay(" do_form()");
+	
+	my $courseID = $q->param("courseID")   ? $q->param("courseID")  : "";
+	my $cn = $q->param("cn") ? $q->param("cn")  : "";
+#	Debug::dsay(" cn [$cn]  courseID [$courseID]  ");
+	if ( ! $cn  or ! $courseID ) {
+		error_page ();
+		return;
+	}
 
-    print "<h2> Confirm  Page</h2>";
- 
-    print "<p> Hello. thanks for responding... <br />";
-    print "you have been invited to a student shop training";
-    print " module, $module, which will be held on the $datetime";
-    print " <br />Please confirm or decline this</p>";
-#    my $qc = "button";
-    my $qc = $q->radio_group (-name=>"confirm",
+	my ($mod, $year, $doy, $ampm) = split "-", $courseID;
+	my ($year,$month,$day) = Add_Delta_Days($year,1,1, $doy - 1);
+	my $iso = sprintf "%4d-%2.2d-%2.2d",  ($year,$month,$day);
+	my $sn = SMS_Person::cn2sn($cn);	
+	Debug::dsay(" mod [$mod] [$doy] [$ampm] $iso $sn");
+
+  
+	my $qc = $q->radio_group (-name=>"confirm",
                               -values=>["Confirm", "Decline"]
                              );
-    print $q->hidden("Id", $id);
-    print "<p>$qc</p>";
-    print "<p>$qsave</p>";
-}
 
+	my $out = "";
+	$out .= qq{ <div class="invite">};
+	$out .= qq{ <div class="space">};
+	$out .= qq{ <p class="invite">\n};
+	$out .= qq{ You are being invited to the following SMS module: <br>\n};
+	$out .= qq{ <table class="invite">};
+
+	$out .= qq{<tr><td class="invite">Module : </td> <td class="indata"> $mod</td></tr>};
+	$out .= qq{<tr><td class="invite">Date: </td><td class="indata"> $iso</td></tr>};
+	$out .= qq{<tr><td class="invite">Time: </td><td class="indata"> $ampm</td></tr>};
+
+	$out .= qq{</table>};
+
+	$out .= qq{ <p> This slot is reserved for you until 48 hours before
+				the scheduled start of the course.  After which, we may
+				offer the slot to another student.</p>}	;
+	$out .= qq {<p class="button">$qc</p>};
+	$out .= qq {<p class="button">$qsave</p>};
+	$out .= qq{ </div>};
+
+	$out .= qq{</div>\n};
+	$out .= $q->hidden("sn", $sn);
+	$out .= $q->hidden("mod", $mod);
+	print $out;
+
+
+
+}
+sub error_page{
+	  print "<p> Invalid input to the Confirmation Page<br />";
+
+}
 sub do_Save {
-    my $id = $q->param("Id");
-    my $dd = $q->param("confirm") ? $q->param("confirm") : "";
+    my $sn  = $q->param("sn");
+	my $mod = $q->param("mod");
+    my $dd  = $q->param("confirm") ? $q->param("confirm") : "";
+
+
+
     my $today = sprintf "%4d-%2.2d-%2.2d", Today();
     if ($dd eq "Confirm") {
-       sshop_part::update_app_record($id, "confirmed_booking", $today);
+       SMS_Person::update_app_record($sn, $mod, $dd, $today);
        print "<p> Thanks your Confirmation has been noted <br />";
     } elsif ($dd eq "Decline") {
-       sshop_part::update_app_record($id, "Declined_booking", $today);
-       sshop_part::update_app_record($id, "booked_for_course",$today ,"Delete");
+       SMS_Person::update_app_record($sn, $mod, $dd, $today);
+     #  SMS_Person::update_app_record($sn, "booked_for_course",$today ,"Delete");
        print "<p> Thanks, your booking has been dropped <br />";
     }
 }
