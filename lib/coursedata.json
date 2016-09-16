@@ -45,6 +45,10 @@
             "title": "Candle Holder",
             "desc": "we build &amp; use a Candle Holder",
             "date_upcoming": [ "20161013" ]
+        },
+        { "num": "10",
+            "title": "the 10th Module",
+            "desc":  " Yet to be Determined"
         }
     ]
 }

@@ -23,6 +23,18 @@ sub put_Course_Data_json {
 
 }
 
+
+sub get_Course_Data_Array {
+	
+	use Perl6::Slurp;
+
+	my $json  = slurp $jfile;
+	my $data  = decode_json($json);
+	my @courses = @{$data->{course_data}};
+	return @courses;
+}
+
+
 sub get_Course_Data_json {
 	
 	use Perl6::Slurp;
