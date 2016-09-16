@@ -22,12 +22,12 @@ use Date::Calc qw [Today Add_Delta_Days Delta_Days Day_of_Week Monday_of_Week We
 use CGI::Carp 'fatalsToBrowser';
 my $today     = sprintf ("%04d-%02d-%02d", Today() );
 
-my $this_script = "/cgi-bin/SMS2/cgi/Signup";
+my $this_script = "/cgi-bin/SMS2/cgi/xSignup";
 my $title = "P &amp; A Student Shop Sign Up";
 my $version = "0.0.1";
 #my $webhost = "sms.phas.ubc.ca";
 my $webhost = "localhost";
-Debug::Set_Debug(0, "html");
+Debug::Set_Debug(1, "html");
 my ($wel, $fname);
 my $sp = '&nbsp;';
 my $q = new CGI;
@@ -57,7 +57,7 @@ print $q->start_html( -title  =>  $title,
 #                                    ]
                       ),"\n";
 
-#dump_it();
+dump_it();
 
 my $qsave =$q->submit( -name  => "Save",
                        -class => $bs_style,      

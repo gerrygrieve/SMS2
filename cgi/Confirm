@@ -45,8 +45,8 @@ print $q->start_multipart_form("POST", $this_script), "\n";
 #print "dump query...<br />";
 dump_it();
 
-if ($q->param('Save') ) 	{   do_Save(); } 
-else						{   do_form();  }
+if ($q->param('Save') ) 	{ do_Save(); } 
+else						{ do_form();  }
 
 print $q->endform;
 print $q->end_html;
