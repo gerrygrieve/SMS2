@@ -624,7 +624,7 @@ sub do_manage_Courses {
 							-columns=>60);
 		$out .= qq{<td class="prompt">desc</td><td> $qs</td></tr>};
 		
-		my @dates = @{$c->{date_upcoming}} if defined  @{$c->{date_upcoming}};
+		my @dates = @{$c->{date_upcoming}} if @{$c->{date_upcoming}};
 		foreach my $up ( @dates ) {
 			$value = $up;
 			$qs = $q->textfield(-name=>"date_upcoming".$modnum,

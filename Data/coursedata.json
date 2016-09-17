@@ -1,0 +1,84 @@
+{
+   "course_data" : [
+      {
+         "date_upcoming" : [
+            "20160930"
+         ],
+         "title" : "Bottle Opener",
+         "desc" : "we build  and use a bottle opener",
+         "num" : "1"
+      },
+      {
+         "date_upcoming" : [
+            "20161003"
+         ],
+         "num" : "2",
+         "title" : "6-Sided Dice",
+         "desc" : "we get to load the dice!!"
+      },
+      {
+         "date_upcoming" : [
+            "20161004"
+         ],
+         "desc" : "we build a Cannon",
+         "title" : "Cannon Part 1",
+         "num" : "3"
+      },
+      {
+         "date_upcoming" : [
+            "20161005"
+         ],
+         "title" : "Cannon Part 2",
+         "desc" : "we fire the cannon",
+         "num" : "4"
+      },
+      {
+         "desc" : "we build and use a Sliding Mechanism",
+         "title" : "Sliding Mechanism",
+         "num" : "5",
+         "date_upcoming" : [
+            "20161006"
+         ]
+      },
+      {
+         "desc" : "we build  a Phone Stand",
+         "title" : "Phone Stand",
+         "num" : "6",
+         "date_upcoming" : [
+            "20161007",
+            "20161012",
+            "20161013"
+         ]
+      },
+      {
+         "desc" : "we build &amp; use a bottle opener",
+         "title" : "Sound Box for Phone Stand",
+         "num" : "7",
+         "date_upcoming" : [
+            "20161011"
+         ]
+      },
+      {
+         "num" : "8",
+         "title" : "Pen",
+         "desc" : "we build &amp; use a Pen",
+         "date_upcoming" : [
+            "2016012"
+         ]
+      },
+      {
+         "title" : "Candle Holder",
+         "desc" : "we build &amp; use a Candle Holder",
+         "num" : "9",
+         "date_upcoming" : [
+            "20161013"
+         ]
+      },
+      {
+         "num" : "10",
+         "desc" : " Yet to be Determined",
+         "title" : "the 10th Module",
+         "date_upcoming" : []
+      }
+   ]
+}

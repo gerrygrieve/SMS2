@@ -1,0 +1,136 @@
+body { margin: 20px 20px 20px 20px;
+        width:900px; 
+}
+
+
+table.appinfo {
+    border: 2px solid green;
+    border-collapse: collapse;
+    padding: 4px;
+    width: 600px;
+    
+}
+
+table.apptable {   border: 2px solid green;
+                    border-collapse: collapse;
+                    padding: 24px;
+               }
+#inputform {  clear: both;
+                margin-top: 20px;
+}       
+#coursetable { width:500px;
+               border: 3px solid green;
+                margin: 20px;
+}
+
+#coursetable .module:nth-child(odd) {
+ background-color: LemonChiffon;
+  margin: 0px;
+ padding: 8px;
+}
+
+#avail {  border: 3px solid green;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+.avail_head {  background-color: khaki;
+                padding: 6px;
+            }
+
+.avail { border: 2px solid green;
+            padding: 6px;
+       }
+.req   { color: red;
+		 font-size: Large;
+      }
+
+div.warn {  float: left;
+            margin: 20px 2px 10px 30px;
+            border: 2px solid black;
+            background-color: red;
+            padding: 12px;
+            }
+#coursetable .module:nth-child(even) {
+ background-color: Lavender;
+ margin: 0px;
+ padding: 8px;
+ border-bottom: 1px dashed green;
+}
+
+td,th {   border: 2px solid green;
+            padding: 4px;
+       }
+td.prompt { vertical-align: top;
+            text-align: right;
+            padding: 12px 12px 2px 2px;
+            width: auto;
+           }
+td.input { vertical-align: top;
+            text-align: left;
+              padding: 12px 12px 2px 2px;
+            
+           }
+
+div.invite { width: 440px;
+            border: 4px solid green;
+            margin: 20px 2px 10px 30px;        
+}
+
+div.space {  padding: 10px 20px 10px 20px;
+            margin: 2px 6px 10px 6px;        
+}
+table.invite { width: 300px;}
+td.invite { border: 0px;
+            text-align: right;}
+td.indata { border: 0px;
+            width: 150px;
+            text-align: left;}
+.important { font-size: larger;
+             background-color: LightPink;}
+           
+.ss_intro { text-align: left;
+            border: 2px solid blue;
+            margin-left: 4px;
+            margin-bottom: 54px;
+            margin-top: 54px;
+            padding: 10px 10px 10px 10px;
+           }
+           
+.ss_error { text-align: left;
+            border: 2px solid black;
+            margin-left: 4px;
+            margin-bottom: 54px;
+            margin-top: 54px;
+            padding: 10px 10px 10px 10px;
+             background-color: khaki;
+           }           
+h2.ss_head { font-size: 150%;
+             color: black;
+             background-color: lightblue;
+             padding: 20px 0px 20px 30px;
+            text-align: center;}
+
+
+td.explain { text-align: left;
+             padding: 10px 10px 10px 10px;
+           }
+           
+.mainpg    { margin: 30px 0 30px 30px;
+             width:  800px;
+       
+           }
+.thanks { margin: 35px;
+           font-size: Large;
+           text-align: left;
+}
+td.thanks {           padding: 1px 4px 1px 1px;
+           }
+           
+h1.SMS {
+            font-size: 200%;
+            color:  blue;   
+}
+.selectTable { padding: 4px;
+              border: 1px solid black;
+              background-color: #9c9;
+}

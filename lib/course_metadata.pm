@@ -3,7 +3,8 @@ package course_metadata;
 my $Debug = 1;
 use Data::Dumper;
 use JSON;
-my $jfile = "/www/Gform/SMS/lib/coursedata.json";
+#my $jfile = "/www/Gform/SMS/lib/coursedata.json";
+my $jfile = "/www/Gform/SMS/Data/coursedata.json";
 
 1;
 
@@ -11,6 +12,7 @@ sub put_Course_Data_json {
 
 	my $data = shift;
 	my $nfile = "$jfile.$$";
+	Debug::dsay ( " put_Course_Data_json jfile = $jfile ");
 	$nfile =~ s[lib/][lib/oldjson/];
 	rename $jfile, $nfile;
 

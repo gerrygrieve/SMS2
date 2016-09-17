@@ -1,0 +1,78 @@
+#!/usr/bin/perl -wT
+
+# save the entered info to a file & redisplay
+# this script is intended to management info that is editable by 
+# the course intructors:  course.cgi is a more general tool
+
+$ENV{PATH} = "/bin:/usr/bin";
+
+use lib "/www/Gform/lib/";
+use lib "../lib/";
+use course_metadata;
+use Debug;
+
+use SMS_html_Util;
+
+use strict;
+use CGI;
+use Date::Calc qw [Today ];
+use CGI::Carp 'fatalsToBrowser';
+my $today     = sprintf ("%04d-%02d-%02d", Today() );
+
+my $this_script = "/cgi-bin/SMS2/cgi/list_courses";
+my $title = "P &amp; A Student Shop Modules";
+my $version = "0.0.1";
+Debug::Set_Debug(1, "html");
+
+my $q = new CGI;
+
+
+my $qsave =$q->submit( -name  => "Save",    
+                       -value => "Save"); 
+my $Hidden;
+
+print $q->header(-type=> "text/html", -expires=>'now'), "\n";
+print $q->start_html( -title  =>  $title, 
+                      -style  => [ {'src'=>'/css/Courselist.css'}, 
+                                   
+                                 ],
+                       
+                      ),"\n";
+
+Debug::dsay("this is Edit...");
+
+
+
+
+ do_mainpage2();
+
+
+print $q->end_html;
+exit;
+
+sub do_mainpage2 {
+
+	Debug::dsay ("This is main page2 sub ;");
+
+	my @courses = course_metadata::get_Course_Data_Array();
+	my $out = "";
+	$out .= qq{<div id="coursetable">\n};
+	$out .= qq{<table class="clist">\n};
+	$out .= qq{<tr><th>Mod #</th><th>Title</th><th>Desc</th></tr>\n};
+
+	foreach my $c ( sort {$a->{num} <=> $b->{num} } @courses ) {
+		my $modnum = $c->{num};
+		my $title =  $c->{title};
+		my $desc  =  $c->{desc};
+		$out .= qq{<tr><td  class="clist"> $modnum</td>
+						<td class="clist"> $title</td>
+						<td class="clist"> $desc</td>
+					</tr>\n};
+	}
+	$out .= qq{</table>};
+    $out .= qq{</div>};
+
+	print $out;
+}
+
+
