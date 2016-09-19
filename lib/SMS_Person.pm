@@ -18,6 +18,9 @@ my $def     = $Root . "lib/SMS_Person.def";
 my $exweeks = $data_dir . "excluded_weeks";
 my $invite  = $Root . "lib/invitemessage";
 my $xml_element = "sms_person";
+#my $webhost = "sms.phas.ubc.ca";
+#my $webhost = "karhusen.phas.ubc.ca";
+my $webhost = "localhost";
 
 my %elements = Form_Util::_Read_Defaults_Simple($def);
 my $t900 = 900;
@@ -49,6 +52,7 @@ $Course_email = q{sms-course\@phas.ubc.ca};
 
 1;
 
+sub webhost { return $webhost; }
 sub get_Intro {
     my $ifile = "/www/Gform/SMS/lib/signup_intro_text";
     my $intro = slurp $ifile;

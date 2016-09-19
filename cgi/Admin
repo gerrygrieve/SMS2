@@ -15,17 +15,14 @@ use SMS_html_Util;
 use HTML_Util;
 use Form_Util;
 
-
 use strict;
 use CGI;
 use Date::Calc qw(Today Delta_Days Add_Delta_Days Week_of_Year);
 use CGI::Carp 'fatalsToBrowser';
 my $today     = sprintf ("%04d-%02d-%02d", Today() );
 my $n_Weeks_to_Display = 10;
+my $webhost = SMS_Person::webhost();
 
-#my $webhost = "sms.phas.ubc.ca";
-#my $webhost = "localhost";
-my $webhost = "karhusen.phas.ubc.ca";
 my $this_script = "/cgi-bin/SMS2/cgi/Admin";
 my $styleURL = '/css/SMS.css';
 my $title = "P &amp; A Student Shop Sign Up Admin Tool";

@@ -25,8 +25,8 @@ my $today     = sprintf ("%04d-%02d-%02d", Today() );
 my $this_script = "/cgi-bin/SMS2/cgi/xSignup";
 my $title = "P &amp; A Student Shop Sign Up";
 my $version = "0.0.1";
-#my $webhost = "sms.phas.ubc.ca";
-my $webhost = "localhost";
+my $webhost = SMS_Person::webhost();
+
 Debug::Set_Debug(1, "html");
 my ($wel, $fname);
 my $sp = '&nbsp;';
