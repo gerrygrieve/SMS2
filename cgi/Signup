@@ -144,7 +144,7 @@ The following information has been recorded\n\n};
     do_thanks($summ, $cn);
     # try mailing this info to course admin
 	Debug::dsay ("SignUp:: do_Save:: webhost [$webhost]  ");
- #   SMS_Person::mail_signup($app_info);
+ #   SMS_Person::mail_signup($asumm);
 	Debug::dsay ("SignUp:: do_Save:: call SMS_Person::mail_signup ");
 	$summ .= qq{<p> at end of Summary,,,To change your info, go to 
              <a href="http://$webhost/cgi-bin/SMS/Edit?cn=$cn">

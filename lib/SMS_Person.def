@@ -95,7 +95,7 @@
 </tag>
 
 <tag>
-    <tname>superEmail/tname>
+    <tname>superEmail</tname>
     <prompt>Supervisor's Email</prompt>
     <input>
         <type>text</type>

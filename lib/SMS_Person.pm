@@ -484,7 +484,7 @@ sub mail_signup {
    Debug::dsay("SMS_person:: mail_signup ");
     my $mailer = "/usr/sbin/sendmail -oi -t ";	
  
-    my $to = shift;
+    my $to   = shift;
 	my $body = shift;
   
     my $from = "sms_signup";
@@ -493,17 +493,14 @@ sub mail_signup {
      Debug::dsay("SMS_person:: $to $from $subj");
      Debug::dsay("SMS_person:: $body");
 
-#	my $html_top =<<EndofTop;
-#		<html>
-#		<body>
-#EndofTop
-#	my $html_bot =<<EndofBot;
-#		</body>
-#		</html>
-#EndofBot
-#
-#	$body = $html_top . $body . $html_bot;
-    mail_it($to, $from, $subj, $body);    
+
+    mail_it($to, $from, $subj, $body);
+    
+# mail the admin ...
+
+    my $to ='sms-course@phas.ubc.ca';
+    $body ="New registuion for SMS Courses \n" . $body;  
+    mail_it($to, $from, $subj, $body);
 
     return;
 }
