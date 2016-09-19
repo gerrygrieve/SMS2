@@ -499,7 +499,10 @@ sub mail_signup {
 # mail the admin ...
 
     my $to ='sms-course@phas.ubc.ca';
-    $body ="New registuion for SMS Courses \n" . $body;  
+    my $old_intro ="Thanks for your interest in the student shop courses.";
+  
+    my $ad_intro = "New registration for SMS Courses \n";
+    $body =~ s/$old_intro/$ad_intro/;
     mail_it($to, $from, $subj, $body);
 
     return;
