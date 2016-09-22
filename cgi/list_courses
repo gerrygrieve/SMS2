@@ -26,7 +26,6 @@ Debug::Set_Debug(1, "html");
 
 my $q = new CGI;
 
-
 my $qsave =$q->submit( -name  => "Save",    
                        -value => "Save"); 
 my $Hidden;
@@ -39,12 +38,7 @@ print $q->start_html( -title  =>  $title,
                        
                       ),"\n";
 
-Debug::dsay("this is Edit...");
-
-
-
-
- do_mainpage2();
+do_mainpage2();
 
 
 print $q->end_html;
@@ -52,10 +46,11 @@ exit;
 
 sub do_mainpage2 {
 
-	Debug::dsay ("This is main page2 sub ;");
 
 	my @courses = course_metadata::get_Course_Data_Array();
 	my $out = "";
+
+	$out .= qq{<h2> List of SMS modules Sept 2106 </h2>};
 	$out .= qq{<div id="coursetable">\n};
 	$out .= qq{<table class="clist">\n};
 	$out .= qq{<tr><th>Mod #</th><th>Title</th><th>Desc</th></tr>\n};
