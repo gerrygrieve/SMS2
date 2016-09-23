@@ -111,7 +111,11 @@
     <tname>confirmationnumber</tname>
     <prompt>Confirmation Number</prompt>
     <cat>admin</cat>
-  
+      <input>
+        <type>text</type>
+        <nchar>40</nchar>
+        <maxchar>60</maxchar>
+    </input>
     <rank>267</rank>
 </tag>
 
@@ -143,8 +147,11 @@
     <tname>date_signup</tname>
     <prompt>Signup Date</prompt>
     <input>
-        <type>static</type>
- 
+  <input>
+       <type>text</type>
+      <nchar>40</nchar>
+        <maxchar>60</maxchar>
+
     </input>
     <rank>379</rank>
     <cat>internal</cat>
@@ -196,7 +203,12 @@
 <tag>
     <tname>confirmationnumber</tname>
     <prompt>Confirmation Number</prompt>
- 
+  <input>
+       <type>text</type>
+      <nchar>40</nchar>
+        <maxchar>60</maxchar>
+
+    </input>
     <rank>459</rank>
    <cat>internal</cat>
 </tag>

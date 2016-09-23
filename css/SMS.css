@@ -10,7 +10,10 @@ table.appinfo {
     width: 600px;
     
 }
-
+table.summ {   border: 2px solid green;
+                    border-collapse: collapse;
+                    padding: 4px;
+            }
 table.apptable {   border: 2px solid green;
                     border-collapse: collapse;
                     padding: 24px;
@@ -58,7 +61,7 @@ div.warn {  float: left;
 }
 
 td,th {   border: 2px solid green;
-            padding: 4px;
+        padding: 4px;
        }
 td.prompt { vertical-align: top;
             text-align: right;

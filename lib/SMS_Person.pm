@@ -30,6 +30,9 @@ foreach my $time ( "AM", "PM" ){
 		$t900++;
 #		$elements{$tag}++;
 		$elements{$tag}{rank} = $t900;
+		$elements{$tag}{prompt} = $tag;
+		$elements{$tag}{cat} = "internal";
+		$elements{$tag}{qtype} ="text";
 	}
 }
 
@@ -41,6 +44,9 @@ foreach my $c (  @courses ) {
         my $tag  = "Mod" . $modnum . "_$subtag";
         $t900++;
 		$elements{$tag}{rank} = $t900;
+		$elements{$tag}{prompt} = $tag;
+		$elements{$tag}{cat} = "internal";
+		$elements{$tag}{qtype} ="text";
     }
 }
 
@@ -73,7 +79,6 @@ sub new  {
     my $self = { _permitted => \%elements };
 
     bless $self, $class;
- #   $self->{ID} = get_NextID(); 
     return $self;
 }
 
@@ -110,7 +115,7 @@ sub save {
 
     foreach $e (@etags) {
         $out = defined ($t->{$e}) ? $t->{$e} : "";
-    #    Debug::dsay("SMS_Person::save:: element {$e} value {$out}");
+  #      Debug::dsay("SMS_Person::save:: element {$e} value {$out}");
         print O $tab, "<$e>", $out,"</$e>\n" if $out;
     }
 
@@ -502,7 +507,7 @@ sub mail_signup {
     
 # mail the admin ...
 
-    my $to ='sms-course@phas.ubc.ca';
+    $to ='sms-course@phas.ubc.ca';
     my $old_intro ="Thanks for your interest in the student shop courses.";
   
     my $ad_intro = "New registration for SMS Courses \n";
@@ -530,15 +535,10 @@ sub mail_it {
     return;
 }
 
-sub cn2id {
-    my $cn = shift;
-    my $id = $cn;
-    $id = $1 if $cn =~ /^\w\w\w\D*(\d+)\w\w\w/;
-    return $id;    
-}
 
-sub  confirmationnumber {
-## this routine is to obfuscate the applicant's id number
+
+sub  get_confirmationnumber {
+## thisconf routine is to obfuscate the applicant's id number
 ## into a random looking url 
 #
 #
@@ -572,7 +572,7 @@ sub cn2sn {
 	$chars[0] =  $s;
 	my $s2 = ord($chars[2]) - 8 - 65;
 	$chars[2] =  $s2;
-
+	Debug::dsay( " s1 [$s] $s2 {$2}");
 	$r = join "", @chars;
 	my $u = reverse $r;
 
@@ -717,7 +717,9 @@ sub save_Course {
 sub update_app_record {
     my $sn  = shift;
 	my $mod  = shift;
+	$mod =~ s/M/Mod/;
     my $action = shift;
+	my $cname = shift;
 	my $acc_tag	= $mod . "_accepted";
 	my $del_tag = $mod . "_declined";
 	my $today = sprintf ("%04d-%02d-%02d", Date::Calc::Today() );
@@ -725,23 +727,23 @@ sub update_app_record {
     Debug::dsay("SMS_Person::update_app_record:: id is {$sn} {$action} mod {$mod}");
 	Debug::dsay("SMS_Person::update_app_record:: $acc_tag $del_tag ");
  
-    my $app  = get_app_by_ID($sn);
+###    my $app  = get_app_by_ID($sn);
     my $edata = SMS_Person::get_Data_by_ID($sn);
  
-
 	if ($action eq "Delete") {
 		$edata->{$del_tag} = $today; 
 
 	} elsif ($action eq "Confirm") {
 		Debug::dsay( "confirming $mod ");
-		$edata->{$acc_tag} = $today; 
+		$edata->{$acc_tag} = $today;
+	#	Debug::dsay ("update_app_record:: accept tag {$acc_tag} value si [$edata->{$acc_tag}]" );
 	} else {
 		die "Unknown acion{$action} in SMS_Person";
 	}	
 
     Debug::dsay("SMS_Person::update_app_record:: call save...  ");
 
-    my $err = save($app);
+    my $err = save($edata);
 }
 
 
@@ -782,7 +784,8 @@ sub rd_file {
         my $value = $2;
         $value =~ s/\s*$//;
         $t->$field($value);
-#	Debug::dsay("rd-file:: tag {$field} valu {$value} ");
+#if $field =~/^con/
+		Debug::dsay("rd-file:: tag {$field} valu {$value} ") ;
     } 
     return $t;
 }

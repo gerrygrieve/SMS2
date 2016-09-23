@@ -54,11 +54,11 @@ exit;
 
 sub do_form {
 #print the welcome    
-  #  Debug::dsay(" do_form()");
+    Debug::dsay(" do_form()");
 	
-	my $courseID = $q->param("courseID")   ? $q->param("courseID")  : "";
-	my $cn = $q->param("cn") ? $q->param("cn")  : "";
-#	Debug::dsay(" cn [$cn]  courseID [$courseID]  ");
+	my $courseID = $q->param("courseID")     ? $q->param("courseID")  : "";
+	my $cn = $q->param("confirmationnumber") ? $q->param("confirmationnumber")  : "";
+	Debug::dsay(" cn [$cn]  courseID [$courseID]  ");
 	if ( ! $cn  or ! $courseID ) {
 		error_page ();
 		return;
@@ -98,9 +98,8 @@ sub do_form {
 	$out .= qq{</div>\n};
 	$out .= $q->hidden("sn", $sn);
 	$out .= $q->hidden("mod", $mod);
+	$out .= $q->hidden("courseID", $courseID);
 	print $out;
-
-
 
 }
 sub error_page{
@@ -111,15 +110,15 @@ sub do_Save {
     my $sn  = $q->param("sn");
 	my $mod = $q->param("mod");
     my $dd  = $q->param("confirm") ? $q->param("confirm") : "";
-
-
+	my $cname = $q->param("courseID") ? $q->param("courseID") : "";
+	Debug::dsay("sn is {$sn} mod");
 
     my $today = sprintf "%4d-%2.2d-%2.2d", Today();
     if ($dd eq "Confirm") {
-       SMS_Person::update_app_record($sn, $mod, $dd, $today);
+       SMS_Person::update_app_record($sn, $mod, $dd, $today, $cname);
        print "<p> Thanks your Confirmation has been noted <br />";
     } elsif ($dd eq "Decline") {
-       SMS_Person::update_app_record($sn, $mod, $dd, $today);
+       SMS_Person::update_app_record($sn, $mod, $dd, $today,$cname);
      #  SMS_Person::update_app_record($sn, "booked_for_course",$today ,"Delete");
        print "<p> Thanks, your booking has been dropped <br />";
     }

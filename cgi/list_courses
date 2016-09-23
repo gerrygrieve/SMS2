@@ -12,6 +12,7 @@ use course_metadata;
 use Debug;
 
 use SMS_html_Util;
+use SMS_Person;
 
 use strict;
 use CGI;
@@ -49,7 +50,7 @@ sub do_mainpage2 {
 
 	my @courses = course_metadata::get_Course_Data_Array();
 	my $out = "";
-
+	print SMS_Person::get_hdr();
 	$out .= qq{<h2> List of SMS modules Sept 2106 </h2>};
 	$out .= qq{<div id="coursetable">\n};
 	$out .= qq{<table class="clist">\n};

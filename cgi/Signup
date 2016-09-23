@@ -127,7 +127,7 @@ The following information has been recorded\n\n};
 		}
 	}
 	my $id = $part->{UBC_id};
-	my $cn = SMS_Person::confirmationnumber($id);
+	my $cn = SMS_Person::get_confirmationnumber($id);
 	$part->{confirmationnumber} = $cn;
     Debug::dsay ("Admin::do_Save:;cn is [$cn");
 #	$summ .= qq{<tr><td class="thanks">confirmationnumber: </td><td>$cn</td></tr>};

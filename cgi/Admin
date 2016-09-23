@@ -180,16 +180,15 @@ sub do_Invitees {
         
         $mess = $invite_message;
         $mess =~ s/%% name %%/$fname/;
-        $mess =~ s/%%\s+title\s+%%/"$course_title"/;
-        $mess =~ s/%%\s+ampm\s+%%/$time/;
-        $mess =~ s/%%\s+date\s+%%/$iso_cdate/;
-        $mess =~ s/%%\s+modnum\s+%%/$modnum/;
-        $mess =~ s/%%\s+cn\s+%%/$cn/g;
+        $mess =~ s/%%title%%/"$course_title"/;
+        $mess =~ s/%%ampm%%/$time/;
+        $mess =~ s/%%date%%/$iso_cdate/;
+        $mess =~ s/%%modnum%%/$modnum/;
+        $mess =~ s/%%cn%%/$cn/g;
+		$mess =~ s/%%cname%%/$cname/g;
 
-    
-		my $url = qq{<a href="http://$webhost/cgi-bin/SMS2/cgi/Confirm?confirmationnumber=%% cn %%">
--         		http://$webhost/cgi-bin/SMS2/cgi/Confirm?confirmationnumber=%% cn %%</a>};
-		$url =~  s/%%\s+cn\s+%%/$cn/g;
+		my $url = qq{http://$webhost/cgi-bin/SMS2/cgi/Confirm?confirmationnumber=$cn&courseID=$cname};
+	#	$url =~  s/%%\s+cn\s+%%/$cn/g;
 		$mess .= $url;
 #		$out .= $mess;
 
@@ -201,11 +200,8 @@ sub do_Invitees {
 		print $q->hidden("courseID",$cname  );
 	}
     print $out;
-
-  
    
     print do_selectTable();
-    
 }
 
 sub do_showAvail_in_TS {
@@ -296,7 +292,7 @@ sub edit_App {
 	print  qq{<div class="student_reg"};
     print  qq{<p> You can register a student with this form </p>};
 
-	my $html = SMS_html_Util::student_register($q, "admin");
+	my $html = SMS_html_Util::admin_edit_app($q, "admin");
 
 	print $html;
     print  qq{<p>$qsave</p>};
@@ -382,20 +378,19 @@ sub do_select_Invitees{
                   their availability for the given Time slot.<br />
                   Select the applicants which are to be invited to this course </p>};
     do_showAvail_in_TS($ts);
-    print $q->hidden('module',$mod);
-    print $q->hidden('timeslot',$ts);
-    print $q->hidden('course',$Course_designation);
-    my $xx = $q->submit(-name=>'next',-value=>"do_Invitees");
+    print $q->hidden('module',$mod), "\n";
+    print $q->hidden('timeslot',$ts), "\n";
+    print $q->hidden('course',$Course_designation), "\n";
+    print $q->submit(-name=>'next',-value=>"do_Invitees"), "\n";
     
-    print qq{<p>$xx</p>};
     return;
 }
 
 sub do_Schedule_Course {
  
-    Debug::dsay("this is do_Schedule_Course ");
+ ##   Debug::dsay("this is do_Schedule_Course ");
     
-    print "<h3> Select a module></h3>";
+    print qq{<h3> Select a module ==></h3>};
     
     my $data = course_metadata::get_Course_Data_json();
 	my @courses = @{$data->{course_data}};
@@ -421,7 +416,7 @@ sub do_Schedule_Course {
     
     print SMS_html_Util::mk_ts_table($q);
     
-    print " Select a date (yyyy-mm-dd) >", $q->textfield('date','',12,80);
+    print " Select a date (yyyy-mm-dd) ==>", $q->textfield('date','',12,80);
     my $xx = $q->submit(-name=>'next',-value=>"Select_Invitees");
     
     print qq{<p>$xx</p>};

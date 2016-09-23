@@ -184,10 +184,12 @@ sub edit_student_register {
      
 		$out .= qq{<tr> <td class="prompt"> $pout: </td>\n    }; 
     
+		
 		$value = $today  if ($t eq "date" and !$value);                
 		my $xinp = Form_Util::input_query(\%{$element_info{$t}}, $t, $value);
 
-		if ($element_info{$t}{qtype} eq "static") {
+		if ($element_info{$t}{qtype} eq "static" or
+				$t =~ /^confirm/) {
 			$xinp = $value;
 			$out .= $q->hidden( -name => $t,
                                 -default=>[$value]);

@@ -25,11 +25,11 @@ my $today     = sprintf ("%04d-%02d-%02d", Today() );
 my $this_script = "/cgi-bin/SMS2/cgi/Edit";
 my $title = "P &amp; A Student Shop Sign Up";
 my $version = "0.0.1";
-my $Debug = Debug::Set_Debug(0, "html");
+Debug::Set_Debug(1, "html");
 my ($wel, $fname);
 my $sp = '&nbsp;';
 my $q = new CGI;
-
+my $Debug = 2;
 
 print $q->header(-type=> "text/html", -expires=>'now'), "\n";
 print $q->start_html( -title  =>  $title, 
@@ -51,7 +51,7 @@ print $q->start_html( -title  =>  $title,
                       ),"\n";
 
 
-#dump_it() if $Debug;
+dump_it();
 print $q->start_multipart_form("POST", $this_script), "\n";
 
 my ($this_y, $this_m, $this_d) = Today();

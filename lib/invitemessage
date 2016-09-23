@@ -2,8 +2,12 @@
 
 Hi %% name %%,
 
-   You are invited to a student shop training  module #  %% modnum %%  entitled %% title %% to held
-on   %% date %% in the %% ampm %%
+   You are invited to a student shop training:
+
+    module: #  %%modnum%%
+    title      %%title%% 
+    Date:      %%date%% in the %%ampm%%
+    Course Designation: %%cname%%
 
 Please confirm or decline at  the url 
 

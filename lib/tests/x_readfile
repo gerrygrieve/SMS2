@@ -1,21 +1,21 @@
 #!/usr/bin/perl -w
 
-use lib "/www/Gform/sshop/lib/";
+use lib "..";
 use lib "/www/Gform/lib";
 use Date::Calc qw(Delta_Days Add_Delta_Days Week_of_Year Today Monday_of_Week);
 use Data::Dumper;
-use sshop_part;
+use SMS_Person;
 use Debug;
 
 Debug::Set_Debug(1, "text");
-my $week =2;
 
-my $file = "1.xml";
-my $part = sshop_part::rd_file($file);
+my $sn = "00900700";
+my $part = SMS_Person::get_app_by_ID($sn);
 
-#print Dumper($part);
 
-foreach my $tag  (qw (ID full_name) )
+print Dumper($part);
+
+foreach my $tag  (qw (UBC_id full_name confirmationnumber superEmail) )
 {
     print "$tag --> $part->{$tag} \n ";
 
